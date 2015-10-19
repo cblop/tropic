@@ -3,18 +3,42 @@
 
 (def inform
   (insta/parser
-   "rule = 'Definition: ' ('a ' / 'an ') kind ' is ' adjective (' if ' / ' unless ') definition
-    | preamble <': '> phrases
-    definition = condition
-    | ('its' / 'his' / 'her' / 'their') ' ' property ' ' ('is' / 'are') ' ' value ' or ' ('less' / 'more')
-    | ': ' phrases
-    preamble = 'To' <' '> word
-    | 'To decide ' ('if' / 'whether') ' ' word
-    | 'To decide ' ('which' / 'what') ' ' word
-    | 'This is the ' word
+   "rule =
+        <'Definition: ' ('a ' / 'an ')> kind <' is '> adjective <' '> ('if' / 'unless') <' '> definition
+        | preamble <': '> phrases
+
+    definition =
+        condition
+        | <('its' / 'his' / 'her' / 'their') ' '> property <' ' ('is' / 'are') ' '> value <' '> 'or' <' '> ('less' / 'more')
+        | ': ' phrases
+
+    preamble =
+        'To' <' '> phrases
+        | 'To decide ' ('if' / 'whether') ' ' phrases
+        | 'To decide ' ('which' / 'what') ' ' phrases
+        | 'This is the ' word
+
+    circumstances =
+        'At ' time
+        | 'When ' event
+        | [placement] rulebook-reference [' while ' / ' when ' condition] [' during ' scene]
+
+    rulebook-reference =
+        word
+
+    placement =
+        ('a' / 'an')
+        | ['the '] 'first'
+        | ['the '] 'last'
+
+    scene =
+        word
+
     phrases = phrase+
     phrase = word | word <' '>
     kind = word
+    time = word
+    event = word
     property = word
     value = word
     condition = word
