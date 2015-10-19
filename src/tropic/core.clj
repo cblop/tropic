@@ -8,7 +8,7 @@
     definition = condition
     | ('its' / 'his' / 'her' / 'their') ' ' property ' ' ('is' / 'are') ' ' value ' or ' ('less' / 'more')
     | ': ' phrases
-    preamble = 'To ' word
+    preamble = 'To' <' '> word
     | 'To decide ' ('if' / 'whether') ' ' word
     | 'To decide ' ('which' / 'what') ' ' word
     | 'This is the ' word

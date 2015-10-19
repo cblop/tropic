@@ -6,7 +6,7 @@ The parser is based on the BNF syntax listed [here](http://inform7.com/learn/man
 
 ## Usage
 
-As of now, just play around with core.clj. Call the _inform_ function with the string you want to parse, so long as that string is one Inform 7 would recognise.
+As of now, just play around with [core.clj](src/tropic/core.clj). Call the _inform_ function with the string you want to parse, so long as that string is one Inform 7 would recognise.
 
 ## License
 
