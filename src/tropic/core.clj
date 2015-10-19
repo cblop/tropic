@@ -19,10 +19,10 @@
     value = word
     condition = word
     adjective = word
-    word = #'[0-9a-zA-Z\\-\\_]*'"))
+    word = #'[0-9a-zA-Z\\-\\_\\.]*'"))
 
-(inform "To exit: go north")
-(inform "Definition: a toad is ugly if warty")
-(inform "Definition: a toad is dying if its health is 10 or less")
+;; (inform "To exit: go north")
+;; (inform "Definition: a toad is ugly if warty")
+;; (inform "Definition: a toad is dying if its health is 10 or less")
 
 

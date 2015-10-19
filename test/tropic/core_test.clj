@@ -2,6 +2,12 @@
   (:require [clojure.test :refer :all]
             [tropic.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest rules
+  (testing "Testing rules"
+    (testing "no parse errors"
+      (is (vector? (inform "To exit: go north ")))
+      (is (vector? (inform "Definition: a toad is ugly if warty.")))
+      (is (vector? (inform "Definition: a toad is dying if its health is 10 or less")))
+      )))
+
+;; (inform "To exit: go north")
