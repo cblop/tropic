@@ -4,12 +4,12 @@
 (def tropical
   (insta/parser
    "narrative = rule+
-    rule = tropedef | situationdef | taskdef | storydef
-    <tropedef> =
+    <rule> = tropedef | situationdef | taskdef | consequencedef | storydef
+    tropedef =
         tropename (<'\\nIt begins when '> event <'\\n'>) (<'Then '> event <'\\n'>)* (<'It ends when '> event <'\\n'>?)
     <tropename> =
         <'The '?> trope <' is a trope' '.'?>
-    <situationdef> = situation <'\\n'> (permission / obligation) [(<'\\n'> (permission / obligation))* (<'\\nFinally, '> (permission / obligation) <'\\n'>?)]
+    situationdef = situation <'\\n'> (permission / obligation) [(<'\\n'> (permission / obligation))* (<'\\nFinally, '> (permission / obligation) <'\\n'>?)]
     situation =
         <'When '> event
     event =
@@ -20,18 +20,28 @@
     character = <'The ' / 'the '>? name
     taskdef =
         taskname <'\\nTo complete it, '> item <' must be '> state <'.'?> <'\\nOtherwise, '> consequence <'.'?> <'\\n'?>
-    taskname =
+    <taskname> =
         task <' is a task' '.'?>
+    consequencedef =
+        consequencename <'\\n'?>
+        | consequencename (<'\\nIf it happens, '> consequence) <'\\n'?>
+        | consequencename (<'\\nIf it happens, '> consequence)+ <'\\nFinally, '> consequence <'\\n'?>
+
+    <consequencename> =
+        consequence <' is a consequence' '.'?>
+
     permission = character <' may '> task
     obligation = character <' must '> task
     task = verb | verb <(' the ' / ' a ')> item | visit
     visit = <'leave ' | 'return to ' | 'go to ' | 'visit '> place
     verb = word
     place = word
-    consequence = item <' '> verb
+
+    consequence = [<'The ' / 'the '>] item <' '> verb
+
     item = [<'The ' / 'the '>] (word / word <' '> word)
     state = word
-    <storydef> =
+    storydef =
         storyname
     <storyname> =
         story <' is a story' '.'?>

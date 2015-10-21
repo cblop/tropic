@@ -1,5 +1,6 @@
 (ns tropic.core-test
   (:require [clojure.test :refer :all]
+            [instaparse.core :as insta]
             [tropic.core :refer :all]))
 
 (deftest rules
@@ -31,7 +32,35 @@
                   "Destroy the Death Star is a task"
                   "To complete it, the Death Star must be destroyed"
                   "Otherwise, the rebel base explodes"
+                  ;;
+                  "The rebel base explodes is a consequence"
+                  "If it happens, the Rebels die"
+                  "If it happens, the Empire wins"
+                  "Finally, the story ends"
                   ]))
+(insta/visualize
+ (tropical (multi [
+                   "The Hero's journey is a trope"
+                   "It begins when the Hero is at home"
+                   "Then the hero gets a quest"
+                   "It ends when the Hero returns"
+                   ;;
+                   "When the Hero gets a quest"
+                   "The Hero must leave home"
+                   "The Hero may sit"
+                   "Finally, the Hero may destroy the Death Star"
+                   ;;
+                   "Destroy the Death Star is a task"
+                   "To complete it, the Death Star must be destroyed"
+                   "Otherwise, the rebel base explodes"
+                   ;;
+                   "The rebel base explodes is a consequence"
+                   "If it happens, the Rebels die"
+                   "If it happens, the Empire wins"
+                   "Finally, the story ends"
+                   ]))
+ :output-file "resources/tree.png")
+
 (tropical "Evil Empire is a trope")
 (tropical "When the hero is at home")
 (tropical "When the Wise Sage is in the dell")
