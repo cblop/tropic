@@ -21,12 +21,12 @@
 (tropical (multi [
                   "The Hero's journey is a trope"
                   "It begins when the Hero is at home"
-                  "Then the hero gets a quest"
+                  "Then the hero gets a task"
                   "It ends when the Hero returns"
                   ;;
-                  "When the Hero gets a quest"
+                  "When the Hero gets a lightsaber"
                   "The Hero must leave home"
-                  "The Hero may sit"
+                  "The Hero may bring friends"
                   "Finally, the Hero may destroy the Death Star"
                   ;;
                   "Destroy the Death Star is a task"
@@ -37,6 +37,13 @@
                   "If it happens, the Rebels die"
                   "If it happens, the Empire wins"
                   "Finally, the story ends"
+                  ;;
+                  "Star Wars is a story"
+                  "It contains the Hero's Journey trope"
+                  "It contains the Evil Empire trope"
+                  "Luke Skywalker is its hero"
+                  "Darth Vader is its villain"
+                  "The end"
                   ]))
 (insta/visualize
  (tropical (multi [
@@ -58,6 +65,13 @@
                    "If it happens, the Rebels die"
                    "If it happens, the Empire wins"
                    "Finally, the story ends"
+                   ;;
+                   "Star Wars is a story"
+                   "It contains the Hero's Journey trope"
+                   "It contains the Evil Empire trope"
+                   "Luke Skywalker is its hero"
+                   "Darth Vader is its villain"
+                   "The end"
                    ]))
  :output-file "resources/tree.png")
 
