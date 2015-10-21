@@ -19,7 +19,6 @@
 
     event =
         character <' is '> <'in ' / 'at '> place
-        | character <' gets '> <'a ' / 'an '> task
         | character <whitespace> task
 
     place = <'the '?> name
@@ -62,7 +61,7 @@
     story = [<'The ' / 'the '>] (word / word <' '> word)
     role = word
     trope = [<'The ' / 'the '>] (word / word <' '> word)
-    <name> = [<'The ' / 'the '>] (word / word <' '> word)
+    <name> = [<'The ' / 'the '>] (word / word <' '> !'gets ' word)
     <whitespace> = #'\\s+'
     <words> = word (<whitespace> word)*
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"
