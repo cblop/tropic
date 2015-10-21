@@ -26,7 +26,11 @@
     character = <'The ' / 'the '>? name
 
     taskdef =
-        taskname <'\\nTo complete it, '> item <' must be '> state <'.'?> <'\\nOtherwise, '> consequence <'.'?> <'\\n'?>
+        taskname condition <'\\nOtherwise, '> consequence <'.'?> <'\\n'?>
+
+    condition =
+        <'\\nTo complete it, '> item <' must be '> state <'.'?>
+
     <taskname> =
         task <' is a task' '.'?>
 
