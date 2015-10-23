@@ -80,6 +80,13 @@
         svec (concat ["int"] (map str/capitalize sanstrings))]
       (reduce str svec)))
 
+(defn task-str
+  "Takes list of strings, converts to (doThing) format"
+  [strings]
+  (let [sanstrings (map #(str/replace % #"'" "") strings)
+        svec (cons (str/lower-case (first sanstrings)) (map str/capitalize (rest sanstrings)))]
+    (reduce str svec)))
+
 (defn strip-name
   "Takes character name list, strips off 'the', makes lowercase"
   [n]
@@ -91,24 +98,89 @@
 
 (inst-event-str ["hero's" "journey"])
 
-(defn get-situation
-  [ptree]
-  (let [sits (html/select ptree [:narrative :situationdef])
+
+
+(defn get-sit-header
+  [sitdef]
+  (let [revent (first (html/select sitdef [:situation :event]))
+        rchar (:content (first (html/select revent [:character])))
+        char (strip-name rchar)
+        ritem (map :content (html/select sitdef [:event :item]))
+        rverb (map :content (html/select sitdef [:event :verb]))
+        revent (map concat rverb ritem)
+        event (first (map inst-event-str revent))
+        emap (hash-map :params [char] :event event) ;;change this
         ]
+    emap
     ))
 
+(defn get-char
+  [ptree]
+  (strip-name (:content (first (html/select ptree [:character])))))
+
+(defn get-event
+  [ptree]
+  (let [item (map :content (html/select ptree [:event :item]))
+        verb (map :content (html/select ptree [:event :verb]))
+        revent (map concat verb item)]
+    (first (map inst-event-str revent))))
+
+(defn get-task
+  [ptree]
+  (let [item (map :content (html/select ptree [:task :item]))
+        verb (map :content (html/select ptree [:task :verb]))
+        place (first (map :content (html/select ptree [:task :visit :place])))
+        revent (map concat verb item)]
+    (if (empty? place)
+      (first (map task-str revent))
+      (str "visit" (str/capitalize (task-str place)))
+      )))
+
+(defn get-perm
+  [ptree]
+  (let [char (get-char ptree)
+        task (get-task ptree)]
+    (hash-map :char char :task task)))
+
+(defn get-sit-perms
+  [sitdef]
+  (let [rperms (html/select sitdef [:permission])]
+    (map get-perm rperms)))
+
+(defn get-obl
+  [ptree]
+  (let [char (get-char ptree)
+        task (get-task ptree)]
+    (hash-map :char char :task task)))
+
+(defn get-sit-obls
+  [sitdef]
+  (let [robls (html/select sitdef [:obligation])]
+    (map get-obl robls)))
+
+(defn get-situation
+  [sitdef]
+  (let [header (get-sit-header sitdef)
+        perms (get-sit-perms sitdef)
+        obls (get-sit-obls sitdef)]
+    (hash-map :situation header :perms perms :obls obls)))
+
+(defn get-tropes
+  [ptree]
+  (map get-trope (html/select ptree [:tropedef])))
+
 (defn get-trope
-  "Output: {:name 'intTropeName', :params #{'param'},
+  "Input: tropedef part of the parsetree
+  Output: {:name 'intTropeName', :params #{'param'},
             :events ({:event 'event1' :char 'char1'}
                      {:event 'event2' :char 'char2'})}"
-  [ptree]
-  (let [;;tropes (html/select ptree [:narrative :tropedef])
-        rname (:content (first (html/select ptree [:narrative :tropedef :trope])))
+  [tropedef]
+  (let [rname (:content (first (html/select tropedef [:trope])))
         name (inst-event-str rname)
-        rchar (map :content (html/select ptree [:narrative :tropedef :event :character]))
+        rchar (map :content (html/select tropedef [:event :character]))
         chars (map strip-name rchar)
-        ritem (map :content (html/select ptree [:narrative :tropedef :event :item]))
-        rverb (map :content (html/select ptree [:narrative :tropedef :event :verb]))
+        ritem (map :content (html/select tropedef [:event :item]))
+        rverb (map :content (html/select tropedef [:event :verb]))
         revents (map concat rverb ritem)
         events (map inst-event-str revents)
         emap (map #(hash-map :char %1 :event %2) chars events)
@@ -138,7 +210,20 @@
 
 
 (defn situationdef-to-instal
+  "Input: {:situation {:event 'intSituationName', :params ['hero']}
+                    , :obls ({:task 'doSomething', :char 'hero'})
+                    , :perms ({:task 'doSomething', :char 'hero'})}"
   [sitdef]
+  (let [ps (interpose "," (seq (:params (:situation sitdef))))
+        sps (reduce str ps)
+        header (str (:event (:situation sitdef)) "(" sps ")")
+        perm-string (fn [x] (str "perm(" (:task x) "(" (:char x) "))"))
+        obl-string (fn [x] (str "obl(" (:task x) "(" (:char x) "))"))
+        perms (reduce str (interpose ", " (map perm-string (:perms sitdef))))
+        obls (reduce str (interpose ", " (map obl-string (:obls sitdef))))
+        ]
+    (str header " initiates " (reduce str (interpose ", " [perms obls])) ";\n")
+    )
   )
 
 

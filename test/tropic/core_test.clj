@@ -26,6 +26,11 @@
                           "Then the Hero gets a task"
                           "It ends when the Hero returns back home"
                           ;;
+                          "The Evil Empire is a trope"
+                          "It begins when the Empire does a bad thing"
+                          "Then the Empire fights the hero"
+                          "It ends when the Empire is defeated"
+                          ;;
                           "When the Hero gets a lightsaber"
                           "The Hero must leave home"
                           "The Hero may bring friends"
@@ -54,9 +59,23 @@
 
 (:content (first (html/select ptree [:narrative :tropedef :trope])))
 (html/select (html/select ptree [:narrative :tropedef]) [:event])
+(html/select ptree [:tropedef])
 
-(get-trope ptree)
-(spit "resources/output.ial" (tropedef-to-instal (get-trope ptree)))
+(map get-trope (html/select ptree [:tropedef]))
+
+(get-situation (html/select ptree [:situationdef]))
+(get-sit-perms (html/select ptree [:situationdef]))
+(get-perm (first (html/select ptree [:permission])))
+(get-task (first (html/select ptree [:obligation])))
+
+
+
+(situationdef-to-instal (get-situation (html/select ptree [:situationdef])))
+
+(get-sit-perms ptree)
+
+(reduce str (map tropedef-to-instal (get-tropes ptree)))
+(spit "resources/output.ial" (reduce str (map tropedef-to-instal (get-tropes ptree))))
 
 (tropical test-string)
 
