@@ -6,4 +6,5 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [instaparse "1.4.1"]
                  [rhizome "0.2.5"]
+                 [enlive "1.1.6"]
                  ])
