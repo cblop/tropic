@@ -32,7 +32,8 @@
                           "It ends when the Empire is defeated"
                           ;;
                           "When the Hero gets a lightsaber"
-                          "The Hero must leave home if the hero has a spaceship"
+                          "The Hero must leave home before the Empire comes"
+                          "Otherwise, the Empire kills the Hero"
                           "The Hero may bring friends"
                           "Finally, the Hero may destroy the Death Star"
                           ;;
@@ -75,8 +76,12 @@
 
 (map get-trope (html/select ptree [:tropedef]))
 
+(html/select ptree [:situationdef])
+
 (get-taskdef (html/select ptree [:taskdef]))
 (get-situation (html/select ptree [:situationdef]))
+(get-deadline (html/select ptree [:situationdef]))
+(get-consequence (html/select ptree [:situationdef]))
 (get-sit-perms (html/select ptree [:situationdef]))
 (get-sit-obls (html/select ptree [:situationdef]))
 (get-perm (first (html/select ptree [:permission])))

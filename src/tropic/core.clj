@@ -49,7 +49,9 @@
         consequence <' is a consequence' '.'?>
 
     permission = character <' may '> task conditional?
-    obligation = character <' must '> task conditional?
+    obligation = character <' must '> task <' before '> deadline <'\\nOtherwise, '> <'the '?> violation <'.'?> <'\\n'?>
+    violation = event
+    deadline = consequence
     task = verb | verb <(' the ' / ' a ')> item | verb <' '> item | visit
     visit = ('leave' <' '>) | ('return' (<' '> 'to')? <' '>) | 'go' (<' '> 'to')? <' '> | ('visit' <' '>) place
     verb = word
@@ -176,15 +178,34 @@
   (let [rperms (html/select sitdef [:norms :permission])]
     (map get-perm rperms)))
 
+(defn get-deadline
+  [ptree]
+  (let [verb (first (map :content (html/select ptree [:deadline :verb])))
+        item (first (map :content (html/select ptree [:deadline :item])))
+        event (str (event-str verb) "(" (event-str item) ")")
+        ]
+    event))
+
+(defn get-consequence
+  [ptree]
+  (let [
+        verb (first (map :content (html/select ptree [:violation :verb])))
+        item (first (map :content (html/select ptree [:violation :item])))
+        char (first (map :content (html/select ptree [:violation :character])))
+        event (str (event-str verb) "(" (strip-name char) ", " (event-str item) ")")
+        ]
+    event))
+
 (defn get-obl
   [ptree]
   (let [char (get-char ptree)
         task (get-task ptree)
-        cond (get-cond ptree)]
-    (if (or (empty? cond) (nil? cond))
-      (hash-map :char char :task task)
-      (hash-map :char char :task task :cond cond)
-      )))
+        deadline (get-deadline ptree)
+        consequence (get-consequence ptree)]
+    {:char char
+     :task task
+     :deadline deadline
+     :consequence consequence}))
 
 (defn get-sit-obls
   [sitdef]
@@ -290,8 +311,9 @@
 
 (defn obl-string
   [o]
-  (let [cond (if (nil? (:cond o)) "" (str " if " (:cond o)))]
-    (str "obl(" (:task o) "(" (:char o) "))" cond)))
+  (let [viol (str "viol" (str/capitalize (:task o)) "(" (:char o) ")")
+        vevent (str viol " generates " (:consequence o))]
+    (str "obl(" (:task o) "(" (:char o) "), " (:deadline o) ", " viol ");\n" vevent)))
 
 (defn init-string
   [n]
