@@ -38,7 +38,7 @@
                           ;;
                           "Destroy the Death Star is a task"
                           "To complete it, the Death Star must be destroyed"
-                          "Otherwise, the rebel base explodes"
+                          "Otherwise, the Evil Empire will destroy the rebel base"
                           ;;
                           "The rebel base explodes is a consequence"
                           "If it happens, the Rebels die"
@@ -75,6 +75,7 @@
 
 (map get-trope (html/select ptree [:tropedef]))
 
+(get-taskdef (html/select ptree [:taskdef]))
 (get-situation (html/select ptree [:situationdef]))
 (get-sit-perms (html/select ptree [:situationdef]))
 (get-sit-obls (html/select ptree [:situationdef]))

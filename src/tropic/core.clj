@@ -55,7 +55,9 @@
     verb = word
     place = word
 
-    consequence = [<'The ' / 'the '>] item <' '> verb
+    consequence =
+        [<'The ' / 'the '>] item <' '> verb
+        | [<'The ' / 'the '>] character <' will '> task
 
     item = [<'The ' / 'the '>] (word / word <' '> word)
     state = word
@@ -106,10 +108,11 @@
   "Takes character name list, strips off 'the', makes lowercase"
   [n]
   (let [the (remove #(or (= "the" %) (= "The" %)) n)
-        cat (reduce str the)
+        camel (cons (str/lower-case (first the)) (map str/capitalize (rest the)))
+        cat (reduce str camel)
         san (str/replace cat #"\"" "")
-        lcase (str/lower-case san)]
-    lcase))
+        ]
+    san))
 
 
 (defn get-sit-header
@@ -200,6 +203,35 @@
   [ptree]
   (map get-situation (html/select ptree [:situationdef])))
 
+(defn get-task-condition
+  [ptree]
+  (let [item (first (map :content (html/select ptree [:condition :item])))
+        state (first (map :content (html/select ptree [:condition :state])))
+        item-str (task-str item)
+        state-str (task-str state)
+        ]
+    (str state-str "(" item-str ")")))
+
+(defn get-task-consequence
+  [ptree]
+  (let [character (first (map :content (html/select ptree [:consequence :character])))
+        verb (first (map :content (html/select ptree [:consequence :verb])))
+        item (first (map :content (html/select ptree [:consequence :item])))
+        char (strip-name character)
+        ]
+    {:character char
+     :task (str (task-str verb) "(" (task-str item) ")")}))
+
+
+(defn get-taskdef
+  [taskdef]
+  (let [task (get-task taskdef)
+        condition (get-task-condition taskdef)
+        consequence (get-task-consequence taskdef)]
+    {:task task
+     :condition condition
+     :consequence consequence}))
+
 (defn get-tropes
   [ptree]
   (map get-trope (html/select ptree [:tropedef])))
@@ -282,20 +314,4 @@
     )
   )
 
-
-(defn instal
-  [parsetree]
-  (let [tropdef {:name }]))
-
-(defn instal
-  [parsetree]
-  (insta/transform {:trope (fn [& args] (inst-event-str args) )
-                    :event (fn [char task]
-                             (let [name (strip-name (rest char))
-                                   v (rest (second task))
-                                   i (rest (nth task 2))
-                                   ]
-                               (str (inst-event-str (concat v i)) "(" name ")")
-                               ))
-                    } parsetree))
 
