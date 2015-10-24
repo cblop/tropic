@@ -14,10 +14,15 @@
     <tropename> =
         <'The '?> trope <' is a trope' '.'?>
 
-    situationdef = situation <'\\n'> (permission / obligation) [(<'\\n'> (permission / obligation))* (<'\\nFinally, '> (permission / obligation) <'\\n'>?)]
+    situationdef = situation <'\\n'> norms [(<'\\n'> norms)* (<'\\nFinally, '> norms <'\\n'>?)]
+
+    norms = permission | obligation
 
     situation =
         <'When '> event
+
+    conditional =
+        <' if '> <'they '?> event
 
     event =
         character <' '> task
@@ -43,10 +48,10 @@
     <consequencename> =
         consequence <' is a consequence' '.'?>
 
-    permission = character <' may '> task
-    obligation = character <' must '> task
+    permission = character <' may '> task conditional?
+    obligation = character <' must '> task conditional?
     task = verb | verb <(' the ' / ' a ')> item | verb <' '> item | visit
-    visit = <'leave ' | 'return to ' | 'go to ' | 'visit '> place
+    visit = ('leave' <' '>) | ('return' (<' '> 'to')? <' '>) | 'go' (<' '> 'to')? <' '> | ('visit' <' '>) place
     verb = word
     place = word
 
@@ -73,6 +78,16 @@
    :output-format :enlive
 ))
 
+(defn event-str
+  "Takes list of strings, converts to exampleEvent format"
+  [strings]
+  (let [sanstrings (map #(str/replace % #"'" "") strings)
+        fstr (first (map str/lower-case sanstrings))
+        ;; fstr (first sanstrings)
+        svec (cons fstr (map str/capitalize (rest sanstrings)))
+        ]
+    (reduce str svec)))
+
 (defn inst-event-str
   "Takes list of strings, converts to intExampleEvent format"
   [strings]
@@ -95,9 +110,6 @@
         san (str/replace cat #"\"" "")
         lcase (str/lower-case san)]
     lcase))
-
-(inst-event-str ["hero's" "journey"])
-
 
 
 (defn get-sit-header
@@ -136,26 +148,45 @@
       (str "visit" (str/capitalize (task-str place)))
       )))
 
+(defn get-cond
+  [ptree]
+  (let [cond (first (map :content (html/select ptree [:conditional])))
+        item (map :content (html/select cond [:event :item]))
+        verb (map :content (html/select cond [:event :verb]))
+        char (map :content (html/select cond [:character]))
+        revent (first (map concat verb item))
+        event (event-str revent)
+        cond-str (str event (strip-name char))
+        ]
+    cond-str))
+
 (defn get-perm
   [ptree]
   (let [char (get-char ptree)
-        task (get-task ptree)]
-    (hash-map :char char :task task)))
+        task (get-task ptree)
+        cond (get-cond ptree)]
+    (if (nil? cond)
+      (hash-map :char char :task task)
+      (hash-map :char char :task task :cond cond))))
 
 (defn get-sit-perms
   [sitdef]
-  (let [rperms (html/select sitdef [:permission])]
+  (let [rperms (html/select sitdef [:norms :permission])]
     (map get-perm rperms)))
 
 (defn get-obl
   [ptree]
   (let [char (get-char ptree)
-        task (get-task ptree)]
-    (hash-map :char char :task task)))
+        task (get-task ptree)
+        cond (get-cond ptree)]
+    (if (nil? cond)
+      (hash-map :char char :task task)
+      (hash-map :char char :task task :cond cond)
+      )))
 
 (defn get-sit-obls
   [sitdef]
-  (let [robls (html/select sitdef [:obligation])]
+  (let [robls (html/select sitdef [:norms :obligation])]
     (map get-obl robls)))
 
 (defn get-situation
@@ -164,6 +195,10 @@
         perms (get-sit-perms sitdef)
         obls (get-sit-obls sitdef)]
     (hash-map :situation header :perms perms :obls obls)))
+
+(defn get-situations
+  [ptree]
+  (map get-situation (html/select ptree [:situationdef])))
 
 (defn get-tropes
   [ptree]
@@ -208,21 +243,42 @@
     (str firstline ";\n" genstr ";\n")
   ))
 
+(defn compile-instal
+  [ptree]
+  (let [tcomment "%% TROPES ---------------------\n"
+        tropes (reduce str (map tropedef-to-instal (get-tropes ptree)))
+        scomment "%% SCENES ---------------------\n"
+        sits (reduce str (map situationdef-to-instal (get-situations ptree)))]
+    (str tcomment tropes "\n" scomment sits)))
+
+
+(defn perm-string
+  [p]
+  (let [cond (if (or (empty? (:cond p)) (nil? (:cond p))) "" (str " if " (:cond p)))]
+    (str "perm(" (:task p) "(" (:char p) "))" cond)))
+
+(defn obl-string
+  [o]
+  (let [cond (if (nil? (:cond o)) "" (str " if " (:cond o)))]
+    (str "obl(" (:task o) "(" (:char o) "))" cond)))
+
+(defn init-string
+  [n]
+  (str "initiates " n ";\n"))
 
 (defn situationdef-to-instal
   "Input: {:situation {:event 'intSituationName', :params ['hero']}
-                    , :obls ({:task 'doSomething', :char 'hero'})
-                    , :perms ({:task 'doSomething', :char 'hero'})}"
+                    , :obls ({:task 'doSomething', :char 'hero' :cond 'hasSomething(hero)'})
+                    , :perms ({:task 'doSomething', :char 'hero'})}
+  (conds are optional)"
   [sitdef]
   (let [ps (interpose "," (seq (:params (:situation sitdef))))
         sps (reduce str ps)
-        header (str (:event (:situation sitdef)) "(" sps ")")
-        perm-string (fn [x] (str "perm(" (:task x) "(" (:char x) "))"))
-        obl-string (fn [x] (str "obl(" (:task x) "(" (:char x) "))"))
-        perms (reduce str (interpose ", " (map perm-string (:perms sitdef))))
-        obls (reduce str (interpose ", " (map obl-string (:obls sitdef))))
+        header (str (:event (:situation sitdef)) "(" sps ") ")
+        perms (reduce str (map #(str header (init-string %)) (map perm-string (:perms sitdef))))
+        obls (reduce str (map #(str header (init-string %)) (map obl-string (:obls sitdef))))
         ]
-    (str header " initiates " (reduce str (interpose ", " [perms obls])) ";\n")
+    (str perms obls)
     )
   )
 

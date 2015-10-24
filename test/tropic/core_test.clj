@@ -32,7 +32,7 @@
                           "It ends when the Empire is defeated"
                           ;;
                           "When the Hero gets a lightsaber"
-                          "The Hero must leave home"
+                          "The Hero must leave home if the hero has a spaceship"
                           "The Hero may bring friends"
                           "Finally, the Hero may destroy the Death Star"
                           ;;
@@ -53,8 +53,20 @@
                           "The end"
                           ]))
 
-(instal (tropical test-string))
+(def sit-test
+  (multi [
+          "When the Hero gets a lightsaber"
+          "The Hero must leave home if they have a spaceship"
+          "The Hero may bring friends"
+          "Finally, the Hero may destroy the Death Star"
+          ]))
+
+;; (instal (tropical test-string))
+(tropical sit-test)
+
+(html/select (tropical sit-test) [:situationdef])
 (tropical test-string)
+
 (def ptree (tropical test-string))
 
 (:content (first (html/select ptree [:narrative :tropedef :trope])))
@@ -65,14 +77,19 @@
 
 (get-situation (html/select ptree [:situationdef]))
 (get-sit-perms (html/select ptree [:situationdef]))
+(get-sit-obls (html/select ptree [:situationdef]))
 (get-perm (first (html/select ptree [:permission])))
 (get-task (first (html/select ptree [:obligation])))
-
-
+(get-cond (first (html/select ptree [:norms])))
+(first (html/select ptree [:obligation]))
 
 (situationdef-to-instal (get-situation (html/select ptree [:situationdef])))
 
 (get-sit-perms ptree)
+
+(map situationdef-to-instal (get-situations ptree))
+
+(spit "resources/output.ial" (compile-instal ptree))
 
 (reduce str (map tropedef-to-instal (get-tropes ptree)))
 (spit "resources/output.ial" (reduce str (map tropedef-to-instal (get-tropes ptree))))
