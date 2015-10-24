@@ -38,7 +38,7 @@
                           ;;
                           "Destroy the Death Star is a task"
                           "To complete it, the Death Star must be destroyed"
-                          "Otherwise, the Evil Empire will destroy the rebel base"
+                          "Otherwise, the Evil Empire destroys the rebel base"
                           ;;
                           "The rebel base explodes is a consequence"
                           "If it happens, the Rebels die"

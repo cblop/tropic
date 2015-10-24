@@ -32,7 +32,7 @@
     character = name
 
     taskdef =
-        taskname condition <'\\nOtherwise, '> consequence <'.'?> <'\\n'?>
+        taskname condition <'\\nOtherwise, '> <'the '?> event <'.'?> <'\\n'?>
 
     condition =
         <'\\nTo complete it, '> item <' must be '> state <'.'?>
@@ -108,12 +108,11 @@
   "Takes character name list, strips off 'the', makes lowercase"
   [n]
   (let [the (remove #(or (= "the" %) (= "The" %)) n)
-        camel (cons (str/lower-case (first the)) (map str/capitalize (rest the)))
+        camel (if (> (count the) 1) (cons (str/lower-case (first the)) (map str/capitalize (rest the))) the)
         cat (reduce str camel)
         san (str/replace cat #"\"" "")
         ]
     san))
-
 
 (defn get-sit-header
   [sitdef]
@@ -168,7 +167,7 @@
   (let [char (get-char ptree)
         task (get-task ptree)
         cond (get-cond ptree)]
-    (if (nil? cond)
+    (if (or (empty? cond) (nil? cond))
       (hash-map :char char :task task)
       (hash-map :char char :task task :cond cond))))
 
@@ -182,7 +181,7 @@
   (let [char (get-char ptree)
         task (get-task ptree)
         cond (get-cond ptree)]
-    (if (nil? cond)
+    (if (or (empty? cond) (nil? cond))
       (hash-map :char char :task task)
       (hash-map :char char :task task :cond cond)
       )))
@@ -214,9 +213,9 @@
 
 (defn get-task-consequence
   [ptree]
-  (let [character (first (map :content (html/select ptree [:consequence :character])))
-        verb (first (map :content (html/select ptree [:consequence :verb])))
-        item (first (map :content (html/select ptree [:consequence :item])))
+  (let [character (first (map :content (html/select ptree [:event :character])))
+        verb (first (map :content (html/select ptree [:event :verb])))
+        item (first (map :content (html/select ptree [:event :item])))
         char (strip-name character)
         ]
     {:character char
@@ -297,6 +296,10 @@
 (defn init-string
   [n]
   (str "initiates " n ";\n"))
+
+
+(defn taskdef-to-instal
+  [])
 
 (defn situationdef-to-instal
   "Input: {:situation {:event 'intSituationName', :params ['hero']}
