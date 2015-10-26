@@ -311,7 +311,7 @@
 
 (defn obl-string
   [o]
-  (let [viol (str "viol" (str/capitalize (:task o)) "(" (:char o) ")")
+  (let [viol (str "vio" (str/capitalize (:task o)) "(" (:char o) ")")
         vevent (str viol " generates " (:consequence o))]
     (str "obl(" (:task o) "(" (:char o) "), " (:deadline o) ", " viol ");\n" vevent)))
 
@@ -338,5 +338,4 @@
     (str perms obls)
     )
   )
-
 
