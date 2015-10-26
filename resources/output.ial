@@ -1,0 +1,13 @@
+%% TROPES ---------------------
+intHerosJourney(Hero) generates intIsAtHome(Hero);
+intIsAtHome(Hero) generates intGetsATask(Hero);
+intGetsATask(Hero) generates intReturnsBackHome(Hero);
+intEvilEmpire(Empire) generates intDoesBadThing(Empire);
+intDoesBadThing(Empire) generates intFightsHero(Empire);
+intFightsHero(Empire) generates intIsDefeated(Empire);
+
+%% SCENES ---------------------
+intGetsALightsaber(Hero) initiates perm(bringFriends(Hero));
+intGetsALightsaber(Hero) initiates perm(destroyDeathStar(Hero));
+intGetsALightsaber(Hero) initiates obl(leaveHome(Hero), comes(theEmpire), vioLeavehome(Hero));
+vioLeavehome(Hero) generates kills(Empire, hero);
