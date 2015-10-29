@@ -109,7 +109,7 @@
     san))
 
 (defn event-str
-  "Takes list of strings, converts to intExampleEvent format"
+  "Takes list of strings, converts to exampleEvent format"
   [{:keys [params name]}]
   (let [sanstrings (map #(str/replace % #"'" "") name)
         sparams (reduce str (interpose ", " params))
@@ -206,9 +206,10 @@
     ))
 
 (defn sitdef-tree
-  [name & args]
-  (let [genstr (map #(str (first name) " initiates " %) args)]
-    (with-meta (symbol (str (reduce str genstr))) {:type "situation"})
+  [text name & args]
+  (let [comment (str/replace (get-comment text name) "; " "")
+        genstr (map #(str (first name) " initiates " %) args)]
+    (with-meta (symbol (str comment (reduce str genstr))) {:type "situation"})
     ))
 
 (defn add-comment
@@ -251,7 +252,7 @@
     :permission (fn [& args] (str (apply perm-tree args) (get-comment text (second args))))
     :obligation (fn [& args] (obl-text text args))
     :tropedef (partial tropedef-tree text)
-    :situationdef sitdef-tree
+    :situationdef (partial sitdef-tree text)
     :narrative narrative-tree
     } ptree))
 

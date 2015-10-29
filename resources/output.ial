@@ -10,7 +10,14 @@ intDoesBadThing(empire) generates intFightsHero(empire); %   Then the Empire fig
 intFightsHero(empire) generates intIsDefeated(empire); %   Finally, the Empire is defeated
 
 %% SCENES ---------------------
+% When the Hero gets a lightsaber:
 getsALightsaber(hero) initiates obl(leaveHome(hero), comes(empire), vioLeaveHome(hero)); %   The Hero must leave home before the Empire comes
 vioLeaveHome(hero) generates killsHero(empire); %   Otherwise, the Empire kills the Hero
 getsALightsaber(hero) initiates perm(bringFriends(hero)); %   The Hero may bring friends
 getsALightsaber(hero) initiates perm(destroyDeathStar(hero)); %   The Hero may destroy the Death Star
+
+% When the Hero gets a pumpkin:
+getsAPumpkin(hero) initiates obl(leaveHome(hero), comes(empire), vioLeaveHome(hero)); %   The Hero must leave home before the Empire comes
+vioLeaveHome(hero) generates killsHero(empire); %   Otherwise, the Empire kills the Hero
+getsAPumpkin(hero) initiates perm(bringFriends(hero)); %   The Hero may bring friends
+getsAPumpkin(hero) initiates perm(destroyDeathStar(hero)); %   The Hero may destroy the Death Star
