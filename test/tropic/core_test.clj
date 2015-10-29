@@ -71,11 +71,8 @@
           "  Otherwise, the Empire kills the Hero"
           "  The Hero may bring friends"
           "  The Hero may destroy the Death Star"
-          "When the Hero gets a pumpkin:"
-          "  The Hero must leave home before the Empire comes"
-          "  Otherwise, the Empire kills the Hero"
-          "  The Hero may bring friends"
-          "  The Hero may destroy the Death Star"
+          "When the Villain gets a hostage:"
+          "  The Villain may destroy Alderaan"
           ]))
 
 (parse trope-sit-test)

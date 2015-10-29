@@ -100,9 +100,10 @@
   "Takes character name list, strips off 'the', makes lowercase"
   [n]
   (let [the (remove #(or (= "the" %) (= "The" %)) n)
-        camel (if (> (count the) 1)
-                (cons (str/lower-case (first the)) (map str/capitalize (rest the)))
-                (map str/lower-case the))
+        ;; camel (if (> (count the) 1)
+                ;; (cons (str/lower-case (first the)) (map str/capitalize (rest the)))
+                ;; (map str/lower-case the))
+        camel (map str/capitalize the)
         cat (reduce str camel)
         san (str/replace cat #"\"" "")
         ]
@@ -202,7 +203,7 @@
         cgens (map (fn [x y] (conj (vec x) y)) gens (rest comments))
         genstr (apply str (flatten cgens))
         ]
-    (with-meta (symbol (str firstcomment firstline genstr)) {:type "trope"})
+    (with-meta (symbol (str firstcomment firstline genstr)) {:type "trope" :events evs})
     ))
 
 (defn sitdef-tree
@@ -217,15 +218,24 @@
   (str "  %" (meta line) "\n" line)
   )
 
+(defn statements [strings]
+  (reduce str (interpose "\n" strings)))
+
 (defn narrative-tree
   [& args]
-  (let [trope-header "%% TROPES ---------------------\n"
+  (let [instev-header "%% INST EVENTS ------------------------\n"
+        trope-header "%% TROPES ---------------------\n"
         scene-header "%% SCENES ---------------------\n"
-        tropes (reduce str (interpose "\n" (filter #(= (:type (meta %)) "trope") args)))
-        situations (reduce str (interpose "\n" (filter #(= (:type (meta %)) "situation") args)))
+        tropes (filter #(= (:type (meta %)) "trope") args)
+        trope-strs (statements tropes)
+        instdecs (reduce str (map #(str "inst event " % ";\n") (mapcat #(flatten (:events (meta %))) tropes)))
+        situations (filter #(= (:type (meta %)) "situation") args)
+        sit-strs (statements situations)
         ]
     ;; (reduce str (interpose "\n" outs))
-    (str trope-header tropes "\n" scene-header situations)
+    (str instev-header instdecs "\n"
+         trope-header trope-strs "\n"
+         scene-header sit-strs)
     ))
 
 

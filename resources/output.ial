@@ -1,23 +1,28 @@
+%% INST EVENTS ------------------------
+inst event intIsAtHome(Hero);
+inst event intGetsATask(Hero);
+inst event intReturnsHome(Hero);
+inst event intDoesBadThing(Empire);
+inst event intFightsHero(Empire);
+inst event intIsDefeated(Empire);
+
 %% TROPES ---------------------
 % The Hero's Journey is a trope where:
-intHerosJourney() generates intIsAtHome(hero); %   The Hero is at home
-intIsAtHome(hero) generates intGetsATask(hero); %   Then the Hero gets a task
-intGetsATask(hero) generates intReturnsHome(hero); %   Finally, the Hero returns home
+intHerosJourney() generates intIsAtHome(Hero); %   The Hero is at home
+intIsAtHome(Hero) generates intGetsATask(Hero); %   Then the Hero gets a task
+intGetsATask(Hero) generates intReturnsHome(Hero); %   Finally, the Hero returns home
 
 % The Evil Empire is a trope where:
-intEvilEmpire() generates intDoesBadThing(empire); %   The Empire does a bad thing
-intDoesBadThing(empire) generates intFightsHero(empire); %   Then the Empire fights the hero
-intFightsHero(empire) generates intIsDefeated(empire); %   Finally, the Empire is defeated
+intEvilEmpire() generates intDoesBadThing(Empire); %   The Empire does a bad thing
+intDoesBadThing(Empire) generates intFightsHero(Empire); %   Then the Empire fights the hero
+intFightsHero(Empire) generates intIsDefeated(Empire); %   Finally, the Empire is defeated
 
 %% SCENES ---------------------
 % When the Hero gets a lightsaber:
-getsALightsaber(hero) initiates obl(leaveHome(hero), comes(empire), vioLeaveHome(hero)); %   The Hero must leave home before the Empire comes
-vioLeaveHome(hero) generates killsHero(empire); %   Otherwise, the Empire kills the Hero
-getsALightsaber(hero) initiates perm(bringFriends(hero)); %   The Hero may bring friends
-getsALightsaber(hero) initiates perm(destroyDeathStar(hero)); %   The Hero may destroy the Death Star
+getsALightsaber(Hero) initiates obl(leaveHome(Hero), comes(Empire), vioLeaveHome(Hero)); %   The Hero must leave home before the Empire comes
+vioLeaveHome(Hero) generates killsHero(Empire); %   Otherwise, the Empire kills the Hero
+getsALightsaber(Hero) initiates perm(bringFriends(Hero)); %   The Hero may bring friends
+getsALightsaber(Hero) initiates perm(destroyDeathStar(Hero)); %   The Hero may destroy the Death Star
 
-% When the Hero gets a pumpkin:
-getsAPumpkin(hero) initiates obl(leaveHome(hero), comes(empire), vioLeaveHome(hero)); %   The Hero must leave home before the Empire comes
-vioLeaveHome(hero) generates killsHero(empire); %   Otherwise, the Empire kills the Hero
-getsAPumpkin(hero) initiates perm(bringFriends(hero)); %   The Hero may bring friends
-getsAPumpkin(hero) initiates perm(destroyDeathStar(hero)); %   The Hero may destroy the Death Star
+% When the Villain gets a hostage:
+getsAHostage(Villain) initiates perm(destroyAlderaan(Villain)); %   The Villain may destroy Alderaan
