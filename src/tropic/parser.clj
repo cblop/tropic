@@ -209,7 +209,7 @@
 (defn sitdef-tree
   [name & args]
   (let [header "%% SCENES ---------------------\n"
-        genstr (map #(str name " initiates " %) args)]
+        genstr (map #(str (first name) " initiates " %) args)]
     (str header (reduce str genstr))
     ))
 

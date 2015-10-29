@@ -1,13 +1,11 @@
 %% TROPES ---------------------
-intHerosJourney(Hero) generates intIsAtHome(Hero);
-intIsAtHome(Hero) generates intGetsATask(Hero);
-intGetsATask(Hero) generates intReturnsBackHome(Hero);
-intEvilEmpire(Empire) generates intDoesBadThing(Empire);
-intDoesBadThing(Empire) generates intFightsHero(Empire);
-intFightsHero(Empire) generates intIsDefeated(Empire);
+% The Hero's Journey is a trope where:
+intHerosJourney() generates intIsAtHome(hero); %   The Hero is at home
+intIsAtHome(hero) generates intGetsATask(hero); %   Then the Hero gets a task
+intGetsATask(hero) generates intReturnsHome(hero); %   Finally, the Hero returns home
 
 %% SCENES ---------------------
-intGetsALightsaber(Hero) initiates perm(bringFriends(Hero));
-intGetsALightsaber(Hero) initiates perm(destroyDeathStar(Hero));
-intGetsALightsaber(Hero) initiates obl(leaveHome(Hero), comes(theEmpire), vioLeavehome(Hero));
-vioLeavehome(Hero) generates kills(Empire, hero);
+getsALightsaber(hero) initiates obl(leaveHome(hero), comes(empire), vioLeaveHome(hero)); %   The Hero must leave home before the Empire comes
+vioLeaveHome(hero) generates killsHero(empire); %   Otherwise, the Empire kills the Hero
+getsALightsaber(hero) initiates perm(bringFriends(hero)); %   The Hero may bring friends
+getsALightsaber(hero) initiates perm(destroyDeathStar(hero)); %   The Hero may destroy the Death Star
