@@ -194,8 +194,7 @@
 
 (defn tropedef-tree
   [text name & args]
-  (let [header "%% TROPES ---------------------\n"
-        evs (map inst-str args)
+  (let [evs (map inst-str args)
         comments (map #(get-comment text %) args)
         firstcomment (str/replace (get-comment text name) "; " "")
         firstline (str name " generates " (first evs) (first comments))
@@ -203,14 +202,13 @@
         cgens (map (fn [x y] (conj (vec x) y)) gens (rest comments))
         genstr (apply str (flatten cgens))
         ]
-    (str header firstcomment firstline genstr)
+    (with-meta (symbol (str firstcomment firstline genstr)) {:type "trope"})
     ))
 
 (defn sitdef-tree
   [name & args]
-  (let [header "%% SCENES ---------------------\n"
-        genstr (map #(str (first name) " initiates " %) args)]
-    (str header (reduce str genstr))
+  (let [genstr (map #(str (first name) " initiates " %) args)]
+    (with-meta (symbol (str (reduce str genstr))) {:type "situation"})
     ))
 
 (defn add-comment
@@ -220,7 +218,14 @@
 
 (defn narrative-tree
   [& args]
-    (reduce str (interpose "\n" args)))
+  (let [trope-header "%% TROPES ---------------------\n"
+        scene-header "%% SCENES ---------------------\n"
+        tropes (reduce str (interpose "\n" (filter #(= (:type (meta %)) "trope") args)))
+        situations (reduce str (interpose "\n" (filter #(= (:type (meta %)) "situation") args)))
+        ]
+    ;; (reduce str (interpose "\n" outs))
+    (str trope-header tropes "\n" scene-header situations)
+    ))
 
 
 (defn obl-text

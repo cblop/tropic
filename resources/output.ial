@@ -4,6 +4,11 @@ intHerosJourney() generates intIsAtHome(hero); %   The Hero is at home
 intIsAtHome(hero) generates intGetsATask(hero); %   Then the Hero gets a task
 intGetsATask(hero) generates intReturnsHome(hero); %   Finally, the Hero returns home
 
+% The Evil Empire is a trope where:
+intEvilEmpire() generates intDoesBadThing(empire); %   The Empire does a bad thing
+intDoesBadThing(empire) generates intFightsHero(empire); %   Then the Empire fights the hero
+intFightsHero(empire) generates intIsDefeated(empire); %   Finally, the Empire is defeated
+
 %% SCENES ---------------------
 getsALightsaber(hero) initiates obl(leaveHome(hero), comes(empire), vioLeaveHome(hero)); %   The Hero must leave home before the Empire comes
 vioLeaveHome(hero) generates killsHero(empire); %   Otherwise, the Empire kills the Hero
