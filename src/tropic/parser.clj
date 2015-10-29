@@ -5,7 +5,7 @@
 (def tropical
   (insta/parser
    "narrative = rule+
-    <rule> = tropedef | situationdef | taskdef | roledef | storydef | initialdef | tracedef
+    <rule> = tropedef | situationdef | taskdef | roledef | storydef | initialdef | tracedef | typedef
 
     tropedef =
         tropename (<'\\n' whitespace> event <'\\n'>) (<whitespace 'Then '> event <'\\n'>)* (<whitespace 'Finally, '> event <'\\n'>?)
@@ -17,13 +17,18 @@
         <'When '> event <':'>
 
     situationdef = situation <'\\n'> norms+ <'\\n'?>
+
     roledef = rolehead power+
+
+    typedef = <'A ' / 'An '> child <' is a type of '> parent <'.'? '\\n'?>
 
     <rolehead> = <('The ' / 'A ')> role <' can:\\n'>
 
     power = <whitespace> verb <' the '?> character <'\\n'?>
 
     role = word | word <' '> word
+    parent = word | word <' '> word
+    child = word | word <' '> word
 
     initialdef = <'Initially:'> (<'\\n'> <whitespace> (event / norms))+ <'\\n'?>
 
@@ -118,6 +123,7 @@
         pstr (str "(" sparams ")")
         outvec (conj (vec svec) pstr)
         ]
+    ;; (with-meta (symbol (reduce str outvec)) {:params params})
     (reduce str outvec)
     ))
 
@@ -221,19 +227,34 @@
 (defn statements [strings]
   (reduce str (interpose "\n" strings)))
 
+(defn typedef-tree
+  [text & args]
+  (let [
+        ;; parent (first (filter #(= "parent" (:type (meta %)))))
+        child (first (filter #(= "child" (:type (meta %))) args))
+        comment (get-comment text child)]
+    (with-meta (symbol (str child comment)) {:type "type"})))
+
 (defn narrative-tree
   [& args]
-  (let [instev-header "%% INST EVENTS ------------------------\n"
+  (let [type-header "%% TYPES ---------------------\n"
+        instev-header "%% INST EVENTS ------------------------\n"
         trope-header "%% TROPES ---------------------\n"
         scene-header "%% SCENES ---------------------\n"
         tropes (filter #(= (:type (meta %)) "trope") args)
         trope-strs (statements tropes)
+
+        ;; Base types: Character, Object
+        types (concat ["Character;\n" "Object;\n"] (filter #(= (:type (meta %)) "type") args))
+        typedecs (reduce str (map #(str "type " %) types))
+
         instdecs (reduce str (map #(str "inst event " % ";\n") (mapcat #(flatten (:events (meta %))) tropes)))
         situations (filter #(= (:type (meta %)) "situation") args)
         sit-strs (statements situations)
         ]
     ;; (reduce str (interpose "\n" outs))
-    (str instev-header instdecs "\n"
+    (str type-header typedecs "\n"
+         instev-header instdecs "\n"
          trope-header trope-strs "\n"
          scene-header sit-strs)
     ))
@@ -263,6 +284,9 @@
     :obligation (fn [& args] (obl-text text args))
     :tropedef (partial tropedef-tree text)
     :situationdef (partial sitdef-tree text)
+    :child (fn [& args] (with-meta (symbol (strip-name args)) {:type "child"}))
+    :parent (fn [& args] (with-meta (symbol (strip-name args)) {:type "parent"}))
+    :typedef (partial typedef-tree text)
     :narrative narrative-tree
     } ptree))
 

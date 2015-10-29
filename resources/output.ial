@@ -1,10 +1,16 @@
+%% TYPES ---------------------
+type Character;
+type Object;
+type Hero; % A Hero is a type of Character
+type Villain; % A Villain is a type of Character
+
 %% INST EVENTS ------------------------
 inst event intIsAtHome(Hero);
 inst event intGetsATask(Hero);
 inst event intReturnsHome(Hero);
-inst event intDoesBadThing(Empire);
-inst event intFightsHero(Empire);
-inst event intIsDefeated(Empire);
+inst event intDoesBadThing(Villain);
+inst event intFightsHero(Villain);
+inst event intIsDefeated(Villain);
 
 %% TROPES ---------------------
 % The Hero's Journey is a trope where:
@@ -13,14 +19,14 @@ intIsAtHome(Hero) generates intGetsATask(Hero); %   Then the Hero gets a task
 intGetsATask(Hero) generates intReturnsHome(Hero); %   Finally, the Hero returns home
 
 % The Evil Empire is a trope where:
-intEvilEmpire() generates intDoesBadThing(Empire); %   The Empire does a bad thing
-intDoesBadThing(Empire) generates intFightsHero(Empire); %   Then the Empire fights the hero
-intFightsHero(Empire) generates intIsDefeated(Empire); %   Finally, the Empire is defeated
+intEvilEmpire() generates intDoesBadThing(Villain); %   The Villain does a bad thing
+intDoesBadThing(Villain) generates intFightsHero(Villain); %   Then the Villain fights the hero
+intFightsHero(Villain) generates intIsDefeated(Villain); %   Finally, the Villain is defeated
 
 %% SCENES ---------------------
 % When the Hero gets a lightsaber:
-getsALightsaber(Hero) initiates obl(leaveHome(Hero), comes(Empire), vioLeaveHome(Hero)); %   The Hero must leave home before the Empire comes
-vioLeaveHome(Hero) generates killsHero(Empire); %   Otherwise, the Empire kills the Hero
+getsALightsaber(Hero) initiates obl(leaveHome(Hero), comes(Villain), vioLeaveHome(Hero)); %   The Hero must leave home before the Villain comes
+vioLeaveHome(Hero) generates killsHero(Villain); %   Otherwise, the Villain kills the Hero
 getsALightsaber(Hero) initiates perm(bringFriends(Hero)); %   The Hero may bring friends
 getsALightsaber(Hero) initiates perm(destroyDeathStar(Hero)); %   The Hero may destroy the Death Star
 

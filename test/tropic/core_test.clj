@@ -58,17 +58,19 @@
 
 (def trope-sit-test
   (multi [
+          "A Hero is a type of Character"
+          "A Villain is a type of Character"
           "The Hero's Journey is a trope where:"
           "  The Hero is at home"
           "  Then the Hero gets a task"
           "  Finally, the Hero returns home"
           "The Evil Empire is a trope where:"
-          "  The Empire does a bad thing"
-          "  Then the Empire fights the hero"
-          "  Finally, the Empire is defeated"
+          "  The Villain does a bad thing"
+          "  Then the Villain fights the hero"
+          "  Finally, the Villain is defeated"
           "When the Hero gets a lightsaber:"
-          "  The Hero must leave home before the Empire comes"
-          "  Otherwise, the Empire kills the Hero"
+          "  The Hero must leave home before the Villain comes"
+          "  Otherwise, the Villain kills the Hero"
           "  The Hero may bring friends"
           "  The Hero may destroy the Death Star"
           "When the Villain gets a hostage:"
@@ -77,6 +79,20 @@
 
 (parse trope-sit-test)
 (transform (parse trope-sit-test) trope-sit-test)
+
+(tropc trope-sit-test)
+(spit "resources/output.ial" (tropc trope-sit-test))
+
+(def role-test
+  (multi [
+          "A Hero is a type of Character"
+          "A Villain is a type of Character"
+          "A Hero can:"
+          "  Visit the Death Star"
+          ]))
+
+(parse role-test)
+(tropc role-test)
 
 (tropc trope-sit-test)
 
