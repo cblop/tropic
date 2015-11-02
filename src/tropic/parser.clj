@@ -204,7 +204,7 @@
     pzip))
 
 (defn if-line [pzip]
-  (let [roles (map #(str "role(" (key %) ", " (val %) ")") pzip)]
+  (let [roles (map #(str "role(" (val %) ", " (key %) ")") pzip)]
     (reduce str (cons " if " (interpose ", " roles)))))
 
 (defn obl-tree

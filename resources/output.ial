@@ -27,8 +27,8 @@ intFightsHero(X) generates intIsDefeated(X) if role(X, villain); %   Finally, th
 
 %% SCENES ---------------------
 % When the Hero gets a lightsaber:
-intGetsALightsaber(X) initiates obl(leaveHome(X), comes(Y), vioLeaveHome(X)) if role(villain, Y), role(hero, X); %   The Hero must leave home before the Villain comes
-vioLeaveHome(X) generates killsHero(Y) if role(villain, Y), role(hero, X); %   Otherwise, the Villain kills the Hero
+intGetsALightsaber(X) initiates obl(leaveHome(X), comes(Y), vioLeaveHome(X)) if role(Y, villain), role(X, hero); %   The Hero must leave home before the Villain comes
+vioLeaveHome(X) generates killsHero(Y) if role(Y, villain), role(X, hero); %   Otherwise, the Villain kills the Hero
 intGetsALightsaber(X) initiates perm(bringFriends(X)); %   The Hero may bring friends
 intGetsALightsaber(X) initiates perm(destroyDeathStar(X)); %   The Hero may destroy the Death Star
 
