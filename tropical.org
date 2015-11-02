@@ -1,0 +1,312 @@
+* TropICAL: The TROPe Interactive Chronicle Action Language
+** Syntax
+
+Tropes are defined by writing "The /trope name/ is a trope", followed by a sequence of events that make up the trope:
+
+#+BEGIN_SRC
+The Hero's Journey is a trope
+  It begins when the hero is at home
+  Then the hero gets a quest
+  Then the hero leaves home
+  Then the hero enters the land of adventure
+  Then the hero enters the enemy base
+  Then the hero fights the villain
+  It ends with a celebration
+#+END_SRC
+
+During an event, character types will have certain permissions:
+
+#+BEGIN_SRC
+When the hero is at home
+  The dispatcher may give the hero a quest
+  The hero may not leave home
+#+END_SRC
+
+And obligations, with deadlines:
+
+#+BEGIN_SRC
+When the hero gets a quest
+  The hero must complete the quest before a bad thing happens
+#+END_SRC
+
+The deadline is defined inside a quest:
+
+#+BEGIN_SRC
+Destroy the Death Star is a quest
+  To complete it, the Death Star must be destroyed
+  Otherwise, the destruction of the rebel base occurs
+#+END_SRC
+
+Violation events are defined as 'bad things':
+
+#+BEGIN_SRC
+The destruction of the rebel base is a bad thing
+  If it happens, the Rebels die
+  If it happens, the Empire wins
+  If it happens, the story ends
+#+END_SRC
+
+Characters have roles, which are empowered to do certain things:
+
+#+BEGIN_SRC
+A hero is a good character.
+A hero can:
+  Fight the villain
+
+A villain is a bad character, which can:
+  Fight the hero
+  Destroy the rebel base
+#+END_SRC
+
+They can be subclassed with additional statements:
+
+#+BEGIN_SRC
+An Antihero is a type of hero.
+An Antihero can:
+  Fight good characters
+  Start a redemption trope
+#+END_SRC
+
+These powers are added on top of their parent class powers.
+
+Once tropes and events are defined abstractly, we can define a concrete instance of a story:
+
+#+BEGIN_SRC
+Star Wars is a story:
+  It contains the Hero's Journey trope
+  It contains the Evil Empire trope
+  It contains the Coming of Age trope
+  Luke Skywalker is its hero
+  Darth Vader is its villain
+  R2D2 is its dispatcher
+  The player is Luke Skywalker
+#+END_SRC
+
+The last statement is important: instead of Luke Skywalker's actions being simulated by an agent, they are carried out by the player. This could possibly be extended to multiple players in the future (i.e. "Player 1 is Luke Skywalker\nPlayer 2 is Darth Vader")
+
+The initial situation is described like this:
+
+#+BEGIN_SRC
+Initially:
+  The hero is at home
+  The hero cannot leave home
+  The dispatcher must give the hero a message
+  The villain is in the evil base
+#+END_SRC
+
+For testing purposes, the actions of agents can be listed:
+
+#+BEGIN_SRC
+In story A:
+  R2D2 goes to Luke Skywalker's home
+  Luke Skywalker gets the message
+  Darth Vader destroys Alderaan
+  Luke Skywalker goes to Mos Eisley
+  Luke Skywalker meets Han Solo
+  Luke Skywalker and Han Solo become friends
+#+END_SRC
+
+This writes a set of observed events (a "trace"), the results of which could be output to a file such as "A.txt".
+Of course, if permissions are violated, then the violation events will be triggered. However, if a character is not empowered to perform an action, then the corresponding institutional event will not occur, and a warning message will be printed in the output.
+
+** First Attempt at a Parser
+An initial version of the parser is available [[https://github.com/cblop/tropic/blob/master/src/tropic/core.clj][here]]. It uses Clojure's [[https://github.com/Engelberg/instaparse][instaparse]] library to specify the language's grammar in EBNF.
+
+With this input:
+
+#+BEGIN_SRC
+"The Hero's journey is a trope"
+"It begins when the Hero is at home"
+"Then the hero gets a task"
+"It ends when the Hero returns"
+
+"When the Hero gets a lightsaber"
+"The Hero must leave home"
+"The Hero may bring friends"
+"Finally, the Hero may destroy the Death Star"
+
+"Destroy the Death Star is a task"
+"To complete it, the Death Star must be destroyed"
+"Otherwise, the rebel base explodes"
+
+"The rebel base explodes is a consequence"
+"If it happens, the Rebels die"
+"If it happens, the Empire wins"
+"Finally, the story ends"
+
+"Star Wars is a story"
+"It contains the Hero's Journey trope"
+"It contains the Evil Empire trope"
+"Luke Skywalker is its hero"
+"Darth Vader is its villain"
+"The end"
+#+END_SRC
+
+...it produces [[https://raw.githubusercontent.com/cblop/tropic/master/resources/tree.png][this parse tree]].
+
+There a couple of differences and limitations, however:
+
+- "quests" are now called "tasks"
+- All definitions need some kind of "finally" statement at the end. I intend to resolve this by having significant whitespace and indenting statements.
+- "Bad things" are now called "consequences"
+- Deadlines still remain to be implemented
+- Trope, character and task names are limited to two words, plus an optional "the"
+
+** Compiling to InstAL
+A trope is simply an institutional event that generates other institutional events. The parser should understand which roles are present in the events of a trope, and use these as the trope parameters.
+
+
+#+BEGIN_SRC
+The Hero's Journey is a trope
+  It begins when the hero is at home
+  Then the hero gets a task
+  Then the hero leaves home
+  Then the hero enters the land of adventure
+  Then the hero enters the enemy base
+  Then the hero fights the villain
+  It ends with a celebration
+#+END_SRC
+
+The above compiles to:
+
+#+BEGIN_SRC
+intHerosJourney(hero, villain) generates intIsAtHome(hero)
+
+intIsAtHome(hero) generates intGetsATask(hero)
+intGetsATask(hero) generates intLeavesHome(hero)
+intLeavesHome(hero) generates intEntersTheLandOfAdventure(hero)
+intEntersTheLandOfAdventure(hero) generates intEntersTheEnemyBase(hero)
+intEntersTheEnemyBase(hero) generates intFights(hero, villain)
+intFights(hero, villain) generates intCelebration()
+#+END_SRC
+
+This will be generated on the first parse of the tree, but it lacks conditionals for each institutional event to be generated. This is because this is defined later, so these rules will be rewritten when the other part of the tree is parsed.
+
+Events within a trope map to institutional events in InstAL. The name of the institutional event is simply a concatenation of the event name strings, in camelcase and preceded with "int", taking a character role as parameter.
+
+For example, the "the hero leaves home" event would be called "intLeavesHome(hero)" (the "the" is omitted).
+
+For any event, its rule definition defines the permissions and obligations that hold:
+
+#+BEGIN_SRC
+When the hero leaves home
+  They may look for friends
+  They may collect weapons
+#+END_SRC
+
+This would compile to the following InstAL:
+
+#+BEGIN_SRC
+intLeavesHome(hero) initiates perm(lookFor(hero, friends)), perm(collect(hero, weapons))
+#+END_SRC
+
+Obligations are more complicated, as they require both a deadline and violation event to be defined. This is done using the task definition syntax:
+
+#+BEGIN_SRC
+Destroy the Death Star is a task
+  To complete it, the Death Star must be destroyed
+  Otherwise, the Evil Empire will destroy the rebel base
+
+If the Evil Empire were to destroy the rebel base
+  The rebels would die
+  Finally, the story would end
+#+END_SRC
+
+(Note careful use of tense to preserve the root form of the verb)
+
+# Instead of specifying an agent who would destroy the base in this case, you could write "someone/somebody will destroy the rebel base" or "a villain will destroy the rebel base". This would generate an event that tells an agent of the appropriate role to perform an action.
+
+The consequence in this case is the event that acts as the deadline, with the violation events specified within it. The above example would compile to the following:
+
+#+BEGIN_SRC
+intDestroy(hero, deathStar) initiates obl(destroy(hero, deathStar), destroy(evilEmpire, rebelBase), violDestroy(hero, deathStar))
+
+violDestroy(hero, deathStar) generates die(rebels), end(story)
+#+END_SRC
+
+Conditionals can be added to clauses within an event definition:
+
+#+BEGIN_SRC
+When the hero is at home
+  They may leave home if they get a magical item
+#+END_SRC
+
+#+BEGIN_SRC
+intIsAtHome(hero) initiates perm(leave(hero, home)) if get(hero, X) and magicalItem(X)
+#+END_SRC
+
+Since a scene is an internal event, it must be generated by an external one:
+
+#+BEGIN_SRC
+The hero enters the land of adventure when
+  They leave home
+#+END_SRC
+
+#+BEGIN_SRC
+leave(hero, home) generates intEntersTheLandOfAdventure(hero)
+#+END_SRC
+
+Conditionals can be added to this as well:
+
+#+BEGIN_SRC
+The hero fights the villain when
+  They rescue the victim
+  If they have a weapon
+#+END_SRC
+
+#+BEGIN_SRC
+rescue(hero, victim) generates intFight(hero, villain) if has(hero, X) and weapon(X)
+#+END_SRC
+
+** Compiler Progress So Far
+
+Some progress has been made towards implementing the full parser. At the moment, this test input:
+
+#+BEGIN_SRC
+"The Hero's journey is a trope"
+"It begins when the Hero is at home"
+"Then the Hero gets a task"
+"It ends when the Hero returns back home"
+
+"The Evil Empire is a trope"
+"It begins when the Empire does a bad thing"
+"Then the Empire fights the hero"
+"It ends when the Empire is defeated"
+
+"When the Hero gets a lightsaber"
+"The Hero must leave home before the Empire comes"
+"Otherwise, the Empire kills the Hero"
+"The Hero may bring friends"
+"Finally, the Hero may destroy the Death Star"
+#+END_SRC
+
+Compiles to this:
+
+#+BEGIN_SRC
+%% TROPES ---------------------
+intHerosJourney(Hero) generates intIsAtHome(Hero);
+intIsAtHome(Hero) generates intGetsATask(Hero);
+intGetsATask(Hero) generates intReturnsBackHome(Hero);
+intEvilEmpire(Empire) generates intDoesBadThing(Empire);
+intDoesBadThing(Empire) generates intFightsHero(Empire);
+intFightsHero(Empire) generates intIsDefeated(Empire);
+
+%% SCENES ---------------------
+intGetsALightsaber(Hero) initiates perm(bringFriends(Hero));
+intGetsALightsaber(Hero) initiates perm(destroyDeathStar(Hero));
+intGetsALightsaber(Hero) initiates obl(leaveHome(Hero), comes(theEmpire), vioLeavehome(Hero));
+vioLeavehome(Hero) generates kills(Empire, hero);
+#+END_SRC
+
+One major change is that deadlines and violation events have been added. An obligation is now specified with the syntax "[character] must [action] before [deadline]\nOtherwise, [violation event]".
+
+Features remaining to be implemented are:
+
+- replace character roles (such as "Hero") with a variable and unifying this with an "role(X, Hero)" statement. The "story definition" syntax is used to assign roles to each agent, using statements such as: role(LukeSkywalker, Hero)
+- replace "tasks" with simple "events"
+- story definition syntax (i.e "Star Wars is a Story")
+- event type declarations in InstAL (i.e "inst event intHerosJourney(Agent)")
+- domian.idc file generation
+- multiple institution generation (one for each trope, one for the concrete story)
+- timeline.lp generation
+
