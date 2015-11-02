@@ -1,34 +1,36 @@
 %% TYPES ---------------------
-type Character;
+type Agent;
+type Role;
 type Object;
-type Hero; % A Hero is a type of Character
-type Villain; % A Villain is a type of Character
+
+%% FLUENTS ---------------------
+fluent role(Agent, Role);
 
 %% INST EVENTS ------------------------
-inst event intIsAtHome(Hero);
-inst event intGetsATask(Hero);
-inst event intReturnsHome(Hero);
-inst event intDoesBadThing(Villain);
-inst event intFightsHero(Villain);
-inst event intIsDefeated(Villain);
+inst event intIsAtHome(X);
+inst event intGetsATask(X);
+inst event intReturnsHome(X);
+inst event intDoesBadThing(X);
+inst event intFightsHero(X);
+inst event intIsDefeated(X);
 
 %% TROPES ---------------------
 % The Hero's Journey is a trope where:
-intHerosJourney() generates intIsAtHome(Hero); %   The Hero is at home
-intIsAtHome(Hero) generates intGetsATask(Hero); %   Then the Hero gets a task
-intGetsATask(Hero) generates intReturnsHome(Hero); %   Finally, the Hero returns home
+intHerosJourney() generates intIsAtHome(X) if role(X, hero); %   The Hero is at home
+intIsAtHome(X) generates intGetsATask(X) if role(X, hero); %   Then the Hero gets a task
+intGetsATask(X) generates intReturnsHome(X) if role(X, hero); %   Finally, the Hero returns home
 
 % The Evil Empire is a trope where:
-intEvilEmpire() generates intDoesBadThing(Villain); %   The Villain does a bad thing
-intDoesBadThing(Villain) generates intFightsHero(Villain); %   Then the Villain fights the hero
-intFightsHero(Villain) generates intIsDefeated(Villain); %   Finally, the Villain is defeated
+intEvilEmpire() generates intDoesBadThing(X) if role(X, villain); %   The Villain does a bad thing
+intDoesBadThing(X) generates intFightsHero(X) if role(X, villain); %   Then the Villain fights the hero
+intFightsHero(X) generates intIsDefeated(X) if role(X, villain); %   Finally, the Villain is defeated
 
 %% SCENES ---------------------
 % When the Hero gets a lightsaber:
-getsALightsaber(Hero) initiates obl(leaveHome(Hero), comes(Villain), vioLeaveHome(Hero)); %   The Hero must leave home before the Villain comes
-vioLeaveHome(Hero) generates killsHero(Villain); %   Otherwise, the Villain kills the Hero
-getsALightsaber(Hero) initiates perm(bringFriends(Hero)); %   The Hero may bring friends
-getsALightsaber(Hero) initiates perm(destroyDeathStar(Hero)); %   The Hero may destroy the Death Star
+intGetsALightsaber(X) initiates obl(leaveHome(X), comes(Y), vioLeaveHome(X)) if role(villain, Y), role(hero, X); %   The Hero must leave home before the Villain comes
+vioLeaveHome(X) generates killsHero(Y) if role(villain, Y), role(hero, X); %   Otherwise, the Villain kills the Hero
+intGetsALightsaber(X) initiates perm(bringFriends(X)); %   The Hero may bring friends
+intGetsALightsaber(X) initiates perm(destroyDeathStar(X)); %   The Hero may destroy the Death Star
 
 % When the Villain gets a hostage:
-getsAHostage(Villain) initiates perm(destroyAlderaan(Villain)); %   The Villain may destroy Alderaan
+intGetsAHostage(X) initiates perm(destroyAlderaan(X)); %   The Villain may destroy Alderaan

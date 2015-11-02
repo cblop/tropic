@@ -94,6 +94,8 @@
    ;; :output-format :enlive
 ))
 
+(def param-names ["X" "Y" "Z" "W"])
+
 (defn parse
   [text]
   (insta/add-line-and-column-info-to-metadata
@@ -105,10 +107,10 @@
   "Takes character name list, strips off 'the', makes lowercase"
   [n]
   (let [the (remove #(or (= "the" %) (= "The" %)) n)
-        ;; camel (if (> (count the) 1)
-                ;; (cons (str/lower-case (first the)) (map str/capitalize (rest the)))
-                ;; (map str/lower-case the))
-        camel (map str/capitalize the)
+        camel (if (> (count the) 1)
+                (cons (str/lower-case (first the)) (map str/capitalize (rest the)))
+                (map str/lower-case the))
+        ;; camel (map str/capitalize the)
         cat (reduce str camel)
         san (str/replace cat #"\"" "")
         ]
@@ -116,15 +118,19 @@
 
 (defn event-str
   "Takes list of strings, converts to exampleEvent format"
-  [{:keys [params name]}]
+  [{:keys [params name]} ls]
   (let [sanstrings (map #(str/replace % #"'" "") name)
-        sparams (reduce str (interpose ", " params))
+        letters (take (count params) ls)
+        ;; pmap (zipmap (map keyword letters) params)
+        pmap params
+        sparams (reduce str (interpose ", " letters))
         svec (cons (str/lower-case (first sanstrings)) (map str/capitalize (rest sanstrings)))
         pstr (str "(" sparams ")")
         outvec (conj (vec svec) pstr)
         ]
     ;; (with-meta (symbol (reduce str outvec)) {:params params})
-    (reduce str outvec)
+    (with-meta (symbol (reduce str outvec)) {:params pmap})
+    ;; "Heeey"
     ))
 
 (defn inst-str
@@ -141,14 +147,14 @@
 
 (defn inst-event-str
   "Takes list of strings, converts to intExampleEvent format"
-  [argm]
-  (let [estr (event-str argm)]
+  [argm letters]
+  (let [estr (event-str argm letters)]
     (inst-str estr)
     ))
 
 (defn inst-tree
   [x xs]
-  (inst-event-str {:params [x] :name xs}))
+  (inst-event-str {:params [x] :name xs} param-names))
 
 
 (defn m
@@ -157,7 +163,10 @@
 
 (defn event-tree
   [x xs]
-  (m xs (symbol (event-str {:params [x] :name xs}))))
+  ;; (let [ev (event-str {:params [x] :name xs})]
+    ;; (with-meta ev (merge (meta xs) (meta ev)))))
+    (with-meta {:params [x] :name xs} (meta xs)))
+  ;; (m xs (symbol (event-str {:params [x] :name xs}))))
 
 (defn get-line
   [obj]
@@ -180,33 +189,63 @@
 
 (defn perm-tree
   [x xs]
-  (let [args (event-tree x xs)]
-    (str "perm(" args ")")))
+  (let [args (event-tree x xs)
+        pstrs (event-str args param-names)]
+    (str "perm(" pstrs ")")))
+
+(defn lookup-vars
+  [vars args]
+  (event-str args (map #(get vars %) (:params args))))
+
+(defn zip-params [args]
+  (let [params (map :params args)
+        unique (set (flatten params))
+        pzip (zipmap unique param-names)]
+    pzip))
+
+(defn if-line [pzip]
+  (let [roles (map #(str "role(" (key %) ", " (val %) ")") pzip)]
+    (reduce str (cons " if " (interpose ", " roles)))))
 
 (defn obl-tree
   [char task deadline consequence]
   (let [args (event-tree char task)
-        vio (vio-str args)
-        body (str "obl(" args ", " deadline ", " vio ")")
+        estr (event-str args param-names)
+        dline (assoc deadline :params (map strip-name (:params deadline)))
+        pzip (zip-params [args dline])
+        vio (vio-str (lookup-vars pzip args))
+        arg-params (lookup-vars pzip args)
+        dead-params (lookup-vars pzip dline)
+        body (str "obl(" arg-params ", " dead-params ", " vio ")")
+        ifline (if-line pzip)
         ]
-    body
+    (str body ifline)
     ))
+
 
 (defn vio-tree
   [char task deadline consequence]
   (let [args (event-tree char task)
-        vio (vio-str args)
-        vio-event (str vio " generates " consequence)]
-    vio-event))
+        pzip (zip-params [args consequence])
+        vio (vio-str (lookup-vars pzip args))
+        ;; x (println (type consequence) )
+        vio-event (str vio " generates " (lookup-vars pzip consequence))
+        ifline (if-line pzip)]
+    (str vio-event ifline)))
 
 (defn tropedef-tree
   [text name & args]
-  (let [evs (map inst-str args)
+  (let [evs (map #(inst-str (event-str % param-names)) args)
         comments (map #(get-comment text %) args)
         firstcomment (str/replace (get-comment text name) "; " "")
-        firstline (str name " generates " (first evs) (first comments))
+        ;; ps (:params (meta (first args)))
+        ps (map :params args)
+        pstrs (map #(reduce str (map (fn [x y] (str x ", " y)) ["X" "Y" "Z" "W"] %)) ps)
+        iflines (map #(str " if role(" % ")") pstrs)
+        firstline (str name " generates " (first evs) (first iflines) (first comments))
         gens (map #(interpose " generates " %) (partition 2 1 evs))
-        cgens (map (fn [x y] (conj (vec x) y)) gens (rest comments))
+        rgens (map (fn [x y] (conj (vec x) y)) gens (rest iflines))
+        cgens (map (fn [x y] (conj (vec x) y)) rgens (rest comments))
         genstr (apply str (flatten cgens))
         ]
     (with-meta (symbol (str firstcomment firstline genstr)) {:type "trope" :events evs})
@@ -215,7 +254,7 @@
 (defn sitdef-tree
   [text name & args]
   (let [comment (str/replace (get-comment text name) "; " "")
-        genstr (map #(str (first name) " initiates " %) args)]
+        genstr (map #(str (inst-event-str (first name) param-names) " initiates " %) args)]
     (with-meta (symbol (str comment (reduce str genstr))) {:type "situation"})
     ))
 
@@ -238,15 +277,20 @@
 (defn narrative-tree
   [& args]
   (let [type-header "%% TYPES ---------------------\n"
+        fluent-header "%% FLUENTS ---------------------\n"
         instev-header "%% INST EVENTS ------------------------\n"
         trope-header "%% TROPES ---------------------\n"
         scene-header "%% SCENES ---------------------\n"
         tropes (filter #(= (:type (meta %)) "trope") args)
         trope-strs (statements tropes)
 
-        ;; Base types: Character, Object
-        types (concat ["Character;\n" "Object;\n"] (filter #(= (:type (meta %)) "type") args))
-        typedecs (reduce str (map #(str "type " %) types))
+        ;; Base types: Agent, Role, Object
+        ;; types (concat ["Character;\n" "Object;\n"] (filter #(= (:type (meta %)) "type") args))
+        types ["Agent" "Role" "Object"]
+        typedecs (reduce str (map #(str "type " % ";\n") types))
+
+        fluents ["role(Agent, Role)"]
+        fluentdecs (reduce str (map #(str "fluent " % ";\n") fluents))
 
         instdecs (reduce str (map #(str "inst event " % ";\n") (mapcat #(flatten (:events (meta %))) tropes)))
         situations (filter #(= (:type (meta %)) "situation") args)
@@ -254,6 +298,7 @@
         ]
     ;; (reduce str (interpose "\n" outs))
     (str type-header typedecs "\n"
+         fluent-header fluentdecs "\n"
          instev-header instdecs "\n"
          trope-header trope-strs "\n"
          scene-header sit-strs)
@@ -264,20 +309,25 @@
   [text args]
   (str (apply obl-tree args) (get-comment text (second args)) (apply vio-tree args) (get-next-comment text (second args))))
 
+(defn strip-the [args]
+  (vec (remove #(or (= "the" %) (= "The" %)) args)))
+
 
 (defn transform
   [ptree text]
   (insta/transform
    {
-    :trope (fn [& args] (m (first args) (symbol (inst-event-str {:name args}))))
+    :trope (fn [& args] (m (first args) (symbol (inst-event-str {:name args} param-names))))
     :verb (fn [& args] args)
+    ;; :item (fn [& args] (if (> (count args) 1) (strip-the args) args))
     :item (fn [& args] args)
     :character (fn [& args] (strip-name args))
     :task (partial concat)
     :event event-tree
-    :consequence (fn [s v] (event-str {:params [(strip-name s)] :name v}))
-    :violation str
-    :deadline str
+    ;; :consequence (fn [s v] (event-str {:params [(strip-name s)] :name v} param-names))
+    :consequence event-tree
+    :violation (fn [& args] (first args))
+    :deadline (fn [& args] (first args))
     :norms str
     :situation (fn [& args] args)
     :permission (fn [& args] (str (apply perm-tree args) (get-comment text (second args))))
