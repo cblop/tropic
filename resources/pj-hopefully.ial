@@ -1,0 +1,21 @@
+%% TYPES ---------------------
+type Agent;
+type Role;
+type Object;
+
+%% FLUENTS ---------------------
+fluent role(Agent, Role);
+
+%% EXTERNAL EVENTS --------------------
+
+%% INST EVENTS ------------------------
+inst event intDontTouchIt();
+
+%% TROPES ---------------------
+% "Don't touch it" is a trope where:
+intDontTouchIt() generates intIsAtHome(X) if role(X, hero); %   The Hero is at home
+
+intSlapstick() initiates obl(hit(X, Y),deadline,vioSlapstick) 
+
+
+%% SCENES ---------------------
