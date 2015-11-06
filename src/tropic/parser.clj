@@ -102,7 +102,6 @@
    text
    (tropical text)))
 
-
 (defn strip-name
   "Takes character name list, strips off 'the', makes lowercase"
   [n]

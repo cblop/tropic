@@ -1,7 +1,7 @@
 (ns tropic.core-test
   (:require [clojure.test :refer :all]
             [instaparse.core :as insta]
-            [tropic.core :refer [tropc]]
+            [tropic.core :refer [tropc -main]]
             [tropic.parser :refer [parse transform]]
             [net.cgrand.enlive-html :as html]
             ))
@@ -82,6 +82,8 @@
 
 (tropc trope-sit-test)
 (spit "resources/output.ial" (tropc trope-sit-test))
+
+(-main "resources/starwars.story" "resources/output.ial")
 
 (def role-test
   (multi [
