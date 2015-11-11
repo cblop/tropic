@@ -105,6 +105,16 @@
 
 (parse story-test)
 
+(def scene-test
+  (multi [
+          "\"Sausages\" is a scene:"
+          "  It contains the \"Don't touch it\" trope"
+          "  Starring Punch, Judy, Snap and Joey"
+          "  It has sausages"
+          ]))
+
+(parse scene-test)
+
 (def slapstick-test
   (multi [
           "\"Slapstick\" is a trope where:"

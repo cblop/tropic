@@ -5,7 +5,7 @@
 (def tropical
   (insta/parser
    "narrative = rule+
-    <rule> = tropedef | situationdef | taskdef | roledef | storydef | initialdef | tracedef
+    <rule> = tropedef | situationdef | taskdef | roledef | storydef | scenedef | initialdef | tracedef
 
     tropedef =
         tropename <'\\n'> (alias / <whitespace> norms / sequence / <whitespace> situationdef)+ <'\\n'?>
@@ -91,6 +91,15 @@
         story <' is a story:'>
     <storytrope> =
         <'It contains the '> trope <' trope' '.'?>
+
+    scenedef =
+        scene <' is a scene:'> (<'\\n' whitespace> (storytrope / starring / has))+ <'\\n'?>
+
+    starring =
+        <'Starring '> character ((<', '> character)* <' and '> character)?
+
+    has = <'It has '> item
+
     scenes =
         <'Its scenes are:'> <'\\n' whitespace whitespace> scene (<'\\n' whitespace whitespace 'Then '> scene)*
     storyrole =

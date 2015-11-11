@@ -30,6 +30,7 @@ A rogue is a type of villain who:
 
 "Sausages" is a scene:
   It contains the "Don't touch it" trope
+  Its characters are Punch and Joey
   It has sausages
 
 "Punch and Judy" is a story:
