@@ -7,31 +7,45 @@ type Object;
 fluent role(Agent, Role);
 
 %% EXTERNAL EVENTS --------------------
-external event give(Agent, Agent, Object)
-external event leave(Agent)
-external event take(Agent, Object)
-external event break(Agent, Object)
+external event give(Agent, Agent, Object);
+external event leave(Agent);
+external event take(Agent, Object);
+external event break(Agent, Object);
 
 %% INST EVENTS ------------------------
 inst event intDontTouchIt();
+inst event intSlapstick();
 
 %% TROPES ---------------------
 % "Don't touch it" is a trope where:
-intDontTouchIt(1) initiates perm(give(X, Y, Z)) if role(X, dispatcher), role(Y, hero), object(Z)
-give(X, Y, Z) generates intDontTouchIt(2) if role (X, dispatcher), role(Y, hero), object(Z)
+intDontTouchIt() initiates trope(dontTouchIt, X) if trope(dontTouchIt, Y), X = Y + 1;
+intDontTouchIt() terminates trope(dontTouchIt, X) if trope(dontTouchIt, Y), Y = X + 1;
 
-intDontTouchIt(2) initiates perm(leave(X)) if role(X, dispatcher)
-leave(X) generates intDontTouchIt(3) if role(X, dispatcher)
+intDontTouchIt() initiates perm(give(X, Y, Z)) if role(X, dispatcher), role(Y, hero), object(Z), trope(dontTouchIt, 0);
+give(X, Y, Z) generates intDontTouchIt() if role (X, dispatcher), role(Y, hero), object(Z);
 
-intDontTouchIt(3) initiates perm(take(X, Y)) if role(X, rogue), object(Y)
-take(X, Y) generates intDontTouchit(4) if role(X, rogue) object(Y)
+intDontTouchIt() initiates perm(leave(X)) if role(X, dispatcher), trope(dontTouchIt, 1);
+leave(X) generates intDontTouchIt() if role(X, dispatcher);
 
-intDontTouchIt(3) initiates perm(break(X, Y)) if role(X, hero), object(Y)
-break(X, Y) generates intDontTouchIt(4) if role(X, hero), object(Y)
+intDontTouchIt() initiates perm(take(X, Y)) if role(X, rogue), object(Y), trope(dontTouchIt, 2);
+take(X, Y) generates intDontTouchIt() if role(X, rogue) object(Y);
 
-intDontTouchIt(4) initiates perm(return(X)) if role(X, dispatcher)
+intDontTouchIt() initiates perm(break(X, Y)) if role(X, hero), object(Y), trope(dontTouchIt, 3);
+break(X, Y) generates intDontTouchIt() if role(X, hero), object(Y);
 
+intDontTouchIt() initiates perm(return(X)) if role(X, dispatcher), trope(dontTouchIt, 4);
 
-intSlapstick() initiates obl(hit(X, Y), tickEvent,vioSlapstick)
+intSlapstick() initiates trope(slapstick, X) if trope(slapstick, Y), X = Y + 1;
+intSlapstick() terminates trope(slapstick, X) if trope(slapstick, Y), Y = X + 1;
+
+intSlapstick() initiates obl()
+
+hit(X) generates laugh(Y) if role(Y, audience), trope(slapstick, Z), Z > 0;
+
+start() generates intSlapstick()
+
+%% INITIALLY
+initially
+
 
 %% SCENES ---------------------

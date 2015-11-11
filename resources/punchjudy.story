@@ -2,7 +2,7 @@
   The dispatcher gives the hero an object
   Then the dispatcher leaves
   Then the rogue takes the object
-  Or the hero breaks the object
+    Or the hero breaks the object
   Finally, the dispatcher returns
 
 "Villain protagonist" is a trope where:
@@ -10,17 +10,20 @@
   The hero can kill [someone]
 
 "Slapstick" is a trope where:
-  [Someone] must hit [someone else] every two minutes
+  The cast must make the audience laugh
+    Otherwise, their dominance will decrease
+  When someone hits someone else:
+    The audience may laugh.
 
 "Karma Houdini" is a trope where:
-  The villain must kill [someone]
+  The villain must kill someone
   The villain cannot die
 
 A hero is a type of character who:
-  Cannot kill [someone]
+  Cannot kill someone
 
 A villain is a type of character who:
-  Can kill [someone]
+  Can kill someone
 
 A rogue is a type of villain who:
   Cannot kill the hero

@@ -8,15 +8,18 @@
     <rule> = tropedef | situationdef | taskdef | roledef | storydef | initialdef | tracedef | typedef
 
     tropedef =
-        tropename (<'\\n' whitespace> event <'\\n'>) (<whitespace 'Then '> event <'\\n'>)* (<whitespace 'Finally, '> event <'\\n'>?)
+        tropename <'\\n'> (<whitespace> norms | sequence | <whitespace> situationdef)+ <'\\n'?>
 
     <tropename> =
-        <'The '?> trope <' is a trope where:'>
+        <'The '? '\\\"'> trope <'\\\" ' 'is a trope where:'>
 
     situation =
         <'When '> event <':'>
 
-    situationdef = situation <'\\n'> norms+ <'\\n'?>
+    sequence =
+        <whitespace> event <'\\n'> (<whitespace> <'Then '> event <'\\n'>)*
+
+    situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace> consequence)+ <'\\n'?>
 
     roledef = rolehead power+
 
@@ -25,6 +28,8 @@
     <rolehead> = <('The ' / 'A ')> role <' can:\\n'>
 
     power = <whitespace> verb <' the '?> character <'\\n'?>
+
+    goal = character <' wants '> (item / character) <' to '> verb
 
     role = word | word <' '> word
     parent = word | word <' '> word
@@ -36,7 +41,7 @@
 
     label = word
 
-    norms = permission | obligation
+    norms = obligation | permission
 
     conditional =
         <' if '> <'they '?> event
@@ -49,16 +54,16 @@
     character = name
 
     taskdef =
-        taskname condition <'\\nOtherwise, '> <'the '?> event <'.'?> <'\\n'?>
+        taskname condition <'\\n' whitespace 'Otherwise, '> <'the '?> event <'.'?> <'\\n'?>
 
     condition =
-        <'\\nTo complete it, '> item <' must be '> state <'.'?>
+        <'\\n' whitespace 'To complete it, '> item <' must be '> state <'.'?>
 
     <taskname> =
         task <' is a task' '.'?>
 
-    permission = <whitespace> character <' may '> task conditional?
-    obligation = <whitespace> character <' must '> task <' before '> deadline <'\\n' whitespace 'Otherwise, '> <'the '?> violation <'.'?> <'\\n'?>
+    permission = character <' may '> task conditional? <'\\n'?>
+    obligation = character <' must '> task <' before '> deadline <'\\n' whitespace 'Otherwise, '> <'the '?> violation <'.'?> <'\\n'?>
 
     violation = event
 

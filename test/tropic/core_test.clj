@@ -60,14 +60,14 @@
   (multi [
           "A Hero is a type of Character"
           "A Villain is a type of Character"
-          "The Hero's Journey is a trope where:"
+          "\"The Hero's Journey\" is a trope where:"
           "  The Hero is at home"
           "  Then the Hero gets a task"
-          "  Finally, the Hero returns home"
-          "The Evil Empire is a trope where:"
+          "  Then the Hero returns home"
+          "\"The Evil Empire\" is a trope where:"
           "  The Villain does a bad thing"
           "  Then the Villain fights the hero"
-          "  Finally, the Villain is defeated"
+          "  Then the Villain is defeated"
           "When the Hero gets a lightsaber:"
           "  The Hero must leave home before the Villain comes"
           "  Otherwise, the Villain kills the Hero"
@@ -77,8 +77,18 @@
           "  The Villain may destroy Alderaan"
           ]))
 
+(def slapstick-test
+  (multi [
+          "\"Slapstick\" is a trope where:"
+          "  The audience may laugh"
+          "  When someone hits someone else:"
+          "    The audience will laugh"
+          ]))
+
 (parse trope-sit-test)
 (transform (parse trope-sit-test) trope-sit-test)
+
+(parse slapstick-test)
 
 (tropc trope-sit-test)
 (spit "resources/output.ial" (tropc trope-sit-test))
