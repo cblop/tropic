@@ -8,10 +8,13 @@
     <rule> = tropedef | situationdef | taskdef | roledef | storydef | initialdef | tracedef | typedef
 
     tropedef =
-        tropename <'\\n'> (<whitespace> norms | sequence | <whitespace> situationdef)+ <'\\n'?>
+        tropename <'\\n'> (<whitespace> norms | sequence | <whitespace> situationdef | alias)+ <'\\n'?>
 
     <tropename> =
         <'The '? '\\\"'> trope <'\\\" ' 'is a trope where:'>
+
+    alias =
+        <whitespace> character <' is also '> character
 
     situation =
         <'When '> event <':'>

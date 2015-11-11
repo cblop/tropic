@@ -80,6 +80,7 @@
 (def slapstick-test
   (multi [
           "\"Slapstick\" is a trope where:"
+          "  The hero is also the villain"
           "  The audience may laugh"
           "  The hero falls over"
           "    Or the villain slips up"
