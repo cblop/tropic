@@ -89,6 +89,22 @@
 
 (parse (str character-test "\n" slapstick-test))
 
+(def story-test
+  (multi [
+          "\"Punch and Judy\" is a story:"
+          "  It contains the \"Villain protagonist\" trope"
+          "  It contains the \"Slapstick\" trope"
+          "  It contains the \"Karma Houdini\" trope"
+          "  Its scenes are:"
+          "    \"Sausages\""
+          "    Then \"Punch kills the baby\""
+          "  Punch is its hero"
+          "  Joey is its dispatcher"
+          "  Snap is its rogue"
+          ]))
+
+(parse story-test)
+
 (def slapstick-test
   (multi [
           "\"Slapstick\" is a trope where:"

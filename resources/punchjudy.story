@@ -36,7 +36,8 @@ A rogue is a type of villain who:
   It contains the "Villain protagonist" trope
   It contains the "Slapstick" trope
   It contains the "Karma Houdini" trope
-  It starts with the "Sausages" scene
+  Its scenes are:
+    "Sausages"
   Punch is its hero
   Joey is its dispatcher
   Snap is its rogue

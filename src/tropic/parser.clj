@@ -86,20 +86,23 @@
     item = [<'The ' / 'the '>] (word / word <' '> word)
     state = word
     storydef =
-        storyname (<'\\n'> (storytrope / storyrole))+ <'\\nThe end' '.'?> <'\\n'?>
+        storyname (<'\\n' whitespace> (storytrope / storyrole / scenes))+ <'\\n'?>
     <storyname> =
-        story <' is a story' '.'?>
+        story <' is a story:'>
     <storytrope> =
         <'It contains the '> trope <' trope' '.'?>
+    scenes =
+        <'Its scenes are:'> <'\\n' whitespace whitespace> scene (<'\\n' whitespace whitespace 'Then '> scene)*
     storyrole =
         character <' is its '> role <'.'?>
 
-    story = [<'The ' / 'the '>] (word / word <' '> word)
+    story = <'\\\"'> words <'\\\"'>
+    scene = <'\\\"'> words <'\\\"'>
     role = word
-    trope = [<'The ' / 'the '>] (word / word <' '> word)
+    trope = <'\\\"'> words <'\\\"'>
     <name> = (<'The ' | 'the '>)? word | (word <' '> !'gets ' word)
     <whitespace> = #'\\s\\s'
-    <words> = word (<whitespace> word)*
+    <words> = word (<' '> word)*
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"
    ;; :output-format :enlive
 ))
