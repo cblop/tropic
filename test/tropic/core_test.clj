@@ -81,6 +81,8 @@
   (multi [
           "\"Slapstick\" is a trope where:"
           "  The audience may laugh"
+          "  The hero falls over"
+          "    Or the villain slips up"
           "  When someone hits someone else:"
           "    The audience will laugh"
           ]))

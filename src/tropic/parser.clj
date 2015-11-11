@@ -17,9 +17,12 @@
         <'When '> event <':'>
 
     sequence =
-        <whitespace> event <'\\n'> (<whitespace> <'Then '> event <'\\n'>)*
+        <whitespace> event or? <'\\n'> (<whitespace> <'Then '> event or? <'\\n'>)*
 
-    situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace> consequence)+ <'\\n'?>
+    situationdef = situation (<'\\n'> <whitespace+> norms | <'\\n'> <whitespace+> consequence)+ <'\\n'?>
+
+    or =
+        <'\\n' whitespace+ 'Or '> event
 
     roledef = rolehead power+
 
@@ -93,7 +96,7 @@
     role = word
     trope = [<'The ' / 'the '>] (word / word <' '> word)
     <name> = (<'The ' | 'the '>)? word | (word <' '> !'gets ' word)
-    <whitespace> = #'\\s\\s+'
+    <whitespace> = #'\\s\\s'
     <words> = word (<whitespace> word)*
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"
    ;; :output-format :enlive
