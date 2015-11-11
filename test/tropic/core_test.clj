@@ -58,8 +58,8 @@
 
 (def trope-sit-test
   (multi [
-          "A Hero is a type of Character"
-          "A Villain is a type of Character"
+          ;; "A Hero is a type of Character"
+          ;; "A Villain is a type of Character"
           "\"The Hero's Journey\" is a trope where:"
           "  The Hero is at home"
           "  Then the Hero gets a task"
@@ -70,12 +70,24 @@
           "  Then the Villain is defeated"
           "When the Hero gets a lightsaber:"
           "  The Hero must leave home before the Villain comes"
-          "  Otherwise, the Villain kills the Hero"
+          "    Otherwise, the Villain kills the Hero"
           "  The Hero may bring friends"
           "  The Hero may destroy the Death Star"
           "When the Villain gets a hostage:"
           "  The Villain may destroy Alderaan"
           ]))
+
+(def character-test
+  (multi [
+          "A hero is a type of character who:"
+          "  Cannot kill someone"
+          "A villain is a type of character who:"
+          "  Can kill someone"
+          ]))
+
+(parse character-test)
+
+(parse (str character-test "\n" slapstick-test))
 
 (def slapstick-test
   (multi [
@@ -88,10 +100,11 @@
           "    The audience will laugh"
           ]))
 
+(parse slapstick-test)
+
 (parse trope-sit-test)
 (transform (parse trope-sit-test) trope-sit-test)
 
-(parse slapstick-test)
 
 (tropc trope-sit-test)
 (spit "resources/output.ial" (tropc trope-sit-test))

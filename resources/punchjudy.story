@@ -7,7 +7,7 @@
 
 "Villain protagonist" is a trope where:
   The hero is also the villain
-  The hero can kill [someone]
+  The hero can kill someone
 
 "Slapstick" is a trope where:
   The cast must make the audience laugh

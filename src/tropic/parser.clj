@@ -5,22 +5,22 @@
 (def tropical
   (insta/parser
    "narrative = rule+
-    <rule> = tropedef | situationdef | taskdef | roledef | storydef | initialdef | tracedef | typedef
+    <rule> = tropedef | situationdef | taskdef | roledef | storydef | initialdef | tracedef
 
     tropedef =
-        tropename <'\\n'> (<whitespace> norms | sequence | <whitespace> situationdef | alias)+ <'\\n'?>
+        tropename <'\\n'> (alias / <whitespace> norms / sequence / <whitespace> situationdef)+ <'\\n'?>
 
     <tropename> =
         <'The '? '\\\"'> trope <'\\\" ' 'is a trope where:'>
 
     alias =
-        <whitespace> character <' is also '> character
+        <whitespace> character <' is also '> character <'\\n'?>
 
     situation =
         <'When '> event <':'>
 
     sequence =
-        <whitespace> event or? <'\\n'> (<whitespace> <'Then '> event or? <'\\n'>)*
+        <whitespace> event or? <'\\n'?> (<whitespace> <'Then '> event or? <'\\n'?>)*
 
     situationdef = situation (<'\\n'> <whitespace+> norms | <'\\n'> <whitespace+> consequence)+ <'\\n'?>
 
@@ -29,17 +29,16 @@
 
     roledef = rolehead power+
 
-    typedef = <'A ' / 'An '> child <' is a type of '> parent <'.'? '\\n'?>
+    <rolehead> = <'A ' / 'An '> role <' is a type of character who:\\n'> power*
 
-    <rolehead> = <('The ' / 'A ')> role <' can:\\n'>
+    power = <whitespace> (can / cannot) <'\\n'?>
 
-    power = <whitespace> verb <' the '?> character <'\\n'?>
+    can = <'Can '> verb <' '> item
+    cannot = <'Cannot '> verb <' '> item
 
     goal = character <' wants '> (item / character) <' to '> verb
 
     role = word | word <' '> word
-    parent = word | word <' '> word
-    child = word | word <' '> word
 
     initialdef = <'Initially:'> (<'\\n'> <whitespace> (event / norms))+ <'\\n'?>
 
@@ -47,7 +46,7 @@
 
     label = word
 
-    norms = obligation | permission
+    norms = permission | obligation
 
     conditional =
         <' if '> <'they '?> event
@@ -60,7 +59,7 @@
     character = name
 
     taskdef =
-        taskname condition <'\\n' whitespace 'Otherwise, '> <'the '?> event <'.'?> <'\\n'?>
+        taskname condition <'\\n' whitespace+ 'Otherwise, '> <'the '?> event <'.'?> <'\\n'?>
 
     condition =
         <'\\n' whitespace 'To complete it, '> item <' must be '> state <'.'?>
@@ -69,7 +68,7 @@
         task <' is a task' '.'?>
 
     permission = character <' may '> task conditional? <'\\n'?>
-    obligation = character <' must '> task <' before '> deadline <'\\n' whitespace 'Otherwise, '> <'the '?> violation <'.'?> <'\\n'?>
+    obligation = character <' must '> task <' before '> deadline <'\\n' whitespace+ 'Otherwise, '> <'the '?> violation <'.'?> <'\\n'?>
 
     violation = event
 
