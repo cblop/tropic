@@ -109,7 +109,7 @@
     scene = <'\\\"'> words <'\\\"'>
     role = word
     trope = <'\\\"'> [<'The ' | 'the '>] words <'\\\"'>
-    <name> = (<'The ' | 'the '>)? (word | (word <' '> !'gets ' word))
+    <name> = (<'The ' | 'the '>)? word
     <whitespace> = #'\\s\\s'
     <words> = word (<' '> word)*
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"
@@ -139,18 +139,21 @@
 
 (defn event-str
   "Takes list of strings, converts to exampleEvent format"
-  [{:keys [params name]} ls]
-  (let [sanstrings (map #(str/replace % #"'" "") name)
+  [{:keys [role verb item]} ls]
+  (let [params [role item]
+        name (str/replace verb #"'" "")
+        ;; sanstrings (map #(str/replace % #"'" "") name)
         letters (take (count params) ls)
         ;; pmap (zipmap (map keyword letters) params)
         pmap params
         sparams (reduce str (interpose ", " letters))
-        svec (cons (str/lower-case (first sanstrings)) (map str/capitalize (rest sanstrings)))
+        ;; svec (cons (str/lower-case name) (map str/capitalize (rest sanstrings)))
         pstr (str "(" sparams ")")
-        outvec (conj (vec svec) pstr)
+        outstr (str name pstr)
+        ;; outvec (conj (vec svec) pstr)
         ]
     ;; (with-meta (symbol (reduce str outvec)) {:params params})
-    (with-meta (symbol (reduce str outvec)) {:params pmap})
+    (with-meta (symbol outstr) {:params pmap})
     ;; "Heeey"
     ))
 
@@ -183,10 +186,12 @@
   (with-meta new (meta old)))
 
 (defn event-tree
-  [x xs]
+  ;; [x xs]
+  [{:keys [role item verb]}]
   ;; (let [ev (event-str {:params [x] :name xs})]
     ;; (with-meta ev (merge (meta xs) (meta ev)))))
-    (with-meta {:params [x] :name xs} (meta xs)))
+    ;; (with-meta {:params [x] :name xs} (meta xs)))
+  (hash-map :params [role item] :name verb))
   ;; (m xs (symbol (event-str {:params [x] :name xs}))))
 
 (defn get-line
@@ -258,37 +263,29 @@
   [s]
   (str/replace s #"\(.*\)" ""))
 
-(defn phasecounter
-  [args]
-  "Args is a list of hash maps (as output by event-tree):
-  [:params [xs] :name y]"
-  (let [eventnames (map #(event-str % param-names) args)
-        instnames (map #(inst-str %) eventnames)
-        tropenames (map #(strip-params %) eventnames)
-        initstrings (map (fn [x y] (str x " initiates trope(" y ", X)" " if trope(" y ", Y), X = Y + 1")) instnames tropenames)
-        termstrings (map (fn [x y] (str x " terminates trope(" y ", X)" " if trope(" y ", Y), Y = X + 1")) instnames tropenames)
-        ]
-    (str (first initstrings) ";\n" (first termstrings) ";\n"))
-  )
 
 (defn tropedef-tree
   [text name & args]
-  "Args is a list of hash maps:
-   [{:params [xs] :name y}]"
-  (let [evs (map #(inst-str (event-str % param-names)) args)
-        comments (map #(get-comment text %) args)
-        firstcomment (str/replace (get-comment text name) "; " "")
+  "Args is a list of hash maps as events:
+   ({:role 'role' :verb 'verb' :item 'item'})"
+  (let [as (first args)
+        evs (map #(event-str % param-names) as)
+        ;; comments (map #(get-comment text %) args)
+        ;; firstcomment (str/replace (get-comment text name) "; " "")
         ;; ps (:params (meta (first args)))
-        ps (map :params args)
-        pstrs (map #(reduce str (map (fn [x y] (str x ", " y)) ["X" "Y" "Z" "W"] %)) ps)
-        iflines (map #(str " if role(" % ")") pstrs)
-        firstline (str name " generates " (first evs) (first iflines) (first comments))
-        gens (map #(interpose " generates " %) (partition 2 1 evs))
-        rgens (map (fn [x y] (conj (vec x) y)) gens (rest iflines))
-        cgens (map (fn [x y] (conj (vec x) y)) rgens (rest comments))
-        genstr (apply str (flatten cgens))
+
+        ;; ps (map :params args)
+        ;; pstrs (map #(reduce str (map (fn [x y] (str x ", " y)) ["X" "Y" "Z" "W"] %)) ps)
+        ;; iflines (map #(str " if role(" % ")") pstrs)
+        ;; firstline (str name " generates " (first evs) (first iflines) (first comments))
+        ;; gens (map #(interpose " generates " %) (partition 2 1 evs))
+        ;; rgens (map (fn [x y] (conj (vec x) y)) gens (rest iflines))
+        ;; cgens (map (fn [x y] (conj (vec x) y)) rgens (rest comments))
+        ;; genstr (apply str (flatten cgens))
         ]
-    (with-meta (symbol (str firstcomment firstline genstr)) {:type "trope" :events evs})
+    ;; (with-meta (symbol (str firstcomment firstline genstr)) {:type "trope" :events evs})
+    ;; (reduce str evs)
+    evs
     ))
 
 (defn sitdef-tree
@@ -345,6 +342,10 @@
     ))
 
 
+(defn taskmap
+  [task]
+  )
+
 (defn obl-text
   [text args]
   (str (apply obl-tree args) (get-comment text (second args)) (apply vio-tree args) (get-next-comment text (second args))))
@@ -352,19 +353,23 @@
 (defn strip-the [args]
   (vec (remove #(or (= "the" %) (= "The" %)) args)))
 
+(apply merge (list {:nsth "nth"} {:nthsn "ntshh" :orch "rauh"}))
 
 (defn transform
   [ptree text]
   (insta/transform
    {
-    :trope (fn [& args] (m (first args) (symbol (inst-event-str {:name args} param-names))))
-    :verb (fn [& args] args)
-    :visit (fn [& args] args)
+    :trope (fn [& args] (m (first args) (symbol (inst-event-str {:verb (strip-name args)} param-names))))
+    :verb (fn [& args] {:verb (strip-name args)})
+    :place (fn [& args] {:item (strip-name args)})
+    :visit (fn [& args] (apply merge (conj (rest args) {:verb (first args)})))
     ;; :item (fn [& args] (if (> (count args) 1) (strip-the args) args))
-    :item (fn [& args] args)
-    :character (fn [& args] (strip-name args))
-    :task (partial concat)
-    :event event-tree
+    :item (fn [& args] {:item (strip-name args)})
+    :character (fn [& args] {:role (strip-name args)})
+    :task (partial merge)
+    ;; :event (fn [& args] (event-tree (apply merge args)))
+    :event (fn [& args] (apply merge args))
+    ;; :event (fn [& args] args)
     :sequence (fn [& args] args)
     ;; :consequence (fn [s v] (event-str {:params [(strip-name s)] :name v} param-names))
     :consequence event-tree
@@ -379,6 +384,6 @@
     :child (fn [& args] (with-meta (symbol (strip-name args)) {:type "child"}))
     :parent (fn [& args] (with-meta (symbol (strip-name args)) {:type "parent"}))
     :typedef (partial typedef-tree text)
-    :narrative narrative-tree
+    ;; :narrative narrative-tree
     } ptree))
 

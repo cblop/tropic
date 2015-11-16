@@ -131,9 +131,9 @@
 (def touch-test
   (multi [
           "\"Don't touch it\" is a trope where:"
-          "  The dispatcher leaves an object"
-          "  Then the dispatcher leaves"
-          "  Then the rogue takes the object"
+          "  The dispatcher drops an object"
+          "  Then the dispatcher leaves home"
+          ;; "  Then the rogue takes the object"
           ;; "    Or the hero breaks the object"
           ;; "  Then the dispatcher returns"
           ]))
