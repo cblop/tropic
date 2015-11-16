@@ -10,8 +10,6 @@
   The hero can kill someone
 
 "Slapstick" is a trope where:
-  The cast must make the audience laugh
-    Otherwise, their dominance will decrease
   When someone hits someone else:
     The audience may laugh.
 

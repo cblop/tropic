@@ -11,7 +11,7 @@
         tropename <'\\n'> (alias / <whitespace> norms / sequence / <whitespace> situationdef)+ <'\\n'?>
 
     <tropename> =
-        <'The '? '\\\"'> trope <'\\\" ' 'is a trope where:'>
+        trope <' is a trope where:'>
 
     alias =
         <whitespace> character <' is also '> character <'\\n'?>
@@ -74,8 +74,8 @@
 
     deadline = consequence
 
-    task = verb | verb <(' the ' / ' a ')> item | verb <' '> item | visit
-    visit = ('leave' <' '>) | ('return' (<' '> 'to')? <' '>) | ('go' / 'goes') (<' '> 'to')? <' '> | ('visit' <' '>) place
+    task = visit / verb / verb <(' the ' / ' a ' / ' an ')> item / verb <' '> item
+    visit = ('leaves' (<' '> place)?) | ('returns' (<' '> <'to '>? place)?) | ('go' / 'goes') (<' '> <'to '>? place)? | ('visits' (<' '> <'to '>? place)?)
     verb = word
     place = word
 
@@ -108,8 +108,8 @@
     story = <'\\\"'> words <'\\\"'>
     scene = <'\\\"'> words <'\\\"'>
     role = word
-    trope = <'\\\"'> words <'\\\"'>
-    <name> = (<'The ' | 'the '>)? word | (word <' '> !'gets ' word)
+    trope = <'\\\"'> [<'The ' | 'the '>] words <'\\\"'>
+    <name> = (<'The ' | 'the '>)? (word | (word <' '> !'gets ' word))
     <whitespace> = #'\\s\\s'
     <words> = word (<' '> word)*
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"
@@ -254,8 +254,27 @@
         ifline (if-line pzip)]
     (str vio-event ifline)))
 
+(defn strip-params
+  [s]
+  (str/replace s #"\(.*\)" ""))
+
+(defn phasecounter
+  [args]
+  "Args is a list of hash maps (as output by event-tree):
+  [:params [xs] :name y]"
+  (let [eventnames (map #(event-str % param-names) args)
+        instnames (map #(inst-str %) eventnames)
+        tropenames (map #(strip-params %) eventnames)
+        initstrings (map (fn [x y] (str x " initiates trope(" y ", X)" " if trope(" y ", Y), X = Y + 1")) instnames tropenames)
+        termstrings (map (fn [x y] (str x " terminates trope(" y ", X)" " if trope(" y ", Y), Y = X + 1")) instnames tropenames)
+        ]
+    (str (first initstrings) ";\n" (first termstrings) ";\n"))
+  )
+
 (defn tropedef-tree
   [text name & args]
+  "Args is a list of hash maps:
+   [{:params [xs] :name y}]"
   (let [evs (map #(inst-str (event-str % param-names)) args)
         comments (map #(get-comment text %) args)
         firstcomment (str/replace (get-comment text name) "; " "")
@@ -340,11 +359,13 @@
    {
     :trope (fn [& args] (m (first args) (symbol (inst-event-str {:name args} param-names))))
     :verb (fn [& args] args)
+    :visit (fn [& args] args)
     ;; :item (fn [& args] (if (> (count args) 1) (strip-the args) args))
     :item (fn [& args] args)
     :character (fn [& args] (strip-name args))
     :task (partial concat)
     :event event-tree
+    :sequence (fn [& args] args)
     ;; :consequence (fn [s v] (event-str {:params [(strip-name s)] :name v} param-names))
     :consequence event-tree
     :violation (fn [& args] (first args))

@@ -128,9 +128,21 @@
 
 (parse slapstick-test)
 
+(def touch-test
+  (multi [
+          "\"Don't touch it\" is a trope where:"
+          "  The dispatcher leaves an object"
+          "  Then the dispatcher leaves"
+          "  Then the rogue takes the object"
+          ;; "    Or the hero breaks the object"
+          ;; "  Then the dispatcher returns"
+          ]))
+
+(parse touch-test)
+(tropc touch-test)
+
 (parse trope-sit-test)
 (transform (parse trope-sit-test) trope-sit-test)
-
 
 (tropc trope-sit-test)
 (spit "resources/output.ial" (tropc trope-sit-test))

@@ -17,7 +17,6 @@ inst event intDontTouchIt();
 inst event intSlapstick();
 
 %% TROPES ---------------------
-% "Don't touch it" is a trope where:
 intDontTouchIt() initiates trope(dontTouchIt, X) if trope(dontTouchIt, Y), X = Y + 1;
 intDontTouchIt() terminates trope(dontTouchIt, X) if trope(dontTouchIt, Y), Y = X + 1;
 
