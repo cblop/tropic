@@ -112,17 +112,22 @@
     <name> = (<'The ' | 'the '>)? word
     <whitespace> = #'\\s\\s'
     <words> = word (<' '> word)*
-    <word> = #'[0-9a-zA-Z\\-\\_\\']*'"
+    <word> = #'[0-9a-zA-Z\\-\\_\\']*'"))
    ;; :output-format :enlive
-))
+
 
 (def param-names ["X" "Y" "Z" "W"])
+(def phases ["inactive" "phaseA" "phaseB" "phaseC" "phaseD" "phaseE" "phaseF" "phaseG"])
 
 (defn parse
   [text]
   (insta/add-line-and-column-info-to-metadata
    text
    (tropical text)))
+
+(defn m
+  [old new]
+  (with-meta new (meta old)))
 
 (defn strip-name
   "Takes character name list, strips off 'the', makes lowercase"
@@ -133,29 +138,38 @@
                 (map str/lower-case the))
         ;; camel (map str/capitalize the)
         cat (reduce str camel)
-        san (str/replace cat #"\"" "")
-        ]
+        san (str/replace cat #"\"" "")]
+
     san))
+
+(defn make-name
+  [words]
+  (let [names (map #(str/replace % #"'" "") words)
+        caps (map str/capitalize (rest names))
+        final (cons (str/lower-case (first names)) caps)
+        ]
+    (m (first words) (symbol (reduce str final)))))
 
 (defn event-str
   "Takes list of strings, converts to exampleEvent format"
   [{:keys [role verb item]} ls]
-  (let [params [role item]
+  (let [params (remove nil? [role item])
         name (str/replace verb #"'" "")
         ;; sanstrings (map #(str/replace % #"'" "") name)
-        letters (take (count params) ls)
+        ;; letters (take (count params) ls)
+        letters (map #(get ls (str %)) params)
         ;; pmap (zipmap (map keyword letters) params)
         pmap params
         sparams (reduce str (interpose ", " letters))
         ;; svec (cons (str/lower-case name) (map str/capitalize (rest sanstrings)))
         pstr (str "(" sparams ")")
-        outstr (str name pstr)
+        outstr (str name pstr)]
         ;; outvec (conj (vec svec) pstr)
-        ]
+
     ;; (with-meta (symbol (reduce str outvec)) {:params params})
-    (with-meta (symbol outstr) {:params pmap})
+    (with-meta (symbol outstr) {:params pmap})))
     ;; "Heeey"
-    ))
+
 
 (defn inst-str
   [sym]
@@ -173,17 +187,14 @@
   "Takes list of strings, converts to intExampleEvent format"
   [argm letters]
   (let [estr (event-str argm letters)]
-    (inst-str estr)
-    ))
+    (inst-str estr)))
+
 
 (defn inst-tree
   [x xs]
   (inst-event-str {:params [x] :name xs} param-names))
 
 
-(defn m
-  [old new]
-  (with-meta new (meta old)))
 
 (defn event-tree
   ;; [x xs]
@@ -229,6 +240,7 @@
         pzip (zipmap unique param-names)]
     pzip))
 
+
 (defn if-line [pzip]
   (let [roles (map #(str "role(" (val %) ", " (key %) ")") pzip)]
     (reduce str (cons " if " (interpose ", " roles)))))
@@ -243,11 +255,9 @@
         arg-params (lookup-vars pzip args)
         dead-params (lookup-vars pzip dline)
         body (str "obl(" arg-params ", " dead-params ", " vio ")")
-        ifline (if-line pzip)
-        ]
-    (str body ifline)
-    ))
+        ifline (if-line pzip)]
 
+    (str body ifline)))
 
 (defn vio-tree
   [char task deadline consequence]
@@ -263,13 +273,31 @@
   [s]
   (str/replace s #"\(.*\)" ""))
 
+(defn initiates
+  [intevent param-map extevent phase]
+  (let [ifs (let [ks (keys param-map) vs (vals param-map)]
+              (map (fn [x y]
+                     (str (:type y) "(" (:id y) ", " x ")")) ks vs))
+        ]
+    (str (inst-str intevent) " initiates " extevent " if " (reduce str (interpose ", " ifs)) ";\n"))
+  )
+
+(initiates "dontTouchIt(X, Y, Z)" {"dispatcher" {:id "X" :type "role"} "sausages" {:id "Z" :type "object"}} "drops(X, Z)" 1)
+
+;; (map #(inc val %) {:test 2 :test2 3})
+
+;; (vals {:hello 3})
 
 (defn tropedef-tree
   [text name & args]
   "Args is a list of hash maps as events:
    ({:role 'role' :verb 'verb' :item 'item'})"
   (let [as (first args)
-        evs (map #(event-str % param-names) as)
+        ps (set (remove nil? (flatten (map (juxt :role :item) as))))
+        pzip (zipmap (reverse ps) param-names)
+        evs (map #(event-str % pzip) as)
+        ievent (str name "(" (reduce str (interpose ", " (take (count pzip) param-names) )) ")")
+        ]
         ;; comments (map #(get-comment text %) args)
         ;; firstcomment (str/replace (get-comment text name) "; " "")
         ;; ps (:params (meta (first args)))
@@ -282,23 +310,25 @@
         ;; rgens (map (fn [x y] (conj (vec x) y)) gens (rest iflines))
         ;; cgens (map (fn [x y] (conj (vec x) y)) rgens (rest comments))
         ;; genstr (apply str (flatten cgens))
-        ]
+
     ;; (with-meta (symbol (str firstcomment firstline genstr)) {:type "trope" :events evs})
     ;; (reduce str evs)
-    evs
+    (str ievent (reduce str evs))
+    ;; pzip
     ))
+
 
 (defn sitdef-tree
   [text name & args]
   (let [comment (str/replace (get-comment text name) "; " "")
         genstr (map #(str (inst-event-str (first name) param-names) " initiates " %) args)]
-    (with-meta (symbol (str comment (reduce str genstr))) {:type "situation"})
-    ))
+    (with-meta (symbol (str comment (reduce str genstr))) {:type "situation"})))
+
 
 (defn add-comment
   [line]
-  (str "  %" (meta line) "\n" line)
-  )
+  (str "  %" (meta line) "\n" line))
+
 
 (defn statements [strings]
   (reduce str (interpose "\n" strings)))
@@ -331,20 +361,17 @@
 
         instdecs (reduce str (map #(str "inst event " % ";\n") (mapcat #(flatten (:events (meta %))) tropes)))
         situations (filter #(= (:type (meta %)) "situation") args)
-        sit-strs (statements situations)
-        ]
+        sit-strs (statements situations)]
+
     ;; (reduce str (interpose "\n" outs))
     (str type-header typedecs "\n"
          fluent-header fluentdecs "\n"
          instev-header instdecs "\n"
          trope-header trope-strs "\n"
-         scene-header sit-strs)
-    ))
-
+         scene-header sit-strs)))
 
 (defn taskmap
-  [task]
-  )
+  [task])
 
 (defn obl-text
   [text args]
@@ -353,13 +380,12 @@
 (defn strip-the [args]
   (vec (remove #(or (= "the" %) (= "The" %)) args)))
 
-(apply merge (list {:nsth "nth"} {:nthsn "ntshh" :orch "rauh"}))
-
 (defn transform
   [ptree text]
   (insta/transform
    {
-    :trope (fn [& args] (m (first args) (symbol (inst-event-str {:verb (strip-name args)} param-names))))
+    ;; :trope (fn [& args] (m (first args) (symbol (inst-event-str {:verb (strip-name args)} param-names))))
+    :trope (fn [& args] (make-name args))
     :verb (fn [& args] {:verb (strip-name args)})
     :place (fn [& args] {:item (strip-name args)})
     :visit (fn [& args] (apply merge (conj (rest args) {:verb (first args)})))
@@ -383,7 +409,6 @@
     :situationdef (partial sitdef-tree text)
     :child (fn [& args] (with-meta (symbol (strip-name args)) {:type "child"}))
     :parent (fn [& args] (with-meta (symbol (strip-name args)) {:type "parent"}))
-    :typedef (partial typedef-tree text)
-    ;; :narrative narrative-tree
-    } ptree))
-
+    :typedef (partial typedef-tree text)}
+    ; :narrative narrative-tree
+   ptree))

@@ -3,8 +3,8 @@
             [instaparse.core :as insta]
             [tropic.core :refer [tropc -main]]
             [tropic.parser :refer [parse transform]]
-            [net.cgrand.enlive-html :as html]
-            ))
+            [net.cgrand.enlive-html :as html]))
+
 
 (deftest rules
   (testing "Testing rules"
@@ -15,8 +15,8 @@
       (is (vector? (tropical "When the Wise Sage is in the dell")))
       (is (vector? (tropical "When Dan is in the Durley Dean")))
       (is (vector? (tropical "When Gandalf gets a quest")))
-      (is (vector? (tropical "Destroy the Death Star is a task")))
-      )))
+      (is (vector? (tropical "Destroy the Death Star is a task"))))))
+
 
 (defn multi [lines]
   (clojure.string/join "\n" lines))
@@ -52,8 +52,8 @@
                           "It contains the Evil Empire trope"
                           "Luke Skywalker is its hero"
                           "Darth Vader is its villain"
-                          "The end"
-                          ]))
+                          "The end"]))
+
 
 
 (def trope-sit-test
@@ -74,16 +74,16 @@
           "  The Hero may bring friends"
           "  The Hero may destroy the Death Star"
           "When the Villain gets a hostage:"
-          "  The Villain may destroy Alderaan"
-          ]))
+          "  The Villain may destroy Alderaan"]))
+
 
 (def character-test
   (multi [
           "A hero is a type of character who:"
           "  Cannot kill someone"
           "A villain is a type of character who:"
-          "  Can kill someone"
-          ]))
+          "  Can kill someone"]))
+
 
 (parse character-test)
 
@@ -100,8 +100,8 @@
           "    Then \"Punch kills the baby\""
           "  Punch is its hero"
           "  Joey is its dispatcher"
-          "  Snap is its rogue"
-          ]))
+          "  Snap is its rogue"]))
+
 
 (parse story-test)
 
@@ -110,8 +110,8 @@
           "\"Sausages\" is a scene:"
           "  It contains the \"Don't touch it\" trope"
           "  Starring Punch, Judy, Snap and Joey"
-          "  It has sausages"
-          ]))
+          "  It has sausages"]))
+
 
 (parse scene-test)
 
@@ -123,8 +123,8 @@
           "  The hero falls over"
           "    Or the villain slips up"
           "  When someone hits someone else:"
-          "    The audience will laugh"
-          ]))
+          "    The audience will laugh"]))
+
 
 (parse slapstick-test)
 
@@ -132,11 +132,11 @@
   (multi [
           "\"Don't touch it\" is a trope where:"
           "  The dispatcher drops an object"
-          "  Then the dispatcher leaves home"
-          ;; "  Then the rogue takes the object"
+          "  Then the dispatcher leaves"
+          "  Then the rogue takes the object"
           ;; "    Or the hero breaks the object"
-          ;; "  Then the dispatcher returns"
           ]))
+          ;; "  Then the dispatcher returns"
 
 (parse touch-test)
 (tropc touch-test)
@@ -154,8 +154,8 @@
           "A Hero is a type of Character"
           "A Villain is a type of Character"
           "A Hero can:"
-          "  Visit the Death Star"
-          ]))
+          "  Visit the Death Star"]))
+
 
 (parse role-test)
 (tropc role-test)
@@ -163,4 +163,3 @@
 (tropc trope-sit-test)
 
 (spit "resources/output.ial" (tropc trope-sit-test))
-
