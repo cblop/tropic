@@ -5,10 +5,10 @@
 (def tropical
   (insta/parser
    "narrative = rule+
-    <rule> = tropedef | situationdef | taskdef | roledef | storydef | scenedef | initialdef | tracedef
+    <rule> = tropedef | roledef | storydef | scenedef | initialdef | tracedef
 
     tropedef =
-        tropename <'\\n'> (alias / <whitespace> norms / sequence / <whitespace> situationdef)+ <'\\n'?>
+        tropename <'\\n'> (situationdef / alias / <whitespace> norms / sequence / <whitespace> situationdef)+ <'\\n'?>
 
     <tropename> =
         trope <' is a trope where:'>
@@ -22,7 +22,7 @@
     sequence =
         <whitespace> event or? <'\\n'?> (<whitespace> <'Then '> event or? <'\\n'?>)*
 
-    situationdef = situation (<'\\n'> <whitespace+> norms | <'\\n'> <whitespace+> consequence)+ <'\\n'?>
+    situationdef = <whitespace> situation (<'\\n'> <whitespace whitespace> norms | <'\\n'> <whitespace whitespace whitespace> consequence)+ <'\\n'?>
 
     or =
         <'\\n' whitespace+ 'Or '> event
@@ -58,14 +58,8 @@
 
     character = name
 
-    taskdef =
-        taskname condition <'\\n' whitespace+ 'Otherwise, '> <'the '?> event <'.'?> <'\\n'?>
-
     condition =
         <'\\n' whitespace 'To complete it, '> item <' must be '> state <'.'?>
-
-    <taskname> =
-        task <' is a task' '.'?>
 
     permission = character <' may '> task conditional? <'\\n'?>
     obligation = character <' must '> task <' before '> deadline <'\\n' whitespace+ 'Otherwise, '> <'the '?> violation <'.'?> <'\\n'?>
@@ -282,7 +276,7 @@
     (str (inst-str intevent) " initiates " extevent " if " (reduce str (interpose ", " ifs)) ";\n"))
   )
 
-(initiates "dontTouchIt(X, Y, Z)" {"dispatcher" {:id "X" :type "role"} "sausages" {:id "Z" :type "object"}} "drops(X, Z)" 1)
+(initiates "dontTouchIt(X, Y, Z)" {"dispatcher" {:id "X" :type "role"} "hero" {:id "Y" :type "role"} "sausages" {:id "Z" :type "object"}} "drops(X, Z)" 1)
 
 ;; (map #(inc val %) {:test 2 :test2 3})
 
@@ -293,10 +287,11 @@
   "Args is a list of hash maps as events:
    ({:role 'role' :verb 'verb' :item 'item'})"
   (let [as (first args)
-        ps (set (remove nil? (flatten (map (juxt :role :item) as))))
-        pzip (zipmap (reverse ps) param-names)
-        evs (map #(event-str % pzip) as)
-        ievent (str name "(" (reduce str (interpose ", " (take (count pzip) param-names) )) ")")
+        ps (set (remove #(= (first (keys %)) nil) (flatten (map (juxt #(hash-map (:role %) (hash-map :type "role")) #(hash-map (:item %) (hash-map :type "item"))) as))))
+        ;; pzip (zipmap (reverse ps) param-names)
+        pzip (zipmap (keys ps) (vals ps))
+        ;; evs (map #(event-str % pzip) as)
+        ;; ievent (str name "(" (reduce str (interpose ", " (take (count pzip) param-names) )) ")")
         ]
         ;; comments (map #(get-comment text %) args)
         ;; firstcomment (str/replace (get-comment text name) "; " "")
@@ -313,7 +308,9 @@
 
     ;; (with-meta (symbol (str firstcomment firstline genstr)) {:type "trope" :events evs})
     ;; (reduce str evs)
-    (str ievent (reduce str evs))
+    ;; (str ievent (reduce str evs))
+    pzip
+    ;; (initiates (first evs) pzip (second evs) 1)
     ;; pzip
     ))
 

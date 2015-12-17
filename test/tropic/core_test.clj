@@ -3,6 +3,7 @@
             [instaparse.core :as insta]
             [tropic.core :refer [tropc -main]]
             [tropic.parser :refer [parse transform]]
+            [tropic.gen :refer [make-map]]
             [net.cgrand.enlive-html :as html]))
 
 
@@ -64,18 +65,21 @@
           "  The Hero is at home"
           "  Then the Hero gets a task"
           "  Then the Hero returns home"
+          "  When the Hero gets a weapon:"
+          "    The Hero must leave home before the Villain comes"
+          "      Otherwise, the Villain kills the Hero"
+          "    The Hero may bring friends"
+          "    The Hero may destroy the evil base"
           "\"The Evil Empire\" is a trope where:"
+          "  When the Villain gets a hostage:"
+          "    The Villain may kill the hostage"
           "  The Villain does a bad thing"
           "  Then the Villain fights the hero"
           "  Then the Villain is defeated"
-          "When the Hero gets a lightsaber:"
-          "  The Hero must leave home before the Villain comes"
-          "    Otherwise, the Villain kills the Hero"
-          "  The Hero may bring friends"
-          "  The Hero may destroy the Death Star"
-          "When the Villain gets a hostage:"
-          "  The Villain may destroy Alderaan"]))
+          ]))
 
+(parse trope-sit-test)
+(make-map (parse trope-sit-test) trope-sit-test)
 
 (def character-test
   (multi [
@@ -118,15 +122,16 @@
 (def slapstick-test
   (multi [
           "\"Slapstick\" is a trope where:"
-          "  The hero is also the villain"
+          ;; "  The hero is also the villain"
           "  The audience may laugh"
           "  The hero falls over"
-          "    Or the villain slips up"
+          ;; "    Or the villain slips up"
           "  When someone hits someone else:"
-          "    The audience will laugh"]))
+          "    The audience may laugh"]))
 
 
 (parse slapstick-test)
+(make-map (parse slapstick-test) slapstick-test)
 
 (def touch-test
   (multi [
@@ -140,6 +145,8 @@
 
 (parse touch-test)
 (tropc touch-test)
+
+(make-map (parse touch-test) touch-test)
 
 (parse trope-sit-test)
 (transform (parse trope-sit-test) trope-sit-test)
