@@ -4,6 +4,7 @@
             [tropic.core :refer [tropc -main]]
             [tropic.parser :refer [parse transform]]
             [tropic.gen :refer [make-map]]
+            [tropic.instal :refer :all]
             [net.cgrand.enlive-html :as html]))
 
 
@@ -124,7 +125,7 @@
           "\"Slapstick\" is a trope where:"
           ;; "  The hero is also the villain"
           "  The audience may laugh"
-          "  The hero falls over"
+          "  The hero falls"
           ;; "    Or the villain slips up"
           "  When someone hits someone else:"
           "    The audience may laugh"]))
@@ -132,6 +133,8 @@
 
 (parse slapstick-test)
 (make-map (parse slapstick-test) slapstick-test)
+(def smap (make-map (parse slapstick-test) slapstick-test))
+(instal smap)
 
 (def touch-test
   (multi [
@@ -147,6 +150,9 @@
 (tropc touch-test)
 
 (make-map (parse touch-test) touch-test)
+(def tmap (make-map (parse touch-test) touch-test))
+(initiates tmap)
+(instal tmap)
 
 (parse trope-sit-test)
 (transform (parse trope-sit-test) trope-sit-test)
