@@ -6,17 +6,6 @@
 (def PHASES ["A" "B" "C" "D" "E" "F"])
 (def PARAMS ["X" "Y" "Z" "W"])
 
-(defn strip-name
-  "Takes character name list, strips off 'the', makes lowercase"
-  [n]
-  (let [the (remove #(or (= "the" %) (= "The" %)) n)
-        camel (if (> (count the) 1)
-                (cons (str/lower-case (first the)) (map str/capitalize (rest the)))
-                (map str/lower-case the))
-        cat (reduce str camel)
-        san (str/replace cat #"\"" "")]
-    san))
-
 (defn capitalize-words
   "Capitalize every word in a string"
   [s]
@@ -25,8 +14,6 @@
        (str/join)))
 
 (defn #^String cap-first [#^String s]
-  "Decapitalize a String, i.e convert String to string
-or STRING to string"
   (if (< (count s) 2)
     (.toUpperCase s)
     (str (.toUpperCase (subs s 0 1))
@@ -42,7 +29,8 @@ or STRING to string"
 
 (defn event-name
   [words]
-  (let [s (str/replace words #"'" "")
+  (let [t (str/replace words #"The|the" "")
+        s (str/replace t #"'" "")
         c (capitalize-words s)
         i (str/replace c #" " "")
         ename (decapitalize i)]
@@ -90,8 +78,9 @@ or STRING to string"
         role (:subject params)
         obj (:object params)]
     (if (nil? obj)
-      [(str "role(X, " role ")")]
-      [(str "role(X, " role ")") (str "object(Y)")])))
+      (if (nil? role) []
+          [(str "role(X, " (event-name role) ")")])
+      [(str "role(X, " (event-name role) ")") (str "object(Y, " (event-name obj) ")")])))
 
 
 (defn generates [trope]
@@ -103,7 +92,7 @@ or STRING to string"
         ]
     gen-a))
 
-(defn initiates [trope]
+(defn initiates [trope roles objects]
   (let [inst (inst-name (:name trope))
         ename (event-name (:name trope))
         events (:events trope)
@@ -125,7 +114,7 @@ or STRING to string"
         svec (map vector wperms)
         init-a (map imake (repeat inst) evec cvec)
         init-b (map imake (repeat inst) svec wparams)
-        init-c (map imake (map #(str "int" (cap-first (str %))) wstrs) (map vector wpvec) wpparams)
+        init-c (map imake (repeat (first (map #(str "int" (cap-first (str %))) wstrs))) (map vector wpvec) wpparams)
         ]
     ;; (imake (first evec) (first cvec))
     ;; (map imake (repeat inst) evec cvec)
@@ -138,8 +127,8 @@ or STRING to string"
 
 
 (defn instal [hmap]
-  (let [inits (initiates (first (:tropes hmap)))
-        gens (generates (first (:tropes hmap)))]
-    (reduce str (interpose "\n" (concat inits gens))))
+  (let [inits (mapcat initiates (:tropes hmap))
+        gens (mapcat generates (:tropes hmap))]
+    (reduce str (interpose "\n\n" (concat inits gens))))
   )
 

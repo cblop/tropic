@@ -11,7 +11,6 @@ The Hero's Journey is a trope
   Then the hero enters the land of adventure
   Then the hero enters the enemy base
   Then the hero fights the villain
-  It ends with a celebration
 #+END_SRC
 
 During an event, character types will have certain permissions:
@@ -19,55 +18,49 @@ During an event, character types will have certain permissions:
 #+BEGIN_SRC
 When the hero is at home
   The dispatcher may give the hero a quest
-  The hero may not leave home
+  The hero may leave home
 #+END_SRC
 
-And obligations, with deadlines:
+Any actions that are not mentioned in this way are not to be permitted.
+
+Obligations have optional deadlines and violation events:
 
 #+BEGIN_SRC
 When the hero gets a quest
   The hero must complete the quest before a bad thing happens
-#+END_SRC
-
-The deadline is defined inside a quest:
-
-#+BEGIN_SRC
-Destroy the Death Star is a quest
-  To complete it, the Death Star must be destroyed
-  Otherwise, the destruction of the rebel base occurs
-#+END_SRC
-
-Violation events are defined as 'bad things':
-
-#+BEGIN_SRC
-The destruction of the rebel base is a bad thing
-  If it happens, the Rebels die
-  If it happens, the Empire wins
-  If it happens, the story ends
+    Otherwise the villain kills the hero
 #+END_SRC
 
 Characters have roles, which are empowered to do certain things:
 
 #+BEGIN_SRC
-A hero is a good character.
-A hero can:
-  Fight the villain
+A hero is a type of character who:
+  Can fight the villain
 
-A villain is a bad character, which can:
-  Fight the hero
-  Destroy the rebel base
+A villain is a type of character who:
+  Can fight the hero
+  Can destroy the rebel base
 #+END_SRC
 
 They can be subclassed with additional statements:
 
 #+BEGIN_SRC
-An Antihero is a type of hero.
-An Antihero can:
-  Fight good characters
-  Start a redemption trope
+An Antihero is a type of hero who:
+  Can fight good characters
+  Can start a redemption trope
 #+END_SRC
 
 These powers are added on top of their parent class powers.
+
+Scenes are concrete implementations of tropes within a part of a story.
+
+#+BEGIN_SRC
+"Sausages" is a scene:
+  It contains the "Don't touch it" trope
+  "Punch" is its villain
+  "Joey" is its dispatcher
+  "Sausages" are its object
+#+END_SRC
 
 Once tropes and events are defined abstractly, we can define a concrete instance of a story:
 
@@ -83,6 +76,8 @@ Star Wars is a story:
 #+END_SRC
 
 The last statement is important: instead of Luke Skywalker's actions being simulated by an agent, they are carried out by the player. This could possibly be extended to multiple players in the future (i.e. "Player 1 is Luke Skywalker\nPlayer 2 is Darth Vader")
+
+Character roles have scene-level scope, but they can be listed in the story definition as a way of providing default roles for scenes.
 
 The initial situation is described like this:
 

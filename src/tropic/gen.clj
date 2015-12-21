@@ -25,6 +25,7 @@
     :character (partial param-map :subject)
     :sequence (fn [& args] {:events (into [] args)})
     :trope (fn [& args] {:name (make-string args)})
+    :roledef (partial apply hash-map)
     :situation (fn [& args] (first args))
     :situationdef (fn [& args] {:situation {:when (first args) :norms (into [] (map first (rest args)))}})
     ;; ;; :situation first
@@ -44,7 +45,8 @@
     ;; :norms (fn [& args] {:norms (into [] args)})
     :norms (fn [& args] args)
     :narrative (fn [& args] (hash-map
-                             :tropes (into [] (get-by-key :trope args))))
+                             :tropes (into [] (get-by-key :trope args))
+                             :roles (into [] (get-by-key :role args))))
     }
    ptree))
 

@@ -60,8 +60,8 @@
 
 (def trope-sit-test
   (multi [
-          ;; "A Hero is a type of Character"
-          ;; "A Villain is a type of Character"
+          "A Hero is a type of character"
+          "A Villain is a type of character"
           "\"The Hero's Journey\" is a trope where:"
           "  The Hero is at home"
           "  Then the Hero gets a task"
@@ -77,10 +77,14 @@
           "  The Villain does a bad thing"
           "  Then the Villain fights the hero"
           "  Then the Villain is defeated"
+          "\"Luke's Adventure\" is a scene:"
+          "  It contains the \"Hero's Journey\" trope"
           ]))
 
 (parse trope-sit-test)
 (make-map (parse trope-sit-test) trope-sit-test)
+(instal (make-map (parse trope-sit-test) trope-sit-test))
+(spit "resources/herosJourney.ial" (instal (make-map (parse trope-sit-test) trope-sit-test)))
 
 (def character-test
   (multi [
@@ -151,7 +155,6 @@
 
 (make-map (parse touch-test) touch-test)
 (def tmap (make-map (parse touch-test) touch-test))
-(initiates tmap)
 (instal tmap)
 
 (parse trope-sit-test)

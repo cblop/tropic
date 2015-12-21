@@ -27,9 +27,9 @@
     or =
         <'\\n' whitespace+ 'Or '> event
 
-    roledef = rolehead power+
+    roledef = rolehead power*
 
-    <rolehead> = <'A ' / 'An '> role <' is a type of character who:\\n'> power*
+    <rolehead> = <'A ' / 'An '> role <' is a type of character'> <'who:'>? <'\\n'> power*
 
     power = <whitespace> (can / cannot) <'\\n'?>
 
