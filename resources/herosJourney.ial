@@ -1,0 +1,27 @@
+intHerosJourney initiates phase(herosJourney, phaseA), perm(is(X, Y)) if role(X, hero), object(Y, atHome), phase(herosJourney, inactive);
+
+intHerosJourney initiates phase(herosJourney, phaseB), perm(gets(X, Y)) if role(X, hero), object(Y, task), phase(herosJourney, phaseA);
+
+intHerosJourney initiates phase(herosJourney, phaseC), perm(returns(X, Y)) if role(X, hero), object(Y, home), phase(herosJourney, phaseB);
+
+intHerosJourney initiates perm(gets(X, Y)) if role(X, hero), object(Y, weapon);
+
+intGets(X, Y) initiates perm((X)) if ;
+
+intGets(X, Y) initiates perm(bring(X, Y)) if role(X, hero), object(Y, friends);
+
+intGets(X, Y) initiates perm(destroy(X, Y)) if role(X, hero), object(Y, evilBase);
+
+intEvilEmpire initiates phase(evilEmpire, phaseA), perm(does(X, Y)) if role(X, villain), object(Y, badThing), phase(evilEmpire, inactive);
+
+intEvilEmpire initiates phase(evilEmpire, phaseB), perm(fights(X, Y)) if role(X, villain), object(Y, hero), phase(evilEmpire, phaseA);
+
+intEvilEmpire initiates phase(evilEmpire, phaseC), perm(is(X, Y)) if role(X, villain), object(Y, defeated), phase(evilEmpire, phaseB);
+
+intEvilEmpire initiates perm(gets(X, Y)) if role(X, villain), object(Y, hostage);
+
+intGets(X, Y) initiates perm(kill(X, Y)) if role(X, villain), object(Y, hostage);
+
+gets(X, Y) generates intGets(X, Y) if role(X, hero), object(Y, weapon);
+
+gets(X, Y) generates intGets(X, Y) if role(X, villain), object(Y, hostage);
