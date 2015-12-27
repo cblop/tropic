@@ -60,6 +60,7 @@
 
 (def trope-sit-test
   (multi [
+          "The sausages are a type of object"
           "A Hero is a type of character"
           "A Villain is a type of character"
           "\"The Hero's Journey\" is a trope where:"

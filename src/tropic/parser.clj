@@ -5,7 +5,7 @@
 (def tropical
   (insta/parser
    "narrative = rule+
-    <rule> = tropedef | roledef | storydef | scenedef | initialdef | tracedef
+    <rule> = tropedef | roledef | thingdef | storydef | scenedef | initialdef | tracedef
 
     tropedef =
         tropename <'\\n'> (situationdef / alias / <whitespace> norms / sequence / <whitespace> situationdef)+ <'\\n'?>
@@ -30,6 +30,8 @@
     roledef = rolehead power*
 
     <rolehead> = <'A ' / 'An '> role <' is a type of character'> <'who:'>? <'\\n'> power*
+
+    thingdef = <'A ' / 'An ' / 'The '>? thing <' is'/' are'> <' a type of object'> <'.'?> <'\\n'>
 
     power = <whitespace> (can / cannot) <'\\n'?>
 
@@ -102,6 +104,7 @@
     story = <'\\\"'> words <'\\\"'>
     scene = <'\\\"'> words <'\\\"'>
     role = word
+    thing = word
     trope = <'\\\"'> [<'The ' | 'the '>] words <'\\\"'>
     <name> = (<'The ' | 'the '>)? word
     <whitespace> = #'\\s\\s'
@@ -276,11 +279,6 @@
     (str (inst-str intevent) " initiates " extevent " if " (reduce str (interpose ", " ifs)) ";\n"))
   )
 
-(initiates "dontTouchIt(X, Y, Z)" {"dispatcher" {:id "X" :type "role"} "hero" {:id "Y" :type "role"} "sausages" {:id "Z" :type "object"}} "drops(X, Z)" 1)
-
-;; (map #(inc val %) {:test 2 :test2 3})
-
-;; (vals {:hello 3})
 
 (defn tropedef-tree
   [text name & args]

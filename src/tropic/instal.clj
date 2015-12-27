@@ -41,7 +41,7 @@ or STRING to string"
 
 (defn inst-name
   [iname]
-  (str "int" (cap-first (event-name iname))))
+  (str "int" (cap-first (event-name iname)) "()"))
 
 (defn event-str
   [event]
@@ -73,39 +73,74 @@ or STRING to string"
 (defn perm [ev]
   (str "perm(" ev ")"))
 
-(defn unify-params [params]
+(defn unify-params [params roles objects]
   (let [m (meta params)
-        role (:subject params)
-        obj (:object params)]
+        subject (if (nil? (:subject params)) "" (:subject params))
+        object (if (nil? (:object params)) "" (:object params))
+        role (if (some #(= (event-name subject) %) (map event-name ["Hero" "Villain"])) (event-name subject) nil)
+        obj (if (some #(= (event-name object)) (map event-name objects)) (event-name object) nil)]
     (if (nil? obj)
       (if (nil? role) []
-          [(str "role(X, " (event-name role) ")")])
-      [(str "role(X, " (event-name role) ")") (str "object(Y, " (event-name obj) ")")])))
+          [(str "role(X, " role ")")])
+      [(str "role(X, " role ")") (str "object(Y, " obj ")")])))
 
+(defn namify [strs]
+  (reduce str strs))
 
-(defn generates [trope]
-  (let [situations (:situations trope)
+(defn generates [trope roles objects]
+  (let [header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
+        situations (:situations trope)
         wstrs (map #(event-str (:when %)) situations)
-        wparams (map #(unify-params (:when %)) situations)
+        wparams (map #(unify-params (:when %) roles objects) situations)
         gmake (fn [iname evs cnds] (str iname " generates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         gen-a (map gmake wstrs (map #(vector (str "int" (cap-first (str %)))) wstrs) wparams)
         ]
-    gen-a))
+    (cons header gen-a)))
+
+
+(def types
+  ["% TYPES ----------"
+   "type Agent;"
+   "type Role;"
+   "type Trope;"
+   "type Phase;"
+   "type Object;\n"])
+
+(def fluents
+  ["% FLUENTS ----------"
+   "fluent role(Agent, Role);"
+   "fluent phase(Trope, Phase);\n"])
+
+(defn external-events [trope]
+  (let [header (str "% EXTERNAL EVENTS: " (namify (:name trope)) " ----------")
+        events (:events trope)
+        situations (:situations trope)
+        all (concat events situations)
+        strng (fn [x] (str "external event " (event-str x) ";"))]
+    (cons header (map strng all))))
+
+(defn inst-events [trope]
+  (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
+        nm (inst-name (:name trope))
+        instr (str "inst event " nm ";")]
+    (cons header [instr])))
+
 
 (defn initiates [trope roles objects]
-  (let [inst (inst-name (:name trope))
+  (let [inst (str (inst-name (:name trope)))
         ename (event-name (:name trope))
+        header (str "% INITIATES: " (namify (:name trope)) " ----------")
         events (:events trope)
         situations (:situations trope)
         sitnorms (first (map :norms situations))
         wstrs (map #(event-str (:when %)) situations)
         wpvec (map #(perm (event-str (:permission %))) sitnorms)
-        wpparams (map #(unify-params (:permission %)) sitnorms)
+        wpparams (map #(unify-params (:permission %) roles objects) sitnorms)
         wperms (map perm wstrs)
         estrs (map event-str events)
         perms (map perm estrs)
-        wparams (map #(unify-params (:when %)) situations)
-        params (map unify-params events)
+        wparams (map #(unify-params (:when %) roles objects) situations)
+        params (map #(unify-params % roles objects) events)
         phases (make-phases ename (count events))
         mphases (butlast (rest phases))
         imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
@@ -120,15 +155,17 @@ or STRING to string"
     ;; (map imake (repeat inst) evec cvec)
     ;; (map imake (repeat inst) svec wparams)
     ;; (map imake (map inst-name wstrs) (map vector wpvec) wpparams)
-    (concat init-a init-b init-c)
+    (concat [header] init-a init-b init-c)
     ;; wpvec
     ;; events
     ))
 
 
 (defn instal [hmap]
-  (let [inits (mapcat initiates (:tropes hmap))
-        gens (mapcat generates (:tropes hmap))]
-    (reduce str (interpose "\n\n" (concat inits gens))))
+  (let [exts (mapcat external-events (:tropes hmap))
+        insts (mapcat inst-events (:tropes hmap))
+        inits (mapcat #(initiates % (:roles hmap) (:objects hmap)) (:tropes hmap))
+        gens (mapcat #(generates % (:roles hmap) (:objects hmap)) (:tropes hmap))]
+    (reduce str (interpose "\n" (concat types fluents exts ["\n"] insts ["\n"] inits ["\n"] gens))))
   )
 
