@@ -149,9 +149,9 @@ or STRING to string"
         mphases (rest phases)
         imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        evec (map vector mphases perms)
+        evec (conj (into [] (map vector mphases perms)) [(last phases)])
         tvec (conj (into [] (map vector (butlast mphases) perms)) [(last mphases)])
-        cvec (map conj params phases)
+        cvec (conj (into [] (map conj params phases)) [(last (butlast mphases))])
         svec (map vector wperms)
         init-a (map imake (repeat inst) evec cvec)
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
@@ -162,6 +162,7 @@ or STRING to string"
     ;; (map imake (repeat inst) evec cvec)
     ;; (map imake (repeat inst) svec wparams)
     ;; (map imake (map inst-name wstrs) (map vector wpvec) wpparams)
+    ;; (concat [header] [(prn-str params) (prn-str evec) (prn-str cvec)] init-a init-b init-c [term-header] term-a)
     (concat [header] init-a init-b init-c [term-header] term-a)
     ;; wpvec
     ;; events
