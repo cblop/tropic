@@ -32,15 +32,24 @@ intHerosJourney() initiates phase(herosJourney, phaseA), perm(is(X, Y)) if role(
 intHerosJourney() initiates phase(herosJourney, phaseB), perm(gets(X, Y)) if role(X, hero), phase(herosJourney, phaseA);
 intHerosJourney() initiates phase(herosJourney, phaseC), perm(returns(X, Y)) if role(X, hero), phase(herosJourney, phaseB);
 intHerosJourney() initiates perm(gets(X, Y)) if role(X, hero);
-intGets(X, Y) initiates perm((X)) if ;
+intGets(X, Y) initiates perm((X)) if role(X, hero);
 intGets(X, Y) initiates perm(bring(X, Y)) if role(X, hero);
-intGets(X, Y) initiates perm(destroy(X, Y)) if role(X, hero);
+% TERMINATES: The Hero's Journey ----------
+intHerosJourney() terminates phase(herosJourney, inactive) if phase(herosJourney, phaseA), perm(is(X, Y));
+intHerosJourney() terminates phase(herosJourney, phaseA), perm(is(X, Y)) if phase(herosJourney, phaseB), perm(gets(X, Y));
+intHerosJourney() terminates phase(herosJourney, phaseB), perm(gets(X, Y)) if phase(herosJourney, phaseC), perm(returns(X, Y));
+intHerosJourney() terminates phase(herosJourney, phaseC), perm(returns(X, Y)) if phase(herosJourney, done);
 % INITIATES: The Evil Empire ----------
 intEvilEmpire() initiates phase(evilEmpire, phaseA), perm(does(X, Y)) if role(X, villain), phase(evilEmpire, inactive);
 intEvilEmpire() initiates phase(evilEmpire, phaseB), perm(fights(X, Y)) if role(X, villain), phase(evilEmpire, phaseA);
 intEvilEmpire() initiates phase(evilEmpire, phaseC), perm(is(X, Y)) if role(X, villain), phase(evilEmpire, phaseB);
 intEvilEmpire() initiates perm(gets(X, Y)) if role(X, villain);
 intGets(X, Y) initiates perm(kill(X, Y)) if role(X, villain);
+% TERMINATES: The Evil Empire ----------
+intEvilEmpire() terminates phase(evilEmpire, inactive) if phase(evilEmpire, phaseA), perm(does(X, Y));
+intEvilEmpire() terminates phase(evilEmpire, phaseA), perm(does(X, Y)) if phase(evilEmpire, phaseB), perm(fights(X, Y));
+intEvilEmpire() terminates phase(evilEmpire, phaseB), perm(fights(X, Y)) if phase(evilEmpire, phaseC), perm(is(X, Y));
+intEvilEmpire() terminates phase(evilEmpire, phaseC), perm(is(X, Y)) if phase(evilEmpire, done);
 
 
 % GENERATES: The Hero's Journey ----------

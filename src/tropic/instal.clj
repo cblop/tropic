@@ -80,7 +80,7 @@ or STRING to string"
         role (if (some #(= (event-name subject) %) (map event-name ["Hero" "Villain"])) (event-name subject) nil)
         obj (if (some #(= (event-name object)) (map event-name objects)) (event-name object) nil)]
     (if (nil? obj)
-      (if (nil? role) []
+      (if (nil? role) nil
           [(str "role(X, " role ")")])
       [(str "role(X, " role ")") (str "object(Y, " obj ")")])))
 
@@ -125,29 +125,36 @@ or STRING to string"
         instr (str "inst event " nm ";")]
     (cons header [instr])))
 
+(defn terminates [trope roles objects]
+  (let [inst (str (inst-name (:name trope)))]))
+
 
 (defn initiates [trope roles objects]
   (let [inst (str (inst-name (:name trope)))
         ename (event-name (:name trope))
         header (str "% INITIATES: " (namify (:name trope)) " ----------")
+        term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
         events (:events trope)
         situations (:situations trope)
         sitnorms (first (map :norms situations))
         wstrs (map #(event-str (:when %)) situations)
         wpvec (map #(perm (event-str (:permission %))) sitnorms)
-        wpparams (map #(unify-params (:permission %) roles objects) sitnorms)
+        wpparams (filter some? (map #(unify-params (:permission %) roles objects) sitnorms))
         wperms (map perm wstrs)
         estrs (map event-str events)
         perms (map perm estrs)
         wparams (map #(unify-params (:when %) roles objects) situations)
         params (map #(unify-params % roles objects) events)
         phases (make-phases ename (count events))
-        mphases (butlast (rest phases))
+        mphases (rest phases)
         imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
+        tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         evec (map vector mphases perms)
+        tvec (conj (into [] (map vector (butlast mphases) perms)) [(last mphases)])
         cvec (map conj params phases)
         svec (map vector wperms)
         init-a (map imake (repeat inst) evec cvec)
+        term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
         init-b (map imake (repeat inst) svec wparams)
         init-c (map imake (repeat (first (map #(str "int" (cap-first (str %))) wstrs))) (map vector wpvec) wpparams)
         ]
@@ -155,7 +162,7 @@ or STRING to string"
     ;; (map imake (repeat inst) evec cvec)
     ;; (map imake (repeat inst) svec wparams)
     ;; (map imake (map inst-name wstrs) (map vector wpvec) wpparams)
-    (concat [header] init-a init-b init-c)
+    (concat [header] init-a init-b init-c [term-header] term-a)
     ;; wpvec
     ;; events
     ))
