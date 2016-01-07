@@ -41,7 +41,11 @@ or STRING to string"
 
 (defn inst-name
   [iname]
-  (str "int" (cap-first (event-name iname)) "()"))
+  (str "int" (cap-first (event-name iname)) "(X, Y)"))
+
+(defn inst-name-h
+  [iname]
+  (str "int" (cap-first (event-name iname)) "(Agent, Object)"))
 
 (defn event-str
   [event]
@@ -77,10 +81,14 @@ or STRING to string"
   (let [m (meta params)
         subject (if (nil? (:subject params)) "" (:subject params))
         object (if (nil? (:object params)) "" (:object params))
-        role (if (some #(= (event-name subject) %) (map event-name ["Hero" "Villain"])) (event-name subject) nil)
-        obj (if (some #(= (event-name object)) (map event-name objects)) (event-name object) nil)]
-    (if (nil? obj)
-      (if (nil? role) nil
+        role (event-name subject)
+        obj (event-name object)]
+        ;; replace with filter
+        ;; role (if (some #(= (event-name subject) %) (map event-name roles)) (event-name subject) nil)
+        ;; obj (if (some #(= (event-name object) %) (map event-name objects)) (event-name object) nil)]
+    ;; [(str "role(X, " role ")") (str "object(Y, " obj ")")]))
+    (if (nil? object)
+      (if (nil? subject) nil
           [(str "role(X, " role ")")])
       [(str "role(X, " role ")") (str "object(Y, " obj ")")])))
 
@@ -121,7 +129,7 @@ or STRING to string"
 
 (defn inst-events [trope]
   (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
-        nm (inst-name (:name trope))
+        nm (inst-name-h (:name trope))
         instr (str "inst event " nm ";")]
     (cons header [instr])))
 
@@ -162,12 +170,11 @@ or STRING to string"
     ;; (map imake (repeat inst) evec cvec)
     ;; (map imake (repeat inst) svec wparams)
     ;; (map imake (map inst-name wstrs) (map vector wpvec) wpparams)
-    ;; (concat [header] [(prn-str params) (prn-str evec) (prn-str cvec)] init-a init-b init-c [term-header] term-a)
     (concat [header] init-a init-b init-c [term-header] term-a)
+    ;; (concat [header] init-a init-b init-c [term-header] term-a)
     ;; wpvec
     ;; events
     ))
-
 
 (defn instal [hmap]
   (let [exts (mapcat external-events (:tropes hmap))

@@ -21,40 +21,41 @@ external event is(X, Y);
 external event (X);
 
 
-% INST EVENTS: The Hero's Journey ----------
-inst event intHerosJourney();
+% INST EVENThttps://en.wikibooks.org/wiki/Japanese_PhrasebookS: The Hero's Journey ----------
+inst event intHerosJourney(Agent, Object);
 % INST EVENTS: The Evil Empire ----------
-inst event intEvilEmpire();
+inst event intEvilEmpire(Agent, Object);
 
 
 % INITIATES: The Hero's Journey ----------
-intHerosJourney() initiates phase(herosJourney, phaseA), perm(is(X, Y)) if role(X, hero), phase(herosJourney, inactive);
-intHerosJourney() initiates phase(herosJourney, phaseB), perm(gets(X, Y)) if role(X, hero), phase(herosJourney, phaseA);
-intHerosJourney() initiates phase(herosJourney, phaseC), perm(returns(X, Y)) if role(X, hero), phase(herosJourney, phaseB);
-intHerosJourney() initiates phase(herosJourney, done) if phase(herosJourney, phaseC);
-intHerosJourney() initiates perm(gets(X, Y)) if role(X, hero);
-intGets(X, Y) initiates perm((X)) if role(X, hero);
-intGets(X, Y) initiates perm(bring(X, Y)) if role(X, hero);
+intHerosJourney(X, Y) initiates phase(herosJourney, phaseA), perm(is(X, Y)) if role(X, hero), object(Y, atHome), phase(herosJourney, inactive);
+intHerosJourney(X, Y) initiates phase(herosJourney, phaseB), perm(gets(X, Y)) if role(X, hero), object(Y, task), phase(herosJourney, phaseA);
+intHerosJourney(X, Y) initiates phase(herosJourney, phaseC), perm(returns(X, Y)) if role(X, hero), object(Y, home), phase(herosJourney, phaseB);
+intHerosJourney(X, Y) initiates phase(herosJourney, done) if phase(herosJourney, phaseC);
+intHerosJourney(X, Y) initiates perm(gets(X, Y)) if role(X, hero), object(Y, weapon);
+intGets(X, Y) initiates perm((X)) if role(X, ), object(Y, );
+intGets(X, Y) initiates perm(bring(X, Y)) if role(X, hero), object(Y, friends);
+intGets(X, Y) initiates perm(destroy(X, Y)) if role(X, hero), object(Y, evilBase);
 % TERMINATES: The Hero's Journey ----------
-intHerosJourney() terminates phase(herosJourney, inactive) if phase(herosJourney, phaseA), perm(is(X, Y));
-intHerosJourney() terminates phase(herosJourney, phaseA), perm(is(X, Y)) if phase(herosJourney, phaseB), perm(gets(X, Y));
-intHerosJourney() terminates phase(herosJourney, phaseB), perm(gets(X, Y)) if phase(herosJourney, phaseC), perm(returns(X, Y));
-intHerosJourney() terminates phase(herosJourney, phaseC), perm(returns(X, Y)) if phase(herosJourney, done);
+intHerosJourney(X, Y) terminates phase(herosJourney, inactive) if phase(herosJourney, phaseA), perm(is(X, Y));
+intHerosJourney(X, Y) terminates phase(herosJourney, phaseA), perm(is(X, Y)) if phase(herosJourney, phaseB), perm(gets(X, Y));
+intHerosJourney(X, Y) terminates phase(herosJourney, phaseB), perm(gets(X, Y)) if phase(herosJourney, phaseC), perm(returns(X, Y));
+intHerosJourney(X, Y) terminates phase(herosJourney, phaseC), perm(returns(X, Y)) if phase(herosJourney, done);
 % INITIATES: The Evil Empire ----------
-intEvilEmpire() initiates phase(evilEmpire, phaseA), perm(does(X, Y)) if role(X, villain), phase(evilEmpire, inactive);
-intEvilEmpire() initiates phase(evilEmpire, phaseB), perm(fights(X, Y)) if role(X, villain), phase(evilEmpire, phaseA);
-intEvilEmpire() initiates phase(evilEmpire, phaseC), perm(is(X, Y)) if role(X, villain), phase(evilEmpire, phaseB);
-intEvilEmpire() initiates phase(evilEmpire, done) if phase(evilEmpire, phaseC);
-intEvilEmpire() initiates perm(gets(X, Y)) if role(X, villain);
-intGets(X, Y) initiates perm(kill(X, Y)) if role(X, villain);
+intEvilEmpire(X, Y) initiates phase(evilEmpire, phaseA), perm(does(X, Y)) if role(X, villain), object(Y, badThing), phase(evilEmpire, inactive);
+intEvilEmpire(X, Y) initiates phase(evilEmpire, phaseB), perm(fights(X, Y)) if role(X, villain), object(Y, hero), phase(evilEmpire, phaseA);
+intEvilEmpire(X, Y) initiates phase(evilEmpire, phaseC), perm(is(X, Y)) if role(X, villain), object(Y, defeated), phase(evilEmpire, phaseB);
+intEvilEmpire(X, Y) initiates phase(evilEmpire, done) if phase(evilEmpire, phaseC);
+intEvilEmpire(X, Y) initiates perm(gets(X, Y)) if role(X, villain), object(Y, hostage);
+intGets(X, Y) initiates perm(kill(X, Y)) if role(X, villain), object(Y, hostage);
 % TERMINATES: The Evil Empire ----------
-intEvilEmpire() terminates phase(evilEmpire, inactive) if phase(evilEmpire, phaseA), perm(does(X, Y));
-intEvilEmpire() terminates phase(evilEmpire, phaseA), perm(does(X, Y)) if phase(evilEmpire, phaseB), perm(fights(X, Y));
-intEvilEmpire() terminates phase(evilEmpire, phaseB), perm(fights(X, Y)) if phase(evilEmpire, phaseC), perm(is(X, Y));
-intEvilEmpire() terminates phase(evilEmpire, phaseC), perm(is(X, Y)) if phase(evilEmpire, done);
+intEvilEmpire(X, Y) terminates phase(evilEmpire, inactive) if phase(evilEmpire, phaseA), perm(does(X, Y));
+intEvilEmpire(X, Y) terminates phase(evilEmpire, phaseA), perm(does(X, Y)) if phase(evilEmpire, phaseB), perm(fights(X, Y));
+intEvilEmpire(X, Y) terminates phase(evilEmpire, phaseB), perm(fights(X, Y)) if phase(evilEmpire, phaseC), perm(is(X, Y));
+intEvilEmpire(X, Y) terminates phase(evilEmpire, phaseC), perm(is(X, Y)) if phase(evilEmpire, done);
 
 
 % GENERATES: The Hero's Journey ----------
-gets(X, Y) generates intGets(X, Y) if role(X, hero);
+gets(X, Y) generates intGets(X, Y) if role(X, hero), object(Y, weapon);
 % GENERATES: The Evil Empire ----------
-gets(X, Y) generates intGets(X, Y) if role(X, villain);
+gets(X, Y) generates intGets(X, Y) if role(X, villain), object(Y, hostage);
