@@ -45,7 +45,39 @@ or STRING to string"
   [iname]
   (str "int" (cap-first (event-name iname))))
 
+(defn param-str [event params]
+  (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
+        ;; get roles, objects, places, quests for just this event
+        roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
+        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        places (map event-name (vals (select-keys event [:place])))
+        quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        ;; format them into role(X, hero) strings by looking up their letters in params
+        rstrs (map #(format "role" %) (map vector (map #(get-letter % (:roles params)) roles) roles))
+        ostrs (map #(format "object" %) (map vector (map #(get-letter % (:objects params)) objects) objects))
+        pstrs (map #(format "place" %) (map vector (map #(get-letter % (:places params)) places) places))
+        qstrs (map #(format "quest" %) (map vector (map #(get-letter % (:quests params)) quests) quests))
+        ]
+    ;; put them in a nice list for processing
+    (mapcat flatten [rstrs ostrs pstrs qstrs])
+    ))
+
 (defn event-str
+  [event params]
+  (let [format (fn [xs]  (str (:verb event) "(" (reduce str (interpose ", " xs)) ")"))
+        roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
+        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        places (map event-name (vals (select-keys event [:place])))
+        quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        rletters (map #(get-letter % (:roles params)) roles)
+        oletters (map #(get-letter % (:objects params)) objects)
+        pletters (map #(get-letter % (:places params)) places)
+        qletters (map #(get-letter % (:quests params)) quests)
+        ]
+    (format (flatten [rletters oletters pletters qletters]))
+    ))
+
+#_(defn event-str
   [event]
   (let [estr (event-name (:verb event))
         letters (take (- (count (vals event)) 1) PARAMS)]
@@ -168,28 +200,15 @@ or STRING to string"
         places (map event-name (vals (select-keys event [:place])))
         quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
         ;; format them into role(X, hero) strings by looking up their letters in params
-        rstrs (map #(format "role" %) (map vector (map #(get-letter % params) roles) roles))
-        ostrs (map #(format "object" %) (map vector (map #(get-letter % params) objects) objects))
-        pstrs (map #(format "place" %) (map vector (map #(get-letter % params) places) places))
-        qstrs (map #(format "quest" %) (map vector (map #(get-letter % params) quests) quests))
+        rstrs (map #(format "role" %) (map vector (map #(get-letter % (:roles params)) roles) roles))
+        ostrs (map #(format "object" %) (map vector (map #(get-letter % (:objects params)) objects) objects))
+        pstrs (map #(format "place" %) (map vector (map #(get-letter % (:places params)) places) places))
+        qstrs (map #(format "quest" %) (map vector (map #(get-letter % (:quests params)) quests) quests))
         ]
     ;; put them in a nice list for processing
     (mapcat flatten [rstrs ostrs pstrs qstrs])
     ))
 
-(defn param-strings [event]
-  (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
-        roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
-        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
-        places (map event-name (vals (select-keys event [:place])))
-        quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
-        rstrs (map #(format "role" %) (map vector PARAMS roles))
-        ostrs (map #(format "object" %) (map vector (prange (count roles) (count objects)) objects))
-        pstrs (map #(format "place" %) (map vector (prange (+ (count roles) (count objects)) (count places)) places))
-        qstrs (map #(format "quest" %) (map vector (prange (+ (count roles) (count objects) (count places)) (count quests)) quests))
-        ]
-    (mapcat flatten [rstrs ostrs pstrs qstrs])
-    ))
 
 (defn inst-letters [trope]
   (let [params (get-params trope)
@@ -207,16 +226,18 @@ or STRING to string"
         term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
         events (:events trope)
         imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        ;; ;; tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        estrs (map event-str events)
+        tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
+        estrs (map #(event-str % params) events)
         pstrs (map #(param-str % params) events)
         perms (map perm estrs)
         phases (make-phases ename (count events))
         evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
         cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
+        tvec (conj (into [] (map vector (butlast (rest phases)) perms)) [(last (rest phases))])
         init-a (map imake (repeat inst) evec cvec)
+        term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
         ]
-    (concat [header] init-a params (first pstrs))
+    (concat [header] init-a [term-header] term-a)
     ;; events
     ;; estrs
     ;; (reduce str (interpose ", " pstrs))
