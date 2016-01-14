@@ -1,1 +1,2 @@
 * TropicAL: The TROPe Interactive Chronicle Action Language
+TropicAL is a programming language for describing interactive stories with tropes. Its syntax is based on [[http://inform.org][Inform 7]], and it generates code in the InstAL action language for describing institutional norms.

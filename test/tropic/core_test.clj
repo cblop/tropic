@@ -82,6 +82,18 @@
           "  It contains the \"Hero's Journey\" trope"
           ]))
 
+(def trp-test
+  (multi [
+          "\"The Hero's Journey\" is a trope where:"
+          "  The Hero is at home"
+          "  Then the Hero gets a task"
+          "  Then the Hero returns home"
+          ]))
+
+(parse trp-test)
+(tropc trp-test)
+(instal-gen trp-test)
+
 (parse trope-sit-test)
 (make-map (parse trope-sit-test) trope-sit-test)
 (instal (make-map (parse trope-sit-test) trope-sit-test))
@@ -163,6 +175,25 @@
 
 (tropc trope-sit-test)
 (spit "resources/output.ial" (tropc trope-sit-test))
+
+(tropc trp-test)
+
+(defn test-file [input]
+  (let [text (slurp input)
+        result (instal-gen (fix-crs text))]
+    result))
+
+(defn parse-file [input]
+  (parse (fix-crs (slurp input))))
+
+(test-file "resources/test1.story")
+
+(parse-file "resources/test1.story")
+
+(make-map (parse-file "resources/test1.story") (parse-file "resources/test1.story"))
+(instal (make-map (parse-file "resources/test1.story") (parse-file "resources/test1.story")))
+
+(instal-file "resources/test1.story" "resources/test1.ial")
 
 (-main "resources/starwars.story" "resources/output.ial")
 

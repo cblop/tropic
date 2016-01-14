@@ -5,13 +5,19 @@
 (def tropical
   (insta/parser
    "narrative = rule+
-    <rule> = tropedef | roledef | thingdef | storydef | scenedef | initialdef | tracedef
+    <rule> = tropedef | roledef | thingdef | storydef | scenedef | questdef | initialdef | tracedef
 
     tropedef =
         tropename <'\\n'> (situationdef / alias / <whitespace> norms / sequence / <whitespace> situationdef)+ <'\\n'?>
 
     <tropename> =
         trope <' is a trope where:'>
+
+    questdef =
+        questname <'\\n'> ( <whitespace> norms / sequence )+ <'\\n'?>
+
+    <questname> =
+        quest <' is a quest where:'>
 
     alias =
         <whitespace> character <' is also '> character <'\\n'?>
@@ -54,7 +60,12 @@
         <' if '> <'they '?> event
 
     event =
-        character <' '> task
+        (character <' is'>? <' '> (move / task)) | give | meet
+
+    give =
+        character <' gives '> character <' a ' / ' an '?> item
+    meet =
+        character <' meets '> character
 
     place = name
 
@@ -63,15 +74,16 @@
     condition =
         <'\\n' whitespace 'To complete it, '> item <' must be '> state <'.'?>
 
-    permission = character <' may '> task conditional? <'\\n'?>
-    obligation = character <' must '> task <' before '> deadline <'\\n' whitespace+ 'Otherwise, '> <'the '?> violation <'.'?> <'\\n'?>
+    permission = character <' may '> (move / task)conditional? <'\\n'?>
+    obligation = character <' must '> (move / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
 
     violation = event
 
     deadline = consequence
 
-    task = visit / verb / verb <(' the ' / ' a ' / ' an ')> item / verb <' '> item
-    visit = ('leaves' (<' '> place)?) | ('returns' (<' '> <'to '>? place)?) | ('go' / 'goes') (<' '> <'to '>? place)? | ('visits' (<' '> <'to '>? place)?)
+    task = verb / (verb <(' the ' / ' a ' / ' an ')> item) / (verb <' '> item)
+    move = mverb <' '> <'to '?> place
+    mverb = 'go' / 'goes' / 'leave' / 'leaves' / 'return' / 'returns' / 'at'
     verb = word
     place = word
 
@@ -92,7 +104,7 @@
         scene <' is a scene:'> (<'\\n' whitespace> (storytrope / starring / has))+ <'\\n'?>
 
     starring =
-        <'Starring '> character ((<', '> character)* <' and '> character)?
+        charname <' is its '> character
 
     has = <'It has '> item
 
@@ -106,6 +118,8 @@
     role = word
     thing = word
     trope = <'\\\"'> [<'The ' | 'the '>] words <'\\\"'>
+    charname = <'\\\"'> words <'\\\"'>
+    quest = <'\\\"'> words <'\\\"'>
     <name> = (<'The ' | 'the '>)? word
     <whitespace> = #'\\s\\s'
     <words> = word (<' '> word)*
