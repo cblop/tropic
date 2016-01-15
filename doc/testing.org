@@ -1,0 +1,295 @@
+* Testing TropICAL's InstAL output
+The testing method I'm using is to use traces (sequences of external events) as tests. Each trace should test some kind of function of the system and increase in complexity as the number of tests increases.
+
+** Test 1: Simple trope declaration
+The purpose of this test is to implement a simple version of the "Hero's Journey" trope. The following trace is the sequence of events a set of agents would need to carry out in order to fulfill this trope in the Star Wars universe:
+
+#+BEGIN_SRC prolog
+observed(startShow,starWars,0).
+observed(meet(lukeSkywalker, obiWan),starWars,1).
+observed(go(lukeSkywalker, space),starWars,2).
+observed(go(lukeSkywalker, tatooine),starWars,3).
+#+END_SRC
+
+The following TropICAL code fulfills the above trace:
+
+#+BEGIN_SRC prolog
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  Then the Hero leaves Home
+  Then the Hero returns Home
+"Star Wars" is a story:
+  "Luke Skywalker" is its Hero
+  "Obi Wan" is its Dispatcher
+  "Tatooine" is its Home
+#+END_SRC
+
+Note that in the above code, the characters (Luke Skywalker, Obi Wan) fulfill their roles (Hero, Dispatcher) globally across the story. It is also possible to give characters scene-local scope, but that will follow in a later test. The same is true of places and quests in a story. All words are case insensitive.
+
+The events described in the trope simply initiate permissions for the corresponding characters to perform the described actions.
+
+The InstAL this code compiles to is in the [[file:~/Dropbox/clojure/tropic/resources/test1.ial][test1.ial]] file (provided in a separate document). This is then compiled to AnsProlog and run through the clingo solver with the above trace. The resulting answer set is expected to contain:
+
+#+BEGIN_SRC prolog
+(answer set to follow)
+#+END_SRC
+
+
+*** Files:
+TropICAL: [[file:~/Dropbox/clojure/tropic/resources/test1.story][test1.story]] 
+InstAL: [[file:~/Dropbox/clojure/tropic/resources/test1.ial][test1.ial]]
+ASP: [[file:~/Dropbox/clojure/tropic/resources/test1.lp][test1.lp]]
+Trace: [[file:~/Dropbox/clojure/tropic/resources/trace1.lp][trace1.lp]]
+
+** Test 2: Adding a simple quest
+
+Quests are a convenient way to add obligations to tropes, by giving characters tasks to complete. To test this, we add a third line to the trace:
+
+#+BEGIN_SRC prolog
+observed(startShow,starWars,0).
+observed(meet(lukeSkywalker, obiWan),starWars,1).
+observed(give(obiWan, lukeSkywalker, quest(destroyTheDeathStar)),starWars,2).
+observed(go(lukeSkywalker, space),starWars,3).
+observed(destroy(lukeSkywalker, deathStar),starWars,4).
+observed(go(lukeSkywalker, tatooine),starWars,5).
+#+END_SRC
+
+The quest is added to the story description by referencing it from the trope description and describing the obligations it puts on each character:
+
+#+BEGIN_SRC prolog
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  Then the Dispatcher gives the Hero a quest
+  Then the Hero leaves Home
+  Then the Hero completes the Quest
+  Then the Hero returns Home
+"Destroy the Death Star" is a quest where:
+  The Hero must go to Space
+  The Hero must destroy the Death Star
+"Star Wars" is a story:
+  It contains the "The Hero's Journey" trope
+  "Luke Skywalker" is its Hero
+  "Obi Wan" is its Dispatcher
+  "Tatooine" is its Home
+  "Destroy the Death Star" is its Quest
+#+END_SRC
+
+The resulting answer set is expected to contain:
+
+#+BEGIN_SRC prolog
+(answer set to follow)
+#+END_SRC
+
+** Test 3: A scene within a trope
+
+This time, the trace is the same as above, but with an added event: the start of a scene called "Tatooine".
+
+#+BEGIN_SRC prolog
+observed(startShow,starWars,0).
+observed(scene(tatooine, lukeSkywalker),starWars,1).
+observed(meet(lukeSkywalker, obiWan),starWars,2).
+observed(tell(obiWan, lukeSkywalker, destroy, deathStar),starWars,3).
+observed(go(lukeSkywalker, space),starWars,4).
+observed(destroy(lukeSkywalker, deathStar),starWars,5).
+observed(go(lukeSkywalker, tatooine),starWars,6).
+#+END_SRC
+
+The TropicAL story description has been altered so that the character, place and quest instances have scene-level scope:
+
+#+BEGIN_SRC prolog
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  Then the Dispatcher gives the Hero a quest
+  Then the Hero leaves Home
+  Then the Hero completes the Quest
+  Then the Hero returns home
+"Tatooine" is a scene:
+  "Luke Skywalker" is its Hero
+  "Obi Wan" is its Dispatcher
+  "Tatooine" is its home
+  "Destroy the Death Star" is its quest
+"Destroy the Death Star" is a quest where:
+  The Hero must go to Space
+  The Hero must destroy the Death Star
+"Star Wars" is a story:
+  It contains the "The Hero's Journey" trope
+  It contains the "Tatooine" scene
+#+END_SRC
+
+This means that the entire Hero's Journey trope is contained in the "Tatooine" scene in this case. If the story were to have multiple scenes, the trope's events could be spread out between them.
+
+The resulting answer set is is expected to contain:
+
+#+BEGIN_SRC prolog
+(answer set to follow)
+#+END_SRC
+
+** Test 4: Situations in tropes
+
+This is to test the "When X then Y" syntax for tropes. For this, we return to the simplified hero's journed without a quest. This time, our hero gets a lightsaber:
+
+#+BEGIN_SRC prolog
+observed(startShow,starWars,0).
+observed(meet(lukeSkywalker, obiWan),starWars,1).
+observed(gets(lukeSkywalker, lightSaber),starWars,2).
+observed(bring(lukeSkywalker, hanSolo),starWars,3).
+observed(go(lukeSkywalker, space),starWars,4).
+observed(go(lukeSkywalker, tatooine),starWars,5).
+#+END_SRC
+
+For this test, we alter the trope, adding a conditional based on a situation occurring:
+
+#+BEGIN_SRC prolog
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  When the Hero gets a Weapon:
+    The Hero may bring a Friend
+    The Hero may leave Home
+  Then the Hero leaves Home
+  Then the Hero returns Home
+"Star Wars" is a story:
+  It contains the "The Hero's Journey" trope
+  "Luke Skywalker" is its Hero
+  "Obi Wan" is its Dispatcher
+  "Tatooine" is its Home
+  "Light Saber" is its Weapon
+  "Han Solo" is its Friend
+#+END_SRC
+
+This states that when the hero gets a weapon, they may find friends and leave home. These permissions are granted to the hero once they have obtained a weapon of some kind.
+
+The answer set is expected to contain:
+
+#+BEGIN_SRC prolog
+(answer set to follow)
+#+END_SRC
+
+
+** Test 5: Obligations with deadlines
+
+#+BEGIN_SRC prolog
+observed(startShow,starWars,0).
+observed(meet(lukeSkywalker, obiWan),starWars,1).
+observed(gets(lukeSkywalker, lightSaber),starWars,2).
+observed(go(lukeSkywalker, space),starWars,2).
+observed(go(lukeSkywalker, tatooine),starWars,3).
+#+END_SRC
+
+#+BEGIN_SRC prolog
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  When the Hero gets a Weapon:
+    The Hero must leave Home before the Villain comes
+  Then the Hero leaves Home
+  Then the Hero returns Home
+"Star Wars" is a story:
+  It contains the "The Hero's Journey" trope
+  "Luke Skywalker" is its Hero
+  "Obi Wan" is its Dispatcher
+  "Tatooine" is its Home
+  "Light Saber" is its Weapon
+  "Darth Vader" is its Villain
+#+END_SRC
+
+The answer set contains:
+
+#+BEGIN_SRC prolog
+(answer set to follow)
+#+END_SRC
+
+** Test 6: Obligations with deadlines and violation events
+
+NOTE: The syntax of this test is subject to change!
+
+In this case, the villain (Darth Vader) can kill the hero (Luke) if the hero has not left home (Tattoine) before the villain arrives:
+
+#+BEGIN_SRC prolog
+observed(startShow,starWars,0).
+observed(meet(lukeSkywalker, obiWan),starWars,1).
+observed(gets(lukeSkywalker, lightSaber),starWars,2).
+observed(comes(darthVader, tatooine),starWars,3).
+observed(kill(darthVader, lukeSkywalker),starWars,4).
+#+END_SRC
+
+This is described in the story as follows:
+
+#+BEGIN_SRC prolog
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  When the Hero gets a Weapon:
+    The Hero must leave Home before the Villain comes
+      Otherwise, the Villain may kill the Hero
+  Then the Hero leaves Home
+  Then the Hero returns Home
+"Star Wars" is a story:
+  It contains the "The Hero's Journey" trope
+  "Luke Skywalker" is its Hero
+  "Obi Wan" is its Dispatcher
+  "Tatooine" is its Home
+  "Light Saber" is its Weapon
+  "Darth Vader" is its Villain
+#+END_SRC
+
+The answer set is expected to contain:
+
+#+BEGIN_SRC prolog
+(answer set to follow)
+#+END_SRC
+
+** Test 7: Multiple tropes
+
+This test examines the use of multiple tropes containing situations (When X:), obligations, deadlines and consequences.
+
+#+BEGIN_SRC prolog
+observed(startShow,starWars,0).
+observed(meet(lukeSkywalker, obiWan),starWars,1).
+observed(gets(lukeSkywalker, lightSaber),starWars,2).
+observed(captures(darthVader, princessLeia),starWars,3).
+observed(go(lukeSkywalker, space),starWars,4).
+observed(rescue(lukeSkywalker, princessLeia),starWars,5).
+observed(go(lukeSkywalker, tatooine),starWars,6).
+#+END_SRC
+
+The story now contains two trope descriptions: "The Hero's Journey" and "The Evil Empire":
+
+#+BEGIN_SRC prolog
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  When the Hero gets a Weapon:
+    The Hero must leave Home before the Villain comes
+      Otherwise, the Villain may kill the Hero
+  Then the Hero leaves Home
+  Then the Hero rescues the Hostage
+  Then the Hero returns Home
+"The Evil Empire" is a trope where:
+  The Villain gets a Hostage
+  When the Villain captures a Hostage:
+    The Villain may kill the Hostage
+  Then the Villain fights the Hero
+  Then the Hero kills the Villain
+"Star Wars" is a story:
+  It contains the "The Hero's Journey" trope
+  It contains the "The Evil Empire" trope
+  "Luke Skywalker" is its Hero
+  "Obi Wan" is its Dispatcher
+  "Tatooine" is its Home
+  "Light Saber" is its Weapon
+  "Darth Vader" is its Villain
+  "Princess Leia" is its Hostage
+#+END_SRC
+
+The answer set is expected to contain:
+
+#+BEGIN_SRC prolog
+(answer set to follow)
+#+END_SRC
+
+More tests are to follow, but this is enough for me to be getting on with for now!
+

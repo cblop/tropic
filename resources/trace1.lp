@@ -1,0 +1,7 @@
+observed(startShow,starWars,0).
+observed(scene(tatooine, lukeSkywalker),starWars,1).
+observed(meet(lukeSkywalker, obiWan),starWars,2).
+observed(tell(obiWan, lukeSkywalker, destroy, deathStar),starWars,3).
+observed(go(lukeSkywalker, space),starWars,4).
+observed(destroy(lukeSkywalker, deathStar),starWars,5).
+observed(go(lukeSkywalker, tatooine),starWars,6).
