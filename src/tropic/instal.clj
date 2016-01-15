@@ -45,6 +45,10 @@ or STRING to string"
   [iname]
   (str "int" (cap-first (event-name iname))))
 
+(defn get-letter [s params]
+  (second (first (filter #(= s (first %)) params))))
+
+
 (defn param-str [event params]
   (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
         ;; get roles, objects, places, quests for just this event
@@ -119,7 +123,8 @@ or STRING to string"
 (defn namify [strs]
   (reduce str strs))
 
-(defn generates [trope roles objects]
+
+#_(defn generates [trope roles objects]
   (let [header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
         situations (:situations trope)
         wstrs (map #(event-str (:when %)) situations)
@@ -164,13 +169,31 @@ or STRING to string"
      :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
      :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
+(defn ev-types [event]
+  (let [roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
+        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        places (map event-name (vals (select-keys event [:place])))
+        quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        types (flatten (vector
+                        (take (count roles) (repeat "Agent"))
+                        (take (count objects) (repeat "Object"))
+                        (take (count places) (repeat "Place"))
+                        (take (count quests) (repeat "Quest")))
+                       )]
+    types
+    ))
+
 (defn external-events [trope]
   (let [header (str "% EXTERNAL EVENTS: " (namify (:name trope)) " ----------")
+        params (get-params trope)
         events (:events trope)
-        situations (:situations trope)
-        all (concat events situations)
-        strng (fn [x] (str "external event " (event-str x) ";"))]
-    (cons header (map strng all))))
+        ;; situations (:situations trope)
+        ;; all (concat events situations)
+        types (map ev-types events)
+        strng (fn [x y] (str "external event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
+    (cons header (into [] (set (map (fn [x y] (strng x y)) events types))))))
+    ;; (prn-str types)
+  ;; ))
 
 (defn inst-events [trope]
   (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
@@ -188,9 +211,6 @@ or STRING to string"
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:name trope)))]))
 
-
-(defn get-letter [s params]
-  (second (first (filter #(= s (first %)) params))))
 
 (defn param-str [event params]
   (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
@@ -217,6 +237,24 @@ or STRING to string"
                        (count (:places params))
                        (count (:quests params))])]
     (take num PARAMS)))
+
+(defn generates [trope]
+  (let [params (get-params trope)
+        header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
+        inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
+        ename (event-name (:name trope))
+        events (:events trope)
+        gmake (fn [iname ev cnds] (str ev " generates " iname " if " (reduce str (interpose ", " cnds)) ";"))
+        estrs (into [] (set (map #(event-str % params) events)))
+        pstrs (map #(param-str % params) events)
+        ;; perms (map perm estrs)
+        ;; phases (make-phases ename (count events))
+        ;; evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
+        ;; cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
+        gen-a (map gmake (repeat inst) estrs pstrs)
+        ]
+    (concat [header] gen-a)
+    ))
 
 (defn initiates [trope]
   (let [params (get-params trope)
@@ -285,14 +323,15 @@ or STRING to string"
     ))
 
 (defn instal [hmap]
-  (let [;exts (mapcat external-events (:tropes hmap))
+  (let [create ["% CREATION EVENT -----------" "create event startShow;\n"]
+        exts (mapcat external-events (:tropes hmap))
         insts (mapcat inst-events (:tropes hmap))
         inits (mapcat #(initiates %) (:tropes hmap))
-        ;; gens (mapcat #(generates % (:roles hmap) (:objects hmap)) (:tropes hmap))]
+        gens (mapcat generates (:tropes hmap))
        ]
     ;; (get-params (first (:tropes hmap))))
     ;; (reduce str (interpose "\n" (concat types fluents exts ["\n"] insts ["\n"] inits ["\n"] gens))))
-    (reduce str (interpose "\n" (concat types fluents ["\n"] insts ["\n"] inits))))
+    (reduce str (interpose "\n" (concat types fluents exts create insts inits gens))))
   )
 
 (defn instal-gen [text]

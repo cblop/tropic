@@ -94,17 +94,17 @@
     item = [<'The ' / 'the '>] (word / word <' '> word)
     state = word
     storydef =
-        storyname (<'\\n' whitespace> (storytrope / storyrole / scenes))+ <'\\n'?>
+        storyname (<'\\n' whitespace> (storytrope / instance / scenes))+ <'\\n'?>
     <storyname> =
         story <' is a story:'>
     <storytrope> =
         <'It contains the '> trope <' trope' '.'?>
 
     scenedef =
-        scene <' is a scene:'> (<'\\n' whitespace> (storytrope / starring / has))+ <'\\n'?>
+        scene <' is a scene:'> (<'\\n' whitespace> (storytrope / instance / has))+ <'\\n'?>
 
-    starring =
-        charname <' is its '> character
+    instance =
+        iname <' is its '> class
 
     has = <'It has '> item
 
@@ -117,8 +117,10 @@
     scene = <'\\\"'> words <'\\\"'>
     role = word
     thing = word
+    class = word
     trope = <'\\\"'> [<'The ' | 'the '>] words <'\\\"'>
     charname = <'\\\"'> words <'\\\"'>
+    iname = <'\\\"'> words <'\\\"'>
     quest = <'\\\"'> words <'\\\"'>
     <name> = (<'The ' | 'the '>)? word
     <whitespace> = #'\\s\\s'
