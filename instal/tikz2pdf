@@ -1,0 +1,40 @@
+#!/bin/sh
+SRC=$1
+cat >/tmp/tikz2pdf.tex <<EOF
+\documentclass{article}
+%\usepackage[a4paper,margin=0cm]{geometry}
+\usepackage{todonotes}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{tikz}
+\pagestyle{empty}
+\thispagestyle{empty}
+\usetikzlibrary{shadows}
+\usetikzlibrary{decorations}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{fit}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{positioning}
+\usetikzlibrary{chains}
+\usetikzlibrary{scopes}
+% \usetikzlibrary{matrix}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+% \usepackage[T1]{fontenc}
+\usepackage[normalem]{ulem}
+\begin{document}
+\include{$1}
+\end{document}
+EOF
+
+pdflatex /tmp/tikz2pdf
+
+pdfcrop tikz2pdf.pdf
+
+mv tikz2pdf-crop.pdf $SRC.pdf
+# rm tikz2pdf.pdf
+
+
+

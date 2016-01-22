@@ -73,10 +73,10 @@ or STRING to string"
         objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
         places (map event-name (vals (select-keys event [:place])))
         quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
-        rletters (map #(get-letter % (:roles params)) roles)
-        oletters (map #(get-letter % (:objects params)) objects)
-        pletters (map #(get-letter % (:places params)) places)
-        qletters (map #(get-letter % (:quests params)) quests)
+        rletters (sort (map #(get-letter % (:roles params)) roles))
+        oletters (sort (map #(get-letter % (:objects params)) objects))
+        pletters (sort (map #(get-letter % (:places params)) places))
+        qletters (sort (map #(get-letter % (:quests params)) quests))
         ]
     (format (flatten [rletters oletters pletters qletters]))
     ))
@@ -142,6 +142,7 @@ or STRING to string"
    "type Trope;"
    "type Phase;"
    "type Place;"
+   "type PlaceName;"
    "type Quest;"
    "type Object;\n"])
 
@@ -149,6 +150,7 @@ or STRING to string"
   ["% FLUENTS ----------"
    "fluent role(Agent, Role);"
    "fluent phase(Trope, Phase);"
+   "fluent place(PlaceName, Place);"
    "fluent at(Agent, Place);\n"])
 
 
@@ -177,7 +179,7 @@ or STRING to string"
         types (flatten (vector
                         (take (count roles) (repeat "Agent"))
                         (take (count objects) (repeat "Object"))
-                        (take (count places) (repeat "Place"))
+                        (take (count places) (repeat "PlaceName"))
                         (take (count quests) (repeat "Quest")))
                        )]
     types
@@ -190,7 +192,7 @@ or STRING to string"
         ;; situations (:situations trope)
         ;; all (concat events situations)
         types (map ev-types events)
-        strng (fn [x y] (str "external event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
+        strng (fn [x y] (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
     (cons header (into [] (set (map (fn [x y] (strng x y)) events types))))))
     ;; (prn-str types)
   ;; ))
@@ -202,7 +204,7 @@ or STRING to string"
         types (flatten (vector
                         (take (count (:roles params)) (repeat "Agent"))
                         (take (count (:objects params)) (repeat "Object"))
-                        (take (count (:places params)) (repeat "Place"))
+                        (take (count (:places params)) (repeat "PlaceName"))
                         (take (count (:quests params)) (repeat "Quest")))
                      )
         instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")]
@@ -210,7 +212,6 @@ or STRING to string"
 
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:name trope)))]))
-
 
 (defn param-str [event params]
   (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
@@ -256,6 +257,40 @@ or STRING to string"
     (concat [header] gen-a)
     ))
 
+(defn in? 
+  "true if seq contains elm"
+  [seq elm]
+  (some #(= elm %) seq))
+
+(defn initially [hmap]
+  (let [
+        header "\n% INITIALLY: -----------"
+        params (apply merge (map get-params (:tropes hmap)))
+        ;; params (get-params (first (:tropes hmap)))
+        story (:story hmap)
+        instances (:instances story)
+        role-list (map first (:roles params))
+        place-list (map first (:places params))
+        ;event-name?
+        roles (filter #(in? role-list (event-name (:class %))) instances)
+        places (filter #(in? place-list (event-name (:class %))) instances)
+        fluentfn (fn [x t] (str t "(" (event-name (:iname x)) ", " (event-name (:class x)) ")"))
+        rolestrs (map #(fluentfn % "role") roles)
+        placestrs (map #(fluentfn % "place") places)
+        phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
+        phases (map #(event-name (:name %)) (:tropes hmap))
+        phasestrs (map phasefn phases)
+        powfn (fn [x] (str "pow(" (inst-name (:name x)) "(" (reduce str (interpose ", " (inst-letters x))) "))"))
+        powers (map powfn (:tropes hmap))]
+    ;; (concat rolestrs placestrs)
+    ;; (concat role-list place-list)
+    ;; roles
+    ;; (map #(event-name (:class %)) instances)
+    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers phasestrs rolestrs placestrs))) ";\n")]
+    ;; (map :class instances)
+    ))
+
+
 (defn initiates [trope]
   (let [params (get-params trope)
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
@@ -271,15 +306,12 @@ or STRING to string"
         phases (make-phases ename (count events))
         evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
         cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
-        tvec (conj (into [] (map vector (butlast (rest phases)) perms)) [(last (rest phases))])
+        ;; tvec (conj phases [(last phases)])
+        tvec (map vector phases)
         init-a (map imake (repeat inst) evec cvec)
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
         ]
     (concat [header] init-a [term-header] term-a)
-    ;; events
-    ;; estrs
-    ;; (reduce str (interpose ", " pstrs))
-    ;; params
     ))
 
 
@@ -304,7 +336,7 @@ or STRING to string"
         imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         evec (conj (into [] (map vector mphases perms)) [(last phases)])
-        tvec (conj (into [] (map vector (butlast mphases) perms)) [(last mphases)])
+        tvec (conj (into [] (map vector (butlast mphases) perms)) [(last phases)])
         cvec (conj (into [] (map conj params phases)) [(last (butlast mphases))])
         svec (map vector wperms)
         init-a (map imake (repeat inst) evec cvec)
@@ -323,7 +355,10 @@ or STRING to string"
     ))
 
 (defn instal [hmap]
-  (let [create ["% CREATION EVENT -----------" "create event startShow;\n"]
+  (let [;; initiallys [(str "initially\n    " (reduce str (interpose ",\n    " (mapcat #(initially % story) (:tropes hmap)))) ";")]
+        initiallys (initially hmap)
+        inst-name [(str "institution " (event-name (:storyname (:story hmap))) ";")]
+        create ["% CREATION EVENT -----------" "create event startShow;\n"]
         exts (mapcat external-events (:tropes hmap))
         insts (mapcat inst-events (:tropes hmap))
         inits (mapcat #(initiates %) (:tropes hmap))
@@ -331,7 +366,7 @@ or STRING to string"
        ]
     ;; (get-params (first (:tropes hmap))))
     ;; (reduce str (interpose "\n" (concat types fluents exts ["\n"] insts ["\n"] inits ["\n"] gens))))
-    (reduce str (interpose "\n" (concat types fluents exts create insts inits gens))))
+    (reduce str (interpose "\n" (concat inst-name types fluents exts create insts inits gens initiallys))))
   )
 
 (defn instal-gen [text]

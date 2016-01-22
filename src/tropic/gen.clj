@@ -50,7 +50,8 @@
     :class (fn [& args] {:class (make-string args)})
     :iname (fn [& args] {:iname (make-string args)})
     :instance (fn [& args] {:instance (apply merge args)})
-    :storydef (fn [& args] {:storydef {:tropes (map #(hash-map :name %) (get-by-key :name args))
+    :storydef (fn [& args] {:storydef {:storyname (make-string (first (get-by-key :story args)))
+                                       :tropes (map #(hash-map :name %) (get-by-key :name args))
                                        :instances (get-by-key :instance args)}})
     :story (fn [& args] {:story args})
     :quest (fn [& args] {:name (make-string args)})
@@ -58,7 +59,7 @@
                                     :norms (flatten (get-by-key :norms args))}})
     ;; :norms (fn [& args] {:norms (into [] args)})
     :narrative (fn [& args] (hash-map
-                             :story (into [] (get-by-key :storydef args))
+                             :story (first (get-by-key :storydef args))
                              :tropes (into [] (get-by-key :trope args))
                              :quests (into [] (get-by-key :quest args))
                              :roles (into [] (get-by-key :role args))))

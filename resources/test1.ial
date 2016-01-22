@@ -1,37 +1,51 @@
+institution starWars;
 % TYPES ----------
 type Agent;
 type Role;
 type Trope;
 type Phase;
 type Place;
+type PlaceName;
 type Quest;
 type Object;
 
 % FLUENTS ----------
 fluent role(Agent, Role);
 fluent phase(Trope, Phase);
+fluent place(PlaceName, Place);
 fluent at(Agent, Place);
 
 % EXTERNAL EVENTS: The Hero's Journey ----------
-external event meet(Agent, Agent);
-external event go(Agent, Place);
+exogenous event go(Agent, PlaceName);
+exogenous event meet(Agent, Agent);
 % CREATION EVENT -----------
 create event startShow;
 
 % INST EVENTS: The Hero's Journey ----------
-inst event intHerosJourney(Agent, Agent, Place);
+inst event intHerosJourney(Agent, Agent, PlaceName, PlaceName);
 % INITIATES: The Hero's Journey ----------
-intHerosJourney(R, S, T) initiates phase(herosJourney, phaseA), perm(go(R, T)) if phase(herosJourney, inactive), role(R, hero), place(T, home);
-intHerosJourney(R, S, T) initiates phase(herosJourney, phaseB), perm(meet(S, R)) if phase(herosJourney, phaseA), role(S, dispatcher), role(R, hero);
-intHerosJourney(R, S, T) initiates phase(herosJourney, phaseC), perm(go(R, T)) if phase(herosJourney, phaseB), role(R, hero), place(T, home);
-intHerosJourney(R, S, T) initiates phase(herosJourney, phaseD), perm(go(R, T)) if phase(herosJourney, phaseC), role(R, hero), place(T, home);
-intHerosJourney(R, S, T) initiates phase(herosJourney, done) if phase(herosJourney, phaseD);
+intHerosJourney(R, S, T, U) initiates phase(herosJourney, phaseA), perm(go(R, U)) if phase(herosJourney, inactive), role(R, hero), place(U, home);
+intHerosJourney(R, S, T, U) initiates phase(herosJourney, phaseB), perm(meet(R, S)) if phase(herosJourney, phaseA), role(S, dispatcher), role(R, hero);
+intHerosJourney(R, S, T, U) initiates phase(herosJourney, phaseC), perm(go(R, T)) if phase(herosJourney, phaseB), role(R, hero), place(T, away);
+intHerosJourney(R, S, T, U) initiates phase(herosJourney, phaseD), perm(go(R, U)) if phase(herosJourney, phaseC), role(R, hero), place(U, home);
+intHerosJourney(R, S, T, U) initiates phase(herosJourney, done) if phase(herosJourney, phaseD);
 % TERMINATES: The Hero's Journey ----------
-intHerosJourney(R, S, T) terminates phase(herosJourney, inactive) if phase(herosJourney, phaseA), perm(go(R, T));
-intHerosJourney(R, S, T) terminates phase(herosJourney, phaseA), perm(go(R, T)) if phase(herosJourney, phaseB), perm(meet(S, R));
-intHerosJourney(R, S, T) terminates phase(herosJourney, phaseB), perm(meet(S, R)) if phase(herosJourney, phaseC), perm(go(R, T));
-intHerosJourney(R, S, T) terminates phase(herosJourney, phaseC), perm(go(R, T)) if phase(herosJourney, phaseD), perm(go(R, T));
-intHerosJourney(R, S, T) terminates phase(herosJourney, phaseD), perm(go(R, T)) if phase(herosJourney, done);
+intHerosJourney(R, S, T, U) terminates phase(herosJourney, inactive) if phase(herosJourney, inactive);
+intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseA), perm(go(R, U)) if phase(herosJourney, phaseA);
+intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseB), perm(meet(R, S)) if phase(herosJourney, phaseB);
+intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseC), perm(go(R, T)) if phase(herosJourney, phaseC);
+intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseD), perm(go(R, U)) if phase(herosJourney, phaseD);
+intHerosJourney(R, S, T, U) terminates phase(herosJourney, done) if phase(herosJourney, done);
 % GENERATES: The Hero's Journey ----------
-go(R, T) generates intHerosJourney(R, S, T) if role(R, hero), place(T, home);
-meet(S, R) generates intHerosJourney(R, S, T) if role(S, dispatcher), role(R, hero);
+go(R, U) generates intHerosJourney(R, S, T, U) if role(R, hero), place(U, home);
+meet(R, S) generates intHerosJourney(R, S, T, U) if role(S, dispatcher), role(R, hero);
+go(R, T) generates intHerosJourney(R, S, T, U) if role(R, hero), place(T, away);
+
+% INITIALLY: -----------
+initially
+    pow(intHerosJourney(R, S, T, U)),
+    phase(herosJourney, inactive),
+    role(lukeSkywalker, hero),
+    role(obiWan, dispatcher),
+    place(tatooine, home),
+    place(space, away);
