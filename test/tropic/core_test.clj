@@ -186,14 +186,19 @@
 (defn parse-file [input]
   (parse (fix-crs (slurp input))))
 
-(test-file "resources/test1.story")
+;; (test-file "resources/test1.story")
+(test-file "resources/test2.story")
 
-(parse-file "resources/test1.story")
+;; (parse-file "resources/test1.story")
+(parse-file "resources/test2.story")
 
-(make-map (parse-file "resources/test1.story") (parse-file "resources/test1.story"))
-(instal (make-map (parse-file "resources/test1.story") (parse-file "resources/test1.story")))
+;; (make-map (parse-file "resources/test1.story") (parse-file "resources/test1.story"))
+(make-map (parse-file "resources/test2.story") (parse-file "resources/test2.story"))
+;; (instal (make-map (parse-file "resources/test1.story") (parse-file "resources/test1.story")))
+(instal (make-map (parse-file "resources/test2.story") (parse-file "resources/test2.story")))
 
-(instal-file "resources/test1.story" "resources/test1.ial")
+;; (instal-file "resources/test1.story" "resources/test1.ial")
+(instal-file "resources/test2.story" "resources/test2.ial")
 
 (-main "resources/starwars.story" "resources/output.ial")
 

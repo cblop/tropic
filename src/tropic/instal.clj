@@ -5,7 +5,7 @@
 
 (def INACTIVE "inactive")
 (def DONE "done")
-(def PHASES ["A" "B" "C" "D" "E" "F"])
+(def PHASES ["A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P"])
 (def PARAMS ["R" "S" "T" "U" "V" "W" "X" "Y" "Z"])
 
 (defn capitalize-words
@@ -123,18 +123,6 @@ or STRING to string"
 (defn namify [strs]
   (reduce str strs))
 
-
-#_(defn generates [trope roles objects]
-  (let [header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
-        situations (:situations trope)
-        wstrs (map #(event-str (:when %)) situations)
-        wparams (map #(unify-params (:when %) roles objects) situations)
-        gmake (fn [iname evs cnds] (str iname " generates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        gen-a (map gmake wstrs (map #(vector (str "int" (cap-first (str %)))) wstrs) wparams)
-        ]
-    (cons header gen-a)))
-
-
 (def types
   ["% TYPES ----------"
    "type Agent;"
@@ -159,6 +147,16 @@ or STRING to string"
 
 (defn prange [start n]
   (->> PARAMS (drop start) (take n)))
+
+(defn get-event-params [trope evs]
+  (let [roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
+        objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
+        places (make-unique (map #(select-keys % [:place]) evs))
+        quests (into [] (filter #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))]
+    {:roles (map vector roles PARAMS)
+     :objects (map vector objects (prange (count roles) (count objects)))
+     :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
+     :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
 (defn get-params [trope]
   (let [evs (:events trope)
@@ -185,9 +183,10 @@ or STRING to string"
     types
     ))
 
-(defn external-events [trope]
+(defn external-events [trope hmap]
   (let [header (str "% EXTERNAL EVENTS: " (namify (:name trope)) " ----------")
-        params (get-params trope)
+        events (get-all-events trope hmap)
+        params (get-event-params trope events)
         events (:events trope)
         ;; situations (:situations trope)
         ;; all (concat events situations)
@@ -197,10 +196,11 @@ or STRING to string"
     ;; (prn-str types)
   ;; ))
 
-(defn inst-events [trope]
+(defn inst-events [trope hmap]
   (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
         nm (inst-name (:name trope))
-        params (get-params trope)
+        events (get-all-events trope hmap)
+        params (get-event-params trope events)
         types (flatten (vector
                         (take (count (:roles params)) (repeat "Agent"))
                         (take (count (:objects params)) (repeat "Object"))
@@ -231,33 +231,31 @@ or STRING to string"
     ))
 
 
-(defn inst-letters [trope]
-  (let [params (get-params trope)
+(defn inst-letters [trope hmap]
+  (let [events (get-all-events trope hmap)
+        params (get-event-params trope events)
         num (reduce + [(count (:roles params))
                        (count (:objects params))
                        (count (:places params))
                        (count (:quests params))])]
     (take num PARAMS)))
 
-(defn generates [trope]
-  (let [params (get-params trope)
+(defn generates [trope hmap]
+  (let [events (get-all-events trope hmap)
+        params (get-event-params trope events)
         header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
-        inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
+        inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope hmap))) ")")
         ename (event-name (:name trope))
-        events (:events trope)
+        ;; events (:events trope)
         gmake (fn [iname ev cnds] (str ev " generates " iname " if " (reduce str (interpose ", " cnds)) ";"))
         estrs (into [] (set (map #(event-str % params) events)))
         pstrs (map #(param-str % params) events)
-        ;; perms (map perm estrs)
-        ;; phases (make-phases ename (count events))
-        ;; evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
-        ;; cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
         gen-a (map gmake (repeat inst) estrs pstrs)
         ]
     (concat [header] gen-a)
     ))
 
-(defn in? 
+(defn in?
   "true if seq contains elm"
   [seq elm]
   (some #(= elm %) seq))
@@ -265,39 +263,56 @@ or STRING to string"
 (defn initially [hmap]
   (let [
         header "\n% INITIALLY: -----------"
-        params (apply merge (map get-params (:tropes hmap)))
+        events (map #(get-all-events % hmap) (:tropes hmap))
+        params (apply merge (map #(get-event-params % hmap) events))
         ;; params (get-params (first (:tropes hmap)))
         story (:story hmap)
         instances (:instances story)
         role-list (map first (:roles params))
         place-list (map first (:places params))
+        object-list (map first (:objects params))
         ;event-name?
         roles (filter #(in? role-list (event-name (:class %))) instances)
         places (filter #(in? place-list (event-name (:class %))) instances)
+        objects (filter #(in? object-list (event-name (:class %))) instances)
         fluentfn (fn [x t] (str t "(" (event-name (:iname x)) ", " (event-name (:class x)) ")"))
         rolestrs (map #(fluentfn % "role") roles)
         placestrs (map #(fluentfn % "place") places)
+        objectstrs (map #(fluentfn % "object") objects)
         phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
         phases (map #(event-name (:name %)) (:tropes hmap))
         phasestrs (map phasefn phases)
-        powfn (fn [x] (str "pow(" (inst-name (:name x)) "(" (reduce str (interpose ", " (inst-letters x))) "))"))
+        powfn (fn [x] (str "pow(" (inst-name (:name x)) "(" (reduce str (interpose ", " (inst-letters x hmap))) "))"))
         powers (map powfn (:tropes hmap))]
-    ;; (concat rolestrs placestrs)
-    ;; (concat role-list place-list)
-    ;; roles
-    ;; (map #(event-name (:class %)) instances)
-    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers phasestrs rolestrs placestrs))) ";\n")]
-    ;; (map :class instances)
+    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers phasestrs rolestrs placestrs objectstrs))) ";\n")]
     ))
 
+(defn get-all-events [trope hmap]
+  (let [quest-evs (->> hmap
+                       :quests
+                       (map :norms)
+                       (map #(map :obligation %))
+                       first)
+        qsplit (split-with #(not (= (:verb %) "dispatch")) (:events trope))
+        ;; next: gotta find WHICH quest's events to put in
+        global-quest (first (filter #(re-matches #"(Q|q)uest" (:class %)) (:instances hmap)))
+        quests (for [x (:quests hmap) y quest-evs] {:name (:name x) :events y})
+        our-quest (filter #(= (:iname global-quest) (:name %)) quests)
+        events (concat (conj (into [] (first qsplit)) (first (second qsplit))) quest-evs (rest (second qsplit)))
+        ]
+    events)
+  )
 
-(defn initiates [trope]
-  (let [params (get-params trope)
-        inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
-        ename (event-name (:name trope))
+
+(defn initiates [trope hmap]
+  (let [ename (event-name (:name trope))
         header (str "% INITIATES: " (namify (:name trope)) " ----------")
         term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
-        events (:events trope)
+        events (get-all-events trope hmap)
+        inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope hmap))) ")")
+        params (get-event-params trope events)
+        ;; params (get-params trope)
+        ;; events (:events trope)
         imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         estrs (map #(event-str % params) events)
@@ -312,57 +327,20 @@ or STRING to string"
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
         ]
     (concat [header] init-a [term-header] term-a)
+    ;; (reduce str quests)
+    ;; [(prn-str evs)]
     ))
 
-
-#_(defn initiates [trope roles objects]
-  (let [inst (str (inst-name (:name trope)))
-        ename (event-name (:name trope))
-        header (str "% INITIATES: " (namify (:name trope)) " ----------")
-        term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
-        events (:events trope)
-        situations (:situations trope)
-        sitnorms (first (map :norms situations))
-        wstrs (map #(event-str (:when %)) situations)
-        wpvec (map #(perm (event-str (:permission %))) sitnorms)
-        wpparams (filter some? (map #(unify-params (:permission %) roles objects) sitnorms))
-        wperms (map perm wstrs)
-        estrs (map event-str events)
-        perms (map perm estrs)
-        wparams (map #(unify-params (:when %) roles objects) situations)
-        params (map #(unify-params % roles objects) events)
-        phases (make-phases ename (count events))
-        mphases (rest phases)
-        imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        evec (conj (into [] (map vector mphases perms)) [(last phases)])
-        tvec (conj (into [] (map vector (butlast mphases) perms)) [(last phases)])
-        cvec (conj (into [] (map conj params phases)) [(last (butlast mphases))])
-        svec (map vector wperms)
-        init-a (map imake (repeat inst) evec cvec)
-        term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
-        init-b (map imake (repeat inst) svec wparams)
-        init-c (map imake (repeat (first (map #(str "int" (cap-first (str %))) wstrs))) (map vector wpvec) wpparams)
-        ]
-    ;; (imake (first evec) (first cvec))
-    ;; (map imake (repeat inst) evec cvec)
-    ;; (map imake (repeat inst) svec wparams)
-    ;; (map imake (map inst-name wstrs) (map vector wpvec) wpparams)
-    (concat [header] init-a init-b init-c [term-header] term-a)
-    ;; (concat [header] init-a init-b init-c [term-header] term-a)
-    ;; wpvec
-    ;; events
-    ))
 
 (defn instal [hmap]
   (let [;; initiallys [(str "initially\n    " (reduce str (interpose ",\n    " (mapcat #(initially % story) (:tropes hmap)))) ";")]
         initiallys (initially hmap)
         inst-name [(str "institution " (event-name (:storyname (:story hmap))) ";")]
         create ["% CREATION EVENT -----------" "create event startShow;\n"]
-        exts (mapcat external-events (:tropes hmap))
-        insts (mapcat inst-events (:tropes hmap))
-        inits (mapcat #(initiates %) (:tropes hmap))
-        gens (mapcat generates (:tropes hmap))
+        exts (mapcat #(external-events % hmap) (:tropes hmap))
+        insts (mapcat #(inst-events % hmap) (:tropes hmap))
+        inits (mapcat #(initiates % hmap) (:tropes hmap))
+        gens (mapcat #(generates % hmap) (:tropes hmap))
        ]
     ;; (get-params (first (:tropes hmap))))
     ;; (reduce str (interpose "\n" (concat types fluents exts ["\n"] insts ["\n"] inits ["\n"] gens))))

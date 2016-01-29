@@ -5,4 +5,4 @@ Phase: inactive done phaseA phaseB phaseC phaseD phaseE phaseF phaseG phaseH pha
 Place: home away
 PlaceName: tatooine space
 Quest: destroyTheDeathStar
-Object: lightsaber
+Object: lightsaber deathStar

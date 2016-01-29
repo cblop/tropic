@@ -25,6 +25,7 @@ placename(tatooine).
 placename(space).
 quest(destroyTheDeathStar).
 object(lightsaber).
+object(deathStar).
 %
 % -------------------------------PART 1-------------------------------
 %

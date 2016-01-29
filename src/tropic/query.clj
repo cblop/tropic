@@ -7,7 +7,8 @@
 
 ;; yeah, change this
 ;; and all the starWars stuff so it can generalise
-(def model (file "resources/test1.ial"))
+;; (def model (file "resources/test1.ial"))
+(def model (file "resources/test2.ial"))
 
 (defn make-query-string [event]
   (let [ag (:AGENT event)

@@ -17,9 +17,16 @@
 (defn get-by-key [key xs]
   (map #(get % key) (filter #(get % key) xs)))
 
+
+(defn strip-s [s]
+  (if (= (last s) \s) (reduce str (butlast s))
+      s
+    ))
+
 (defn make-map [ptree text]
   (insta/transform
-   {:verb (partial param-map :verb)
+   {:verb (fn [& args] {:verb (strip-s (make-string args))})
+    ;; :verb (strip-s (partial param-map :verb))
     :item (partial param-map :object)
     :move (fn [& args] {:verb "go" :place (first (get-by-key :place args))})
     :mverb (partial param-map :mverb)
@@ -41,7 +48,9 @@
     :tropedef (fn [& args] {:trope {:name (first (get-by-key :name args))
                                     :situations (into [] (get-by-key :situation args))
                                     :events (first (get-by-key :events args))}})
-    :give (fn [& args] (let [chars (get-by-key :role args)] {:verb "give" :from (first chars) :to (second chars) :object (first (get-by-key :object args))}))
+    :give (fn [& args] (let [chars (get-by-key :role args)
+                             obj (first (get-by-key :object args))
+                             vrb (if (re-matches #"(Q|q)uest" obj) "dispatch" "give")] {:verb vrb :from (first chars) :to (second chars) :object (first (get-by-key :object args))}))
     :meet (fn [& args] (let [chars (get-by-key :role args)] {:verb "meet" :role-a (first chars) :role-b (second chars)}))
     :task (partial merge)
     :norms (fn [& args] {:norms args})
