@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="testing-tropicals-instal-output">Testing TropICAL's InstAL output</h1>
+<p>The testing method I'm using is to use traces (sequences of external events) as tests. Each trace should test some kind of function of the system and increase in complexity.</p>
+<h2 id="test-1-simple-trope-declaration">Test 1: Simple trope declaration</h2>
+<p>The purpose of this test is to implement a simple version of the &quot;Hero's Journey&quot; trope. The following trace is the sequence of events a set of agents would need to carry out in order to fulfill this trope in the Star Wars universe:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">  observed(startShow<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">0</span>)<span class="kw">.</span>
+  observed(meet(lukeSkywalker<span class="kw">,</span> obiWan)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">1</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> space)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">2</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> tatooine)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">3</span>)<span class="kw">.</span></code></pre></div>
+<p>The following TropICAL code fulfills the above trace:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog"><span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> <span class="dt">is</span> a trope where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> <span class="er">is</span> at home
+  <span class="dt">Then</span> the <span class="dt">Hero</span> meets the <span class="dt">Dispatcher</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> leaves <span class="dt">Home</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> returns <span class="dt">Home</span>
+<span class="ot">&quot;</span><span class="er">Star</span><span class="al"> </span><span class="er">Wars</span><span class="ot">&quot;</span> <span class="dt">is</span> a story<span class="fu">:</span>
+  <span class="er">&quot;</span><span class="dt">Luke</span> <span class="dt">Skywalker</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Hero</span>
+  <span class="ot">&quot;</span><span class="er">Obi</span><span class="al"> </span><span class="er">Wan</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Dispatcher</span>
+  <span class="er">&quot;</span><span class="dt">Tatooine</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Home</span></code></pre></div>
+<p>prolog</p>
+<p>Note that in the above code, the characters (Luke Skywalker, Obi Wan) fulfil their roles (Hero, Dispatcher) globally across the story. It is also possible to give characters scene-local scope, but that will follow in a later test. The same is true of places and quests in a story. All words are case insensitive.</p>
+<p>The events described in the trope simply initiate permissions for the corresponding characters to perform the desrcribed actions.</p>
+<p>The InstAL this code compiles to is in the <a href="~/Dropbox/clojure/tropic/resources/test1.ial">test1.ial</a> file (provided in a separate document). This is then compiled to AnsProlog and run through the clingo solver with the above trace. The resulting answer set is expected to contain:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">(answer set to follow)</code></pre></div>
+<p>prolog</p>
+<h3 id="files">Files:</h3>
+<p>TropICAL: <a href="~/Dropbox/clojure/tropic/resources/test1.story">test1.story</a> InstAL: <a href="~/Dropbox/clojure/tropic/resources/test1.ial">test1.ial</a> ASP: <a href="~/Dropbox/clojure/tropic/resources/test1.lp">test1.lp</a> Trace: <a href="~/Dropbox/clojure/tropic/resources/trace1.lp">trace1.lp</a></p>
+<h2 id="test-2-adding-a-simple-quest">Test 2: Adding a simple quest</h2>
+<p>Quests are a convenient way to add obligations to tropes, by giving characters tasks to complete. To test this, we add a third line to the trace:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">  observed(startShow<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">0</span>)<span class="kw">.</span>
+  observed(meet(lukeSkywalker<span class="kw">,</span> obiWan)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">1</span>)<span class="kw">.</span>
+  observed(give(obiWan<span class="kw">,</span> lukeSkywalker<span class="kw">,</span> quest(destroyTheDeathStar))<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">2</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> space)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">3</span>)<span class="kw">.</span>
+  observed(destroy(lukeSkywalker<span class="kw">,</span> deathStar)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">4</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> tatooine)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">5</span>)<span class="kw">.</span></code></pre></div>
+<p>The quest is added to the story description by referencing it from the trope description and describing the obligations it puts on each character:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog"><span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> <span class="dt">is</span> a trope where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> <span class="er">is</span> at home
+  <span class="dt">Then</span> the <span class="dt">Hero</span> meets the <span class="dt">Dispatcher</span>
+  <span class="dt">Then</span> the <span class="dt">Dispatcher</span> gives the <span class="dt">Hero</span> a quest
+  <span class="dt">Then</span> the <span class="dt">Hero</span> leaves <span class="dt">Home</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> completes the <span class="dt">Quest</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> returns <span class="dt">Home</span>
+<span class="ot">&quot;</span><span class="er">Destroy</span><span class="al"> </span><span class="er">the</span><span class="al"> </span><span class="er">Death</span><span class="al"> </span><span class="er">Star</span><span class="ot">&quot;</span> <span class="dt">is</span> a quest where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> must go to <span class="dt">Space</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> must destroy the <span class="dt">Death</span> <span class="dt">Star</span>
+<span class="er">&quot;</span><span class="dt">Star</span> <span class="dt">Wars</span><span class="er">&quot;</span> <span class="er">is</span> a story<span class="fu">:</span>
+  <span class="dt">It</span> contains the <span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> trope
+  <span class="ot">&quot;</span><span class="er">Luke</span><span class="al"> </span><span class="er">Skywalker</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Hero</span>
+  <span class="er">&quot;</span><span class="dt">Obi</span> <span class="dt">Wan</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Dispatcher</span>
+  <span class="ot">&quot;</span><span class="er">Tatooine</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Home</span>
+  <span class="er">&quot;</span><span class="dt">Destroy</span> the <span class="dt">Death</span> <span class="dt">Star</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Quest</span></code></pre></div>
+<p>prolog</p>
+<p>The resulting answer set is expected to contain:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">(answer set to follow)</code></pre></div>
+<p>prolog</p>
+<h2 id="test-3-a-scene-within-a-trope">Test 3: A scene within a trope</h2>
+<p>This time, the trace is the same as above, but with an added event: the start of a scene called &quot;Tatooine&quot;.</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">  observed(startShow<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">0</span>)<span class="kw">.</span>
+  observed(scene(tatooine<span class="kw">,</span> lukeSkywalker)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">1</span>)<span class="kw">.</span>
+  observed(meet(lukeSkywalker<span class="kw">,</span> obiWan)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">2</span>)<span class="kw">.</span>
+  observed(tell(obiWan<span class="kw">,</span> lukeSkywalker<span class="kw">,</span> destroy<span class="kw">,</span> deathStar)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">3</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> space)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">4</span>)<span class="kw">.</span>
+  observed(destroy(lukeSkywalker<span class="kw">,</span> deathStar)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">5</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> tatooine)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">6</span>)<span class="kw">.</span></code></pre></div>
+<p>The TropicAL story description has been altered so that the character, place and quest instances have scene-level scope:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog"><span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> <span class="dt">is</span> a trope where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> <span class="er">is</span> at home
+  <span class="dt">Then</span> the <span class="dt">Hero</span> meets the <span class="dt">Dispatcher</span>
+  <span class="dt">Then</span> the <span class="dt">Dispatcher</span> gives the <span class="dt">Hero</span> a quest
+  <span class="dt">Then</span> the <span class="dt">Hero</span> leaves <span class="dt">Home</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> completes the <span class="dt">Quest</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> returns home
+<span class="ot">&quot;</span><span class="er">Tatooine</span><span class="ot">&quot;</span> <span class="dt">is</span> a scene<span class="fu">:</span>
+  <span class="er">&quot;</span><span class="dt">Luke</span> <span class="dt">Skywalker</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Hero</span>
+  <span class="ot">&quot;</span><span class="er">Obi</span><span class="al"> </span><span class="er">Wan</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Dispatcher</span>
+  <span class="er">&quot;</span><span class="dt">Tatooine</span><span class="er">&quot;</span> <span class="er">is</span> its home
+  <span class="ot">&quot;</span><span class="er">Destroy</span><span class="al"> </span><span class="er">the</span><span class="al"> </span><span class="er">Death</span><span class="al"> </span><span class="er">Star</span><span class="ot">&quot;</span> <span class="dt">is</span> its quest
+<span class="er">&quot;</span><span class="dt">Destroy</span> the <span class="dt">Death</span> <span class="dt">Star</span><span class="er">&quot;</span> <span class="er">is</span> a quest where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> must go to <span class="dt">Space</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> must destroy the <span class="dt">Death</span> <span class="dt">Star</span>
+<span class="ot">&quot;</span><span class="er">Star</span><span class="al"> </span><span class="er">Wars</span><span class="ot">&quot;</span> <span class="dt">is</span> a story<span class="fu">:</span>
+  <span class="dt">It</span> contains the <span class="er">&quot;</span><span class="dt">The</span> <span class="dt">Hero</span><span class="er">&#39;</span>s <span class="dt">Journey</span><span class="er">&quot;</span> trope
+  <span class="dt">It</span> contains the <span class="er">&quot;</span><span class="dt">Tatooine</span><span class="er">&quot;</span> scene</code></pre></div>
+<p>prolog</p>
+<p>This means that the entire Hero's Journey trope is contained in the &quot;Tatooine&quot; scene in this case. If the story were to have multiple scenes, the trope's events could be spread out between them.</p>
+<p>The resulting answer set is is expected to contain:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">(answer set to follow)</code></pre></div>
+<p>prolog</p>
+<h2 id="test-4-situations-in-tropes">Test 4: Situations in tropes</h2>
+<p>This is to test the &quot;When X then Y&quot; syntax for tropes. For this, we return to the simplified hero's journed without a quest. This time, our hero gets a lightsaber:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">  observed(startShow<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">0</span>)<span class="kw">.</span>
+  observed(meet(lukeSkywalker<span class="kw">,</span> obiWan)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">1</span>)<span class="kw">.</span>
+  observed(gets(lukeSkywalker<span class="kw">,</span> lightSaber)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">2</span>)<span class="kw">.</span>
+  observed(bring(lukeSkywalker<span class="kw">,</span> hanSolo)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">3</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> space)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">4</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> tatooine)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">5</span>)<span class="kw">.</span></code></pre></div>
+<p>For this test, we alter the trope, adding a conditional based on a situation occuring:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog"><span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> <span class="dt">is</span> a trope where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> <span class="er">is</span> at home
+  <span class="dt">Then</span> the <span class="dt">Hero</span> meets the <span class="dt">Dispatcher</span>
+  <span class="dt">When</span> the <span class="dt">Hero</span> gets a <span class="dt">Weapon</span><span class="fu">:</span>
+    <span class="dt">The</span> <span class="dt">Hero</span> may bring a <span class="dt">Friend</span>
+    <span class="dt">The</span> <span class="dt">Hero</span> may leave <span class="dt">Home</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> leaves <span class="dt">Home</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> returns <span class="dt">Home</span>
+<span class="ot">&quot;</span><span class="er">Star</span><span class="al"> </span><span class="er">Wars</span><span class="ot">&quot;</span> <span class="dt">is</span> a story<span class="fu">:</span>
+  <span class="dt">It</span> contains the <span class="er">&quot;</span><span class="dt">The</span> <span class="dt">Hero</span><span class="er">&#39;</span>s <span class="dt">Journey</span><span class="er">&quot;</span> trope
+  <span class="er">&quot;</span><span class="dt">Luke</span> <span class="dt">Skywalker</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Hero</span>
+  <span class="ot">&quot;</span><span class="er">Obi</span><span class="al"> </span><span class="er">Wan</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Dispatcher</span>
+  <span class="er">&quot;</span><span class="dt">Tatooine</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Home</span>
+  <span class="ot">&quot;</span><span class="er">Light</span><span class="al"> </span><span class="er">Saber</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Weapon</span>
+  <span class="er">&quot;</span><span class="dt">Han</span> <span class="dt">Solo</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Friend</span></code></pre></div>
+<p>prolog</p>
+<p>This states that when the hero gets a weapon, they may find friends and leave home. These permissions are granted to the hero once they have obtained a weapon of some kind.</p>
+<p>The answer set is expected to contain:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">(answer set to follow)</code></pre></div>
+<p>prolog</p>
+<h2 id="test-5-obligations-with-deadlines">Test 5: Obligations with deadlines</h2>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">  observed(startShow<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">0</span>)<span class="kw">.</span>
+  observed(meet(lukeSkywalker<span class="kw">,</span> obiWan)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">1</span>)<span class="kw">.</span>
+  observed(gets(lukeSkywalker<span class="kw">,</span> lightSaber)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">2</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> space)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">2</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> tatooine)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">3</span>)<span class="kw">.</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog"><span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> <span class="dt">is</span> a trope where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> <span class="er">is</span> at home
+  <span class="dt">Then</span> the <span class="dt">Hero</span> meets the <span class="dt">Dispatcher</span>
+  <span class="dt">When</span> the <span class="dt">Hero</span> gets a <span class="dt">Weapon</span><span class="fu">:</span>
+    <span class="dt">The</span> <span class="dt">Hero</span> must leave <span class="dt">Home</span> before the <span class="dt">Villain</span> comes
+  <span class="dt">Then</span> the <span class="dt">Hero</span> leaves <span class="dt">Home</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> returns <span class="dt">Home</span>
+<span class="ot">&quot;</span><span class="er">Star</span><span class="al"> </span><span class="er">Wars</span><span class="ot">&quot;</span> <span class="dt">is</span> a story<span class="fu">:</span>
+  <span class="dt">It</span> contains the <span class="er">&quot;</span><span class="dt">The</span> <span class="dt">Hero</span><span class="er">&#39;</span>s <span class="dt">Journey</span><span class="er">&quot;</span> trope
+  <span class="er">&quot;</span><span class="dt">Luke</span> <span class="dt">Skywalker</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Hero</span>
+  <span class="ot">&quot;</span><span class="er">Obi</span><span class="al"> </span><span class="er">Wan</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Dispatcher</span>
+  <span class="er">&quot;</span><span class="dt">Tatooine</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Home</span>
+  <span class="ot">&quot;</span><span class="er">Light</span><span class="al"> </span><span class="er">Saber</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Weapon</span>
+  <span class="er">&quot;</span><span class="dt">Darth</span> <span class="dt">Vader</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Villain</span></code></pre></div>
+<p>prolog</p>
+<p>The answer set contains:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">(answer set to follow)</code></pre></div>
+<p>prolog</p>
+<h2 id="test-6-obligations-with-deadlines-and-violation-events">Test 6: Obligations with deadlines and violation events</h2>
+<p>NOTE: The syntax of this test is subject to change!</p>
+<p>In this case, the villain (Darth Vader) can kill the hero (Luke) if the hero has not left home (Tattoine) before the villain arrives:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">  observed(startShow<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">0</span>)<span class="kw">.</span>
+  observed(meet(lukeSkywalker<span class="kw">,</span> obiWan)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">1</span>)<span class="kw">.</span>
+  observed(gets(lukeSkywalker<span class="kw">,</span> lightSaber)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">2</span>)<span class="kw">.</span>
+  observed(comes(darthVader<span class="kw">,</span> tatooine)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">3</span>)<span class="kw">.</span>
+  observed(kill(darthVader<span class="kw">,</span> lukeSkywalker)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">4</span>)<span class="kw">.</span></code></pre></div>
+<p>This is described in the story as follows:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog"><span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> <span class="dt">is</span> a trope where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> <span class="er">is</span> at home
+  <span class="dt">Then</span> the <span class="dt">Hero</span> meets the <span class="dt">Dispatcher</span>
+  <span class="dt">When</span> the <span class="dt">Hero</span> gets a <span class="dt">Weapon</span><span class="fu">:</span>
+    <span class="dt">The</span> <span class="dt">Hero</span> must leave <span class="dt">Home</span> before the <span class="dt">Villain</span> comes
+      <span class="dt">Otherwise</span><span class="kw">,</span> the <span class="dt">Villain</span> may kill the <span class="dt">Hero</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> leaves <span class="dt">Home</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> returns <span class="dt">Home</span>
+<span class="ot">&quot;</span><span class="er">Star</span><span class="al"> </span><span class="er">Wars</span><span class="ot">&quot;</span> <span class="dt">is</span> a story<span class="fu">:</span>
+  <span class="dt">It</span> contains the <span class="er">&quot;</span><span class="dt">The</span> <span class="dt">Hero</span><span class="er">&#39;</span>s <span class="dt">Journey</span><span class="er">&quot;</span> trope
+  <span class="er">&quot;</span><span class="dt">Luke</span> <span class="dt">Skywalker</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Hero</span>
+  <span class="ot">&quot;</span><span class="er">Obi</span><span class="al"> </span><span class="er">Wan</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Dispatcher</span>
+  <span class="er">&quot;</span><span class="dt">Tatooine</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Home</span>
+  <span class="ot">&quot;</span><span class="er">Light</span><span class="al"> </span><span class="er">Saber</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Weapon</span>
+  <span class="er">&quot;</span><span class="dt">Darth</span> <span class="dt">Vader</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Villain</span></code></pre></div>
+<p>prolog</p>
+<p>The answer set is expected to contain:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">(answer set to follow)</code></pre></div>
+<p>prolog</p>
+<h2 id="test-7-multiple-tropes">Test 7: Multiple tropes</h2>
+<p>This test examines the use of multiple tropes containing situations (When X:), obligations, deadlines and consequences.</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">  observed(startShow<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">0</span>)<span class="kw">.</span>
+  observed(meet(lukeSkywalker<span class="kw">,</span> obiWan)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">1</span>)<span class="kw">.</span>
+  observed(gets(lukeSkywalker<span class="kw">,</span> lightSaber)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">2</span>)<span class="kw">.</span>
+  observed(captures(darthVader<span class="kw">,</span> princessLeia)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">3</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> space)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">4</span>)<span class="kw">.</span>
+  observed(rescue(lukeSkywalker<span class="kw">,</span> princessLeia)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">5</span>)<span class="kw">.</span>
+  observed(go(lukeSkywalker<span class="kw">,</span> tatooine)<span class="kw">,</span>starWars<span class="kw">,</span><span class="dv">6</span>)<span class="kw">.</span></code></pre></div>
+<p>The story now contains two trope descriptions: &quot;The Hero's Journey&quot; and &quot;The Evil Empire&quot;:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog"><span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> <span class="dt">is</span> a trope where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Hero</span> <span class="er">is</span> at home
+  <span class="dt">Then</span> the <span class="dt">Hero</span> meets the <span class="dt">Dispatcher</span>
+  <span class="dt">When</span> the <span class="dt">Hero</span> gets a <span class="dt">Weapon</span><span class="fu">:</span>
+    <span class="dt">The</span> <span class="dt">Hero</span> must leave <span class="dt">Home</span> before the <span class="dt">Villain</span> comes
+      <span class="dt">Otherwise</span><span class="kw">,</span> the <span class="dt">Villain</span> may kill the <span class="dt">Hero</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> leaves <span class="dt">Home</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> rescues the <span class="dt">Hostage</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> returns <span class="dt">Home</span>
+<span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Evil</span><span class="al"> </span><span class="er">Empire</span><span class="ot">&quot;</span> <span class="dt">is</span> a trope where<span class="fu">:</span>
+  <span class="dt">The</span> <span class="dt">Villain</span> gets a <span class="dt">Hostage</span>
+  <span class="dt">When</span> the <span class="dt">Villain</span> captures a <span class="dt">Hostage</span><span class="fu">:</span>
+    <span class="dt">The</span> <span class="dt">Villain</span> may kill the <span class="dt">Hostage</span>
+  <span class="dt">Then</span> the <span class="dt">Villain</span> fights the <span class="dt">Hero</span>
+  <span class="dt">Then</span> the <span class="dt">Hero</span> kills the <span class="dt">Villain</span>
+<span class="er">&quot;</span><span class="dt">Star</span> <span class="dt">Wars</span><span class="er">&quot;</span> <span class="er">is</span> a story<span class="fu">:</span>
+  <span class="dt">It</span> contains the <span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Hero</span><span class="ot">&#39;</span><span class="er">s</span><span class="al"> </span><span class="er">Journey</span><span class="ot">&quot;</span> trope
+  <span class="dt">It</span> contains the <span class="ot">&quot;</span><span class="er">The</span><span class="al"> </span><span class="er">Evil</span><span class="al"> </span><span class="er">Empire</span><span class="ot">&quot;</span> trope
+  <span class="ot">&quot;</span><span class="er">Luke</span><span class="al"> </span><span class="er">Skywalker</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Hero</span>
+  <span class="er">&quot;</span><span class="dt">Obi</span> <span class="dt">Wan</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Dispatcher</span>
+  <span class="ot">&quot;</span><span class="er">Tatooine</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Home</span>
+  <span class="er">&quot;</span><span class="dt">Light</span> <span class="dt">Saber</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Weapon</span>
+  <span class="ot">&quot;</span><span class="er">Darth</span><span class="al"> </span><span class="er">Vader</span><span class="ot">&quot;</span> <span class="dt">is</span> its <span class="dt">Villain</span>
+  <span class="er">&quot;</span><span class="dt">Princess</span> <span class="dt">Leia</span><span class="er">&quot;</span> <span class="er">is</span> its <span class="dt">Hostage</span></code></pre></div>
+<p>prolog</p>
+<p>The answer set is expected to contain:</p>
+<div class="sourceCode"><pre class="sourceCode prolog"><code class="sourceCode prolog">(answer set to follow)</code></pre></div>
+<p>prolog</p>
+<p>More tests are to follow, but this is enough for me to be getting on with for now!</p>
+</body>
+</html>

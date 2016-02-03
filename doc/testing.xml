@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" office:version="1.2">
+  <office:font-face-decls>
+    <style:font-face style:name="Courier New" style:font-family-generic="modern" style:font-pitch="fixed" svg:font-family="'Courier New'" />
+  </office:font-face-decls>
+  <office:automatic-styles>
+    <style:style style:name="P1" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P2" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P3" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P4" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P5" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P6" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P7" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P8" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P9" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P10" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P11" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P12" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P13" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P14" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P15" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P16" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P17" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P18" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P19" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P20" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P21" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P22" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P23" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P24" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P25" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P26" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P27" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P28" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P29" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P30" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P31" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P32" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P33" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P34" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P35" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P36" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P37" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P38" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P39" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P40" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P41" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P42" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P43" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P44" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P45" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P46" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P47" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P48" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P49" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P50" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P51" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P52" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P53" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P54" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P55" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P56" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P57" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P58" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P59" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P60" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P61" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P62" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P63" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P64" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P65" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P66" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P67" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P68" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P69" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P70" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P71" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P72" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P73" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P74" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P75" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P76" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P77" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P78" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P79" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P80" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P81" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P82" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P83" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P84" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P85" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P86" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P87" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P88" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P89" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P90" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P91" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P92" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P93" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P94" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P95" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P96" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P97" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P98" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P99" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P100" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P101" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P102" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P103" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P104" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P105" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P106" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P107" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P108" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P109" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P110" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P111" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P112" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P113" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P114" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P115" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P116" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P117" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P118" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P119" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P120" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P121" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P122" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P123" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P124" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P125" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P126" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P127" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P128" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P129" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P130" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P131" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P132" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P133" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P134" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P135" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P136" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P137" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P138" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P139" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P140" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P141" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P142" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P143" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P144" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P145" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P146" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P147" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P148" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P149" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P150" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P151" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P152" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P153" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P154" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P155" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P156" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P157" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+    <style:style style:name="P158" style:family="paragraph" style:parent-style-name="Preformatted_20_Text">
+    </style:style>
+  </office:automatic-styles>
+<office:body>
+<office:text>
+<text:h text:style-name="Heading_20_1" text:outline-level="1">Testing
+TropICAL's InstAL output</text:h>
+<text:p text:style-name="First_20_paragraph">The testing method I'm
+using is to use traces (sequences of external events) as tests. Each
+trace should test some kind of function of the system and increase in
+complexity.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2">Test 1:
+Simple trope declaration</text:h>
+<text:p text:style-name="First_20_paragraph">The purpose of this test is
+to implement a simple version of the &quot;Hero's Journey&quot; trope.
+The following trace is the sequence of events a set of agents would need
+to carry out in order to fulfill this trope in the Star Wars
+universe:</text:p>
+<text:p text:style-name="P1"><text:s text:c="2" />observed(startShow,starWars,0).</text:p>
+<text:p text:style-name="P2"><text:s text:c="2" />observed(meet(lukeSkywalker, obiWan),starWars,1).</text:p>
+<text:p text:style-name="P3"><text:s text:c="2" />observed(go(lukeSkywalker, space),starWars,2).</text:p>
+<text:p text:style-name="P4"><text:s text:c="2" />observed(go(lukeSkywalker, tatooine),starWars,3).</text:p>
+<text:p text:style-name="First_20_paragraph">The following TropICAL code
+fulfills the above trace:</text:p>
+<text:p text:style-name="P5">&quot;The Hero's Journey&quot; is a trope where:</text:p>
+<text:p text:style-name="P6"><text:s text:c="2" />The Hero is at home</text:p>
+<text:p text:style-name="P7"><text:s text:c="2" />Then the Hero meets the Dispatcher</text:p>
+<text:p text:style-name="P8"><text:s text:c="2" />Then the Hero leaves Home</text:p>
+<text:p text:style-name="P9"><text:s text:c="2" />Then the Hero returns Home</text:p>
+<text:p text:style-name="P10">&quot;Star Wars&quot; is a story:</text:p>
+<text:p text:style-name="P11"><text:s text:c="2" />&quot;Luke Skywalker&quot; is its Hero</text:p>
+<text:p text:style-name="P12"><text:s text:c="2" />&quot;Obi Wan&quot; is its Dispatcher</text:p>
+<text:p text:style-name="P13"><text:s text:c="2" />&quot;Tatooine&quot; is its Home</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:p text:style-name="Text_20_body">Note that in the above code, the
+characters (Luke Skywalker, Obi Wan) fulfil their roles (Hero,
+Dispatcher) globally across the story. It is also possible to give
+characters scene-local scope, but that will follow in a later test. The
+same is true of places and quests in a story. All words are case
+insensitive.</text:p>
+<text:p text:style-name="Text_20_body">The events described in the trope
+simply initiate permissions for the corresponding characters to perform
+the desrcribed actions.</text:p>
+<text:p text:style-name="Text_20_body">The InstAL this code compiles to
+is in the
+<text:a xlink:type="simple" xlink:href="~/Dropbox/clojure/tropic/resources/test1.ial" office:name=""><text:span text:style-name="Definition">test1.ial</text:span></text:a>
+file (provided in a separate document). This is then compiled to
+AnsProlog and run through the clingo solver with the above trace. The
+resulting answer set is expected to contain:</text:p>
+<text:p text:style-name="P14">(answer set to follow)</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:h text:style-name="Heading_20_3" text:outline-level="3">Files:</text:h>
+<text:p text:style-name="First_20_paragraph">TropICAL:
+<text:a xlink:type="simple" xlink:href="~/Dropbox/clojure/tropic/resources/test1.story" office:name=""><text:span text:style-name="Definition">test1.story</text:span></text:a>
+InstAL:
+<text:a xlink:type="simple" xlink:href="~/Dropbox/clojure/tropic/resources/test1.ial" office:name=""><text:span text:style-name="Definition">test1.ial</text:span></text:a>
+ASP:
+<text:a xlink:type="simple" xlink:href="~/Dropbox/clojure/tropic/resources/test1.lp" office:name=""><text:span text:style-name="Definition">test1.lp</text:span></text:a>
+Trace:
+<text:a xlink:type="simple" xlink:href="~/Dropbox/clojure/tropic/resources/trace1.lp" office:name=""><text:span text:style-name="Definition">trace1.lp</text:span></text:a></text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2">Test 2:
+Adding a simple quest</text:h>
+<text:p text:style-name="First_20_paragraph">Quests are a convenient way
+to add obligations to tropes, by giving characters tasks to complete. To
+test this, we add a third line to the trace:</text:p>
+<text:p text:style-name="P15"><text:s text:c="2" />observed(startShow,starWars,0).</text:p>
+<text:p text:style-name="P16"><text:s text:c="2" />observed(meet(lukeSkywalker, obiWan),starWars,1).</text:p>
+<text:p text:style-name="P17"><text:s text:c="2" />observed(give(obiWan, lukeSkywalker, quest(destroyTheDeathStar)),starWars,2).</text:p>
+<text:p text:style-name="P18"><text:s text:c="2" />observed(go(lukeSkywalker, space),starWars,3).</text:p>
+<text:p text:style-name="P19"><text:s text:c="2" />observed(destroy(lukeSkywalker, deathStar),starWars,4).</text:p>
+<text:p text:style-name="P20"><text:s text:c="2" />observed(go(lukeSkywalker, tatooine),starWars,5).</text:p>
+<text:p text:style-name="First_20_paragraph">The quest is added to the
+story description by referencing it from the trope description and
+describing the obligations it puts on each character:</text:p>
+<text:p text:style-name="P21">&quot;The Hero's Journey&quot; is a trope where:</text:p>
+<text:p text:style-name="P22"><text:s text:c="2" />The Hero is at home</text:p>
+<text:p text:style-name="P23"><text:s text:c="2" />Then the Hero meets the Dispatcher</text:p>
+<text:p text:style-name="P24"><text:s text:c="2" />Then the Dispatcher gives the Hero a quest</text:p>
+<text:p text:style-name="P25"><text:s text:c="2" />Then the Hero leaves Home</text:p>
+<text:p text:style-name="P26"><text:s text:c="2" />Then the Hero completes the Quest</text:p>
+<text:p text:style-name="P27"><text:s text:c="2" />Then the Hero returns Home</text:p>
+<text:p text:style-name="P28">&quot;Destroy the Death Star&quot; is a quest where:</text:p>
+<text:p text:style-name="P29"><text:s text:c="2" />The Hero must go to Space</text:p>
+<text:p text:style-name="P30"><text:s text:c="2" />The Hero must destroy the Death Star</text:p>
+<text:p text:style-name="P31">&quot;Star Wars&quot; is a story:</text:p>
+<text:p text:style-name="P32"><text:s text:c="2" />It contains the &quot;The Hero's Journey&quot; trope</text:p>
+<text:p text:style-name="P33"><text:s text:c="2" />&quot;Luke Skywalker&quot; is its Hero</text:p>
+<text:p text:style-name="P34"><text:s text:c="2" />&quot;Obi Wan&quot; is its Dispatcher</text:p>
+<text:p text:style-name="P35"><text:s text:c="2" />&quot;Tatooine&quot; is its Home</text:p>
+<text:p text:style-name="P36"><text:s text:c="2" />&quot;Destroy the Death Star&quot; is its Quest</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:p text:style-name="Text_20_body">The resulting answer set is
+expected to contain:</text:p>
+<text:p text:style-name="P37">(answer set to follow)</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2">Test 3: A
+scene within a trope</text:h>
+<text:p text:style-name="First_20_paragraph">This time, the trace is the
+same as above, but with an added event: the start of a scene called
+&quot;Tatooine&quot;.</text:p>
+<text:p text:style-name="P38"><text:s text:c="2" />observed(startShow,starWars,0).</text:p>
+<text:p text:style-name="P39"><text:s text:c="2" />observed(scene(tatooine, lukeSkywalker),starWars,1).</text:p>
+<text:p text:style-name="P40"><text:s text:c="2" />observed(meet(lukeSkywalker, obiWan),starWars,2).</text:p>
+<text:p text:style-name="P41"><text:s text:c="2" />observed(tell(obiWan, lukeSkywalker, destroy, deathStar),starWars,3).</text:p>
+<text:p text:style-name="P42"><text:s text:c="2" />observed(go(lukeSkywalker, space),starWars,4).</text:p>
+<text:p text:style-name="P43"><text:s text:c="2" />observed(destroy(lukeSkywalker, deathStar),starWars,5).</text:p>
+<text:p text:style-name="P44"><text:s text:c="2" />observed(go(lukeSkywalker, tatooine),starWars,6).</text:p>
+<text:p text:style-name="First_20_paragraph">The TropicAL story
+description has been altered so that the character, place and quest
+instances have scene-level scope:</text:p>
+<text:p text:style-name="P45">&quot;The Hero's Journey&quot; is a trope where:</text:p>
+<text:p text:style-name="P46"><text:s text:c="2" />The Hero is at home</text:p>
+<text:p text:style-name="P47"><text:s text:c="2" />Then the Hero meets the Dispatcher</text:p>
+<text:p text:style-name="P48"><text:s text:c="2" />Then the Dispatcher gives the Hero a quest</text:p>
+<text:p text:style-name="P49"><text:s text:c="2" />Then the Hero leaves Home</text:p>
+<text:p text:style-name="P50"><text:s text:c="2" />Then the Hero completes the Quest</text:p>
+<text:p text:style-name="P51"><text:s text:c="2" />Then the Hero returns home</text:p>
+<text:p text:style-name="P52">&quot;Tatooine&quot; is a scene:</text:p>
+<text:p text:style-name="P53"><text:s text:c="2" />&quot;Luke Skywalker&quot; is its Hero</text:p>
+<text:p text:style-name="P54"><text:s text:c="2" />&quot;Obi Wan&quot; is its Dispatcher</text:p>
+<text:p text:style-name="P55"><text:s text:c="2" />&quot;Tatooine&quot; is its home</text:p>
+<text:p text:style-name="P56"><text:s text:c="2" />&quot;Destroy the Death Star&quot; is its quest</text:p>
+<text:p text:style-name="P57">&quot;Destroy the Death Star&quot; is a quest where:</text:p>
+<text:p text:style-name="P58"><text:s text:c="2" />The Hero must go to Space</text:p>
+<text:p text:style-name="P59"><text:s text:c="2" />The Hero must destroy the Death Star</text:p>
+<text:p text:style-name="P60">&quot;Star Wars&quot; is a story:</text:p>
+<text:p text:style-name="P61"><text:s text:c="2" />It contains the &quot;The Hero's Journey&quot; trope</text:p>
+<text:p text:style-name="P62"><text:s text:c="2" />It contains the &quot;Tatooine&quot; scene</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:p text:style-name="Text_20_body">This means that the entire Hero's
+Journey trope is contained in the &quot;Tatooine&quot; scene in this
+case. If the story were to have multiple scenes, the trope's events
+could be spread out between them.</text:p>
+<text:p text:style-name="Text_20_body">The resulting answer set is is
+expected to contain:</text:p>
+<text:p text:style-name="P63">(answer set to follow)</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2">Test 4:
+Situations in tropes</text:h>
+<text:p text:style-name="First_20_paragraph">This is to test the
+&quot;When X then Y&quot; syntax for tropes. For this, we return to the
+simplified hero's journed without a quest. This time, our hero gets a
+lightsaber:</text:p>
+<text:p text:style-name="P64"><text:s text:c="2" />observed(startShow,starWars,0).</text:p>
+<text:p text:style-name="P65"><text:s text:c="2" />observed(meet(lukeSkywalker, obiWan),starWars,1).</text:p>
+<text:p text:style-name="P66"><text:s text:c="2" />observed(gets(lukeSkywalker, lightSaber),starWars,2).</text:p>
+<text:p text:style-name="P67"><text:s text:c="2" />observed(bring(lukeSkywalker, hanSolo),starWars,3).</text:p>
+<text:p text:style-name="P68"><text:s text:c="2" />observed(go(lukeSkywalker, space),starWars,4).</text:p>
+<text:p text:style-name="P69"><text:s text:c="2" />observed(go(lukeSkywalker, tatooine),starWars,5).</text:p>
+<text:p text:style-name="First_20_paragraph">For this test, we alter the
+trope, adding a conditional based on a situation occuring:</text:p>
+<text:p text:style-name="P70">&quot;The Hero's Journey&quot; is a trope where:</text:p>
+<text:p text:style-name="P71"><text:s text:c="2" />The Hero is at home</text:p>
+<text:p text:style-name="P72"><text:s text:c="2" />Then the Hero meets the Dispatcher</text:p>
+<text:p text:style-name="P73"><text:s text:c="2" />When the Hero gets a Weapon:</text:p>
+<text:p text:style-name="P74"><text:s text:c="4" />The Hero may bring a Friend</text:p>
+<text:p text:style-name="P75"><text:s text:c="4" />The Hero may leave Home</text:p>
+<text:p text:style-name="P76"><text:s text:c="2" />Then the Hero leaves Home</text:p>
+<text:p text:style-name="P77"><text:s text:c="2" />Then the Hero returns Home</text:p>
+<text:p text:style-name="P78">&quot;Star Wars&quot; is a story:</text:p>
+<text:p text:style-name="P79"><text:s text:c="2" />It contains the &quot;The Hero's Journey&quot; trope</text:p>
+<text:p text:style-name="P80"><text:s text:c="2" />&quot;Luke Skywalker&quot; is its Hero</text:p>
+<text:p text:style-name="P81"><text:s text:c="2" />&quot;Obi Wan&quot; is its Dispatcher</text:p>
+<text:p text:style-name="P82"><text:s text:c="2" />&quot;Tatooine&quot; is its Home</text:p>
+<text:p text:style-name="P83"><text:s text:c="2" />&quot;Light Saber&quot; is its Weapon</text:p>
+<text:p text:style-name="P84"><text:s text:c="2" />&quot;Han Solo&quot; is its Friend</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:p text:style-name="Text_20_body">This states that when the hero
+gets a weapon, they may find friends and leave home. These permissions
+are granted to the hero once they have obtained a weapon of some
+kind.</text:p>
+<text:p text:style-name="Text_20_body">The answer set is expected to
+contain:</text:p>
+<text:p text:style-name="P85">(answer set to follow)</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2">Test 5:
+Obligations with deadlines</text:h>
+<text:p text:style-name="P86"><text:s text:c="2" />observed(startShow,starWars,0).</text:p>
+<text:p text:style-name="P87"><text:s text:c="2" />observed(meet(lukeSkywalker, obiWan),starWars,1).</text:p>
+<text:p text:style-name="P88"><text:s text:c="2" />observed(gets(lukeSkywalker, lightSaber),starWars,2).</text:p>
+<text:p text:style-name="P89"><text:s text:c="2" />observed(go(lukeSkywalker, space),starWars,2).</text:p>
+<text:p text:style-name="P90"><text:s text:c="2" />observed(go(lukeSkywalker, tatooine),starWars,3).</text:p>
+<text:p text:style-name="P91">&quot;The Hero's Journey&quot; is a trope where:</text:p>
+<text:p text:style-name="P92"><text:s text:c="2" />The Hero is at home</text:p>
+<text:p text:style-name="P93"><text:s text:c="2" />Then the Hero meets the Dispatcher</text:p>
+<text:p text:style-name="P94"><text:s text:c="2" />When the Hero gets a Weapon:</text:p>
+<text:p text:style-name="P95"><text:s text:c="4" />The Hero must leave Home before the Villain comes</text:p>
+<text:p text:style-name="P96"><text:s text:c="2" />Then the Hero leaves Home</text:p>
+<text:p text:style-name="P97"><text:s text:c="2" />Then the Hero returns Home</text:p>
+<text:p text:style-name="P98">&quot;Star Wars&quot; is a story:</text:p>
+<text:p text:style-name="P99"><text:s text:c="2" />It contains the &quot;The Hero's Journey&quot; trope</text:p>
+<text:p text:style-name="P100"><text:s text:c="2" />&quot;Luke Skywalker&quot; is its Hero</text:p>
+<text:p text:style-name="P101"><text:s text:c="2" />&quot;Obi Wan&quot; is its Dispatcher</text:p>
+<text:p text:style-name="P102"><text:s text:c="2" />&quot;Tatooine&quot; is its Home</text:p>
+<text:p text:style-name="P103"><text:s text:c="2" />&quot;Light Saber&quot; is its Weapon</text:p>
+<text:p text:style-name="P104"><text:s text:c="2" />&quot;Darth Vader&quot; is its Villain</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:p text:style-name="Text_20_body">The answer set contains:</text:p>
+<text:p text:style-name="P105">(answer set to follow)</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2">Test 6:
+Obligations with deadlines and violation events</text:h>
+<text:p text:style-name="First_20_paragraph">NOTE: The syntax of this
+test is subject to change!</text:p>
+<text:p text:style-name="Text_20_body">In this case, the villain (Darth
+Vader) can kill the hero (Luke) if the hero has not left home (Tattoine)
+before the villain arrives:</text:p>
+<text:p text:style-name="P106"><text:s text:c="2" />observed(startShow,starWars,0).</text:p>
+<text:p text:style-name="P107"><text:s text:c="2" />observed(meet(lukeSkywalker, obiWan),starWars,1).</text:p>
+<text:p text:style-name="P108"><text:s text:c="2" />observed(gets(lukeSkywalker, lightSaber),starWars,2).</text:p>
+<text:p text:style-name="P109"><text:s text:c="2" />observed(comes(darthVader, tatooine),starWars,3).</text:p>
+<text:p text:style-name="P110"><text:s text:c="2" />observed(kill(darthVader, lukeSkywalker),starWars,4).</text:p>
+<text:p text:style-name="First_20_paragraph">This is described in the
+story as follows:</text:p>
+<text:p text:style-name="P111">&quot;The Hero's Journey&quot; is a trope where:</text:p>
+<text:p text:style-name="P112"><text:s text:c="2" />The Hero is at home</text:p>
+<text:p text:style-name="P113"><text:s text:c="2" />Then the Hero meets the Dispatcher</text:p>
+<text:p text:style-name="P114"><text:s text:c="2" />When the Hero gets a Weapon:</text:p>
+<text:p text:style-name="P115"><text:s text:c="4" />The Hero must leave Home before the Villain comes</text:p>
+<text:p text:style-name="P116"><text:s text:c="6" />Otherwise, the Villain may kill the Hero</text:p>
+<text:p text:style-name="P117"><text:s text:c="2" />Then the Hero leaves Home</text:p>
+<text:p text:style-name="P118"><text:s text:c="2" />Then the Hero returns Home</text:p>
+<text:p text:style-name="P119">&quot;Star Wars&quot; is a story:</text:p>
+<text:p text:style-name="P120"><text:s text:c="2" />It contains the &quot;The Hero's Journey&quot; trope</text:p>
+<text:p text:style-name="P121"><text:s text:c="2" />&quot;Luke Skywalker&quot; is its Hero</text:p>
+<text:p text:style-name="P122"><text:s text:c="2" />&quot;Obi Wan&quot; is its Dispatcher</text:p>
+<text:p text:style-name="P123"><text:s text:c="2" />&quot;Tatooine&quot; is its Home</text:p>
+<text:p text:style-name="P124"><text:s text:c="2" />&quot;Light Saber&quot; is its Weapon</text:p>
+<text:p text:style-name="P125"><text:s text:c="2" />&quot;Darth Vader&quot; is its Villain</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:p text:style-name="Text_20_body">The answer set is expected to
+contain:</text:p>
+<text:p text:style-name="P126">(answer set to follow)</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2">Test 7:
+Multiple tropes</text:h>
+<text:p text:style-name="First_20_paragraph">This test examines the use
+of multiple tropes containing situations (When X:), obligations,
+deadlines and consequences.</text:p>
+<text:p text:style-name="P127"><text:s text:c="2" />observed(startShow,starWars,0).</text:p>
+<text:p text:style-name="P128"><text:s text:c="2" />observed(meet(lukeSkywalker, obiWan),starWars,1).</text:p>
+<text:p text:style-name="P129"><text:s text:c="2" />observed(gets(lukeSkywalker, lightSaber),starWars,2).</text:p>
+<text:p text:style-name="P130"><text:s text:c="2" />observed(captures(darthVader, princessLeia),starWars,3).</text:p>
+<text:p text:style-name="P131"><text:s text:c="2" />observed(go(lukeSkywalker, space),starWars,4).</text:p>
+<text:p text:style-name="P132"><text:s text:c="2" />observed(rescue(lukeSkywalker, princessLeia),starWars,5).</text:p>
+<text:p text:style-name="P133"><text:s text:c="2" />observed(go(lukeSkywalker, tatooine),starWars,6).</text:p>
+<text:p text:style-name="First_20_paragraph">The story now contains two
+trope descriptions: &quot;The Hero's Journey&quot; and &quot;The Evil
+Empire&quot;:</text:p>
+<text:p text:style-name="P134">&quot;The Hero's Journey&quot; is a trope where:</text:p>
+<text:p text:style-name="P135"><text:s text:c="2" />The Hero is at home</text:p>
+<text:p text:style-name="P136"><text:s text:c="2" />Then the Hero meets the Dispatcher</text:p>
+<text:p text:style-name="P137"><text:s text:c="2" />When the Hero gets a Weapon:</text:p>
+<text:p text:style-name="P138"><text:s text:c="4" />The Hero must leave Home before the Villain comes</text:p>
+<text:p text:style-name="P139"><text:s text:c="6" />Otherwise, the Villain may kill the Hero</text:p>
+<text:p text:style-name="P140"><text:s text:c="2" />Then the Hero leaves Home</text:p>
+<text:p text:style-name="P141"><text:s text:c="2" />Then the Hero rescues the Hostage</text:p>
+<text:p text:style-name="P142"><text:s text:c="2" />Then the Hero returns Home</text:p>
+<text:p text:style-name="P143">&quot;The Evil Empire&quot; is a trope where:</text:p>
+<text:p text:style-name="P144"><text:s text:c="2" />The Villain gets a Hostage</text:p>
+<text:p text:style-name="P145"><text:s text:c="2" />When the Villain captures a Hostage:</text:p>
+<text:p text:style-name="P146"><text:s text:c="4" />The Villain may kill the Hostage</text:p>
+<text:p text:style-name="P147"><text:s text:c="2" />Then the Villain fights the Hero</text:p>
+<text:p text:style-name="P148"><text:s text:c="2" />Then the Hero kills the Villain</text:p>
+<text:p text:style-name="P149">&quot;Star Wars&quot; is a story:</text:p>
+<text:p text:style-name="P150"><text:s text:c="2" />It contains the &quot;The Hero's Journey&quot; trope</text:p>
+<text:p text:style-name="P151"><text:s text:c="2" />It contains the &quot;The Evil Empire&quot; trope</text:p>
+<text:p text:style-name="P152"><text:s text:c="2" />&quot;Luke Skywalker&quot; is its Hero</text:p>
+<text:p text:style-name="P153"><text:s text:c="2" />&quot;Obi Wan&quot; is its Dispatcher</text:p>
+<text:p text:style-name="P154"><text:s text:c="2" />&quot;Tatooine&quot; is its Home</text:p>
+<text:p text:style-name="P155"><text:s text:c="2" />&quot;Light Saber&quot; is its Weapon</text:p>
+<text:p text:style-name="P156"><text:s text:c="2" />&quot;Darth Vader&quot; is its Villain</text:p>
+<text:p text:style-name="P157"><text:s text:c="2" />&quot;Princess Leia&quot; is its Hostage</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:p text:style-name="Text_20_body">The answer set is expected to
+contain:</text:p>
+<text:p text:style-name="P158">(answer set to follow)</text:p>
+<text:p text:style-name="First_20_paragraph">prolog</text:p>
+<text:p text:style-name="Text_20_body">More tests are to follow, but
+this is enough for me to be getting on with for now!</text:p>
+</office:text>
+</office:body>
+</office:document-content>
