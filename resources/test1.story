@@ -5,7 +5,7 @@
   Then the Hero returns Home
 "Star Wars" is a story:
   It contains the "The Hero's Journey" trope
-  "Luke Skywalker" is its Hero
-  "Obi Wan" is its Dispatcher
-  "Tatooine" is its Home
-  "Space" is its Away
+  "Luke Skywalker" is the Hero
+  "Obi Wan" is the Dispatcher
+  "Tatooine" is the Home
+  "Space" is the Away

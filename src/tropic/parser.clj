@@ -104,7 +104,7 @@
         scene <' is a scene:'> (<'\\n' whitespace> (storytrope / instance / has))+ <'\\n'?>
 
     instance =
-        iname <' is its '> class
+        iname <' is the '> class
 
     has = <'It has '> item
 

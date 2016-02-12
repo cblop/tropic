@@ -171,6 +171,36 @@ or STRING to string"
      :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
      :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
+(defn get-all-params [trope]
+  (let [
+        sits (map :when (filter :when (:situations trope)))
+        perms (flatten (map #(map :permission (filter :permission %)) (map :norms (:situations trope))))
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        evs (concat sits perms (:events trope))
+        roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
+        objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
+        places (make-unique (map #(select-keys % [:place]) evs))
+        quests (into [] (filter #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))]
+    {:roles (map vector roles PARAMS)
+     :objects (map vector objects (prange (count roles) (count objects)))
+     :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
+     :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
+
+(defn get-sit-params [trope]
+  (let [
+        sits (map :when (filter :when (:situations trope)))
+        perms (flatten (map #(map :permission (filter :permission %)) (map :norms (:situations trope))))
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        evs (concat sits perms)
+        roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
+        objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
+        places (make-unique (map #(select-keys % [:place]) evs))
+        quests (into [] (filter #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))]
+    {:roles (map vector roles PARAMS)
+     :objects (map vector objects (prange (count roles) (count objects)))
+     :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
+     :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
+
 (defn ev-types [event]
   (let [roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
         objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
@@ -239,22 +269,34 @@ or STRING to string"
                        (count (:quests params))])]
     (take num PARAMS)))
 
+(defn sit-letters [sit]
+  (let [num (count (remove :verb sit))]
+    (take num PARAMS)))
+
 (defn generates [trope]
   (let [params (get-params trope)
+        wparams (get-sit-params trope)
         header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
+        situations (:situations trope)
+        ;; sit-conds (map :when (filter :when situations))
+        wnames (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
         ename (event-name (:name trope))
         events (:events trope)
+        wstrs (map #(event-str (:when %) wparams) situations)
+        ;; wparams (map #(unify-params (:when %) roles objects) situations)
         gmake (fn [iname ev cnds] (str ev " generates " iname " if " (reduce str (interpose ", " cnds)) ";"))
         estrs (into [] (set (map #(event-str % params) events)))
         pstrs (map #(param-str % params) events)
+        wifs (map #(param-str % wparams) (map :when (filter :when situations)))
         ;; perms (map perm estrs)
         ;; phases (make-phases ename (count events))
         ;; evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
         ;; cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
         gen-a (map gmake (repeat inst) estrs pstrs)
+        gen-s (map gmake wnames wstrs wifs)
         ]
-    (concat [header] gen-a)
+    (concat [header] gen-a gen-s)
     ))
 
 (defn in? 
@@ -262,21 +304,36 @@ or STRING to string"
   [seq elm]
   (some #(= elm %) seq))
 
+(into {} (filter #(not (or (empty? (second %)) (nil? (second %)))) {:hey ["ting"] :no []}))
+
+
+(defn merge-lists [& maps]
+  (reduce (fn [m1 m2]
+            (reduce (fn [m [k v]]
+                      (update-in m [k] (fnil concat []) v))
+                    m1, m2))
+          {}
+          maps))
+
 (defn initially [hmap]
   (let [
         header "\n% INITIALLY: -----------"
-        params (apply merge (map get-params (:tropes hmap)))
-        ;; params (get-params (first (:tropes hmap)))
+        params (apply merge (map get-all-params (:tropes hmap)))
+        qq (println "all-params: ")
+        q (println params)
         story (:story hmap)
         instances (:instances story)
         role-list (map first (:roles params))
         place-list (map first (:places params))
+        obj-list (map first (:objects params))
         ;event-name?
         roles (filter #(in? role-list (event-name (:class %))) instances)
         places (filter #(in? place-list (event-name (:class %))) instances)
+        objects (filter #(in? obj-list (event-name (:class %))) instances)
         fluentfn (fn [x t] (str t "(" (event-name (:iname x)) ", " (event-name (:class x)) ")"))
         rolestrs (map #(fluentfn % "role") roles)
         placestrs (map #(fluentfn % "place") places)
+        objstrs (map #(fluentfn % "object") objects)
         phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
         phases (map #(event-name (:name %)) (:tropes hmap))
         phasestrs (map phasefn phases)
@@ -286,10 +343,28 @@ or STRING to string"
     ;; (concat role-list place-list)
     ;; roles
     ;; (map #(event-name (:class %)) instances)
-    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers phasestrs rolestrs placestrs))) ";\n")]
+    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers phasestrs rolestrs placestrs objstrs))) ";\n")]
     ;; (map :class instances)
     ))
 
+(defn get-sits [trope]
+  (let [situations (:situations trope)
+        sitnorms (map :norms situations)
+        sitevs (flatten (map #(map :permission (filter :permission %)) sitnorms))
+        sparams (get-sit-params trope)
+        wstrs (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
+        ;; wpvec (map #(perm (event-str (:permission %) sparams)) sitnorms)
+        ;; wpvec (map :permission (filter :permission sitnorms))
+        ;; wpvec (flatten (map :permission sitnorms))
+        wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        ;; wpvec sitnorms
+        ;; wpvec (filter :permission sitnorms)
+        ;; wpvec [(:permission (first sitnorms))]
+        ;; wpvec [(str (get :permission (first sitnorms)))]
+        p (println sitevs)
+        wpparams (map #(param-str % sparams) sitevs)
+        ]
+    {:names wstrs :events wpvec :conds wpparams}))
 
 (defn initiates [trope]
   (let [params (get-params trope)
@@ -306,12 +381,14 @@ or STRING to string"
         phases (make-phases ename (count events))
         evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
         cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
+        sits (get-sits trope)
         ;; tvec (conj phases [(last phases)])
         tvec (map vector phases)
         init-a (map imake (repeat inst) evec cvec)
+        init-s (map imake (:names sits) (:events sits) (:conds sits))
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
         ]
-    (concat [header] init-a [term-header] term-a)
+    (concat [header] init-a init-s [term-header] term-a)
     ))
 
 

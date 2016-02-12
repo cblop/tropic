@@ -7,7 +7,7 @@
 
 ;; yeah, change this
 ;; and all the starWars stuff so it can generalise
-(def model (file "resources/test1.ial"))
+(def model (file "resources/test4.ial"))
 
 (defn make-query-string [event]
   (let [ag (:AGENT event)
@@ -28,9 +28,9 @@
 
 (defn make-timeline [qlength] (spit "resources/timeline.lp" (str "start(0).\ninstant(0..T) :- final(T).\nnext(T,T+1) :- instant(T).\nfinal(" qlength ").")))
 
-(defn run-instal [] (python2 "instal/pyinstal.py" "-d" "resources/domain.idc" "-i" "resources/test1.ial" "-o" "resources/test1.lp"))
+(defn run-instal [] (python2 "instal/pyinstal.py" "-d" "resources/domain.idc" "-i" "resources/test4.ial" "-o" "resources/test4.lp"))
 
-(defn run-clingo [] (clingo "resources/test1.lp" "resources/timeline.lp" "resources/query.lp" {:out (file "resources/results.txt") :throw false}))
+(defn run-clingo [] (clingo "resources/test4.lp" "resources/timeline.lp" "resources/query.lp" {:out (file "resources/results.txt") :throw false}))
 
 (defn run-query [q]
   (do
