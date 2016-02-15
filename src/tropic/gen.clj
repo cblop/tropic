@@ -17,6 +17,9 @@
 (defn get-by-key [key xs]
   (map #(get % key) (filter #(get % key) xs)))
 
+(defn remove-blank [xs]
+  (filter #(not (= (:verb %) "")) xs))
+
 (defn make-map [ptree text]
   (insta/transform
    {:verb (partial param-map :verb)
@@ -25,7 +28,7 @@
     :mverb (partial param-map :mverb)
     :place (partial param-map :place)
     :character (partial param-map :role)
-    :sequence (fn [& args] {:events (into [] args)})
+    :sequence (fn [& args] {:events (into [] (remove-blank args))})
     :trope (fn [& args] {:name (make-string args)})
     :roledef (partial apply hash-map)
     :situation (fn [& args] (first args))
@@ -40,7 +43,7 @@
     ;; :tropedef (fn [& args] {:trope (copy-meta (first args) (apply merge args))})
     :tropedef (fn [& args] {:trope {:name (first (get-by-key :name args))
                                     :situations (into [] (get-by-key :situation args))
-                                    :events (first (get-by-key :events args))}})
+                                    :events (apply concat (get-by-key :events args))}})
     :give (fn [& args] (let [chars (get-by-key :role args)] {:verb "give" :from (first chars) :to (second chars) :object (first (get-by-key :object args))}))
     :meet (fn [& args] (let [chars (get-by-key :role args)] {:verb "meet" :role-a (first chars) :role-b (second chars)}))
     :task (partial merge)
