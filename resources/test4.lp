@@ -118,23 +118,23 @@ obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).
   evtype(viol(meet(Agent0,Agent1)), starWars, viol) :- agent(Agent0),agent(Agent1).
   evinst(viol(meet(Agent0,Agent1)),starWars) :- agent(Agent0),agent(Agent1).
 % Event: gets (type: ex)
-  event(gets(Agent0,Object1)) :- agent(Agent0),object(Object1).
-  evtype(gets(Agent0,Object1),starWars,ex) :- agent(Agent0),object(Object1).
-  evinst(gets(Agent0,Object1),starWars) :- agent(Agent0),object(Object1).
-  ifluent(perm(gets(Agent0,Object1)), starWars) :- agent(Agent0),object(Object1).
-  fluent(perm(gets(Agent0,Object1)), starWars) :- agent(Agent0),object(Object1).
-  event(viol(gets(Agent0,Object1))) :- agent(Agent0),object(Object1).
-  evtype(viol(gets(Agent0,Object1)), starWars, viol) :- agent(Agent0),object(Object1).
-  evinst(viol(gets(Agent0,Object1)),starWars) :- agent(Agent0),object(Object1).
+  event(gets(Agent0,ObjectName1)) :- agent(Agent0),objectname(ObjectName1).
+  evtype(gets(Agent0,ObjectName1),starWars,ex) :- agent(Agent0),objectname(ObjectName1).
+  evinst(gets(Agent0,ObjectName1),starWars) :- agent(Agent0),objectname(ObjectName1).
+  ifluent(perm(gets(Agent0,ObjectName1)), starWars) :- agent(Agent0),objectname(ObjectName1).
+  fluent(perm(gets(Agent0,ObjectName1)), starWars) :- agent(Agent0),objectname(ObjectName1).
+  event(viol(gets(Agent0,ObjectName1))) :- agent(Agent0),objectname(ObjectName1).
+  evtype(viol(gets(Agent0,ObjectName1)), starWars, viol) :- agent(Agent0),objectname(ObjectName1).
+  evinst(viol(gets(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
 % Event: bring (type: ex)
-  event(bring(Agent0,Object1)) :- agent(Agent0),object(Object1).
-  evtype(bring(Agent0,Object1),starWars,ex) :- agent(Agent0),object(Object1).
-  evinst(bring(Agent0,Object1),starWars) :- agent(Agent0),object(Object1).
-  ifluent(perm(bring(Agent0,Object1)), starWars) :- agent(Agent0),object(Object1).
-  fluent(perm(bring(Agent0,Object1)), starWars) :- agent(Agent0),object(Object1).
-  event(viol(bring(Agent0,Object1))) :- agent(Agent0),object(Object1).
-  evtype(viol(bring(Agent0,Object1)), starWars, viol) :- agent(Agent0),object(Object1).
-  evinst(viol(bring(Agent0,Object1)),starWars) :- agent(Agent0),object(Object1).
+  event(bring(Agent0,ObjectName1)) :- agent(Agent0),objectname(ObjectName1).
+  evtype(bring(Agent0,ObjectName1),starWars,ex) :- agent(Agent0),objectname(ObjectName1).
+  evinst(bring(Agent0,ObjectName1),starWars) :- agent(Agent0),objectname(ObjectName1).
+  ifluent(perm(bring(Agent0,ObjectName1)), starWars) :- agent(Agent0),objectname(ObjectName1).
+  fluent(perm(bring(Agent0,ObjectName1)), starWars) :- agent(Agent0),objectname(ObjectName1).
+  event(viol(bring(Agent0,ObjectName1))) :- agent(Agent0),objectname(ObjectName1).
+  evtype(viol(bring(Agent0,ObjectName1)), starWars, viol) :- agent(Agent0),objectname(ObjectName1).
+  evinst(viol(bring(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
 %
 % null event for unknown events
 % Event: null (type: ex)
@@ -148,27 +148,27 @@ obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).
   evinst(viol(null),starWars).
 % Institutional events
 % Event: intHerosJourney (type: in)
-  event(intHerosJourney(Agent0,Agent1,PlaceName2)) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  evtype(intHerosJourney(Agent0,Agent1,PlaceName2),starWars,inst) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  evinst(intHerosJourney(Agent0,Agent1,PlaceName2),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  ifluent(pow(starWars,intHerosJourney(Agent0,Agent1,PlaceName2)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  ifluent(perm(intHerosJourney(Agent0,Agent1,PlaceName2)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  fluent(pow(starWars,intHerosJourney(Agent0,Agent1,PlaceName2)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  fluent(perm(intHerosJourney(Agent0,Agent1,PlaceName2)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  event(viol(intHerosJourney(Agent0,Agent1,PlaceName2))) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  evtype(viol(intHerosJourney(Agent0,Agent1,PlaceName2)),starWars,viol) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
-  evinst(viol(intHerosJourney(Agent0,Agent1,PlaceName2)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2).
+  event(intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3)) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  evtype(intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3),starWars,inst) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  evinst(intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  ifluent(pow(starWars,intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  ifluent(perm(intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  fluent(pow(starWars,intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  fluent(perm(intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  event(viol(intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3))) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  evtype(viol(intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3)),starWars,viol) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
+  evinst(viol(intHerosJourney(Agent0,Agent1,PlaceName2,PlaceName3)),starWars) :- agent(Agent0),agent(Agent1),placename(PlaceName2),placename(PlaceName3).
 % Event: intGets (type: in)
-  event(intGets(Agent0,Object1)) :- agent(Agent0),object(Object1).
-  evtype(intGets(Agent0,Object1),starWars,inst) :- agent(Agent0),object(Object1).
-  evinst(intGets(Agent0,Object1),starWars) :- agent(Agent0),object(Object1).
-  ifluent(pow(starWars,intGets(Agent0,Object1)),starWars) :- agent(Agent0),object(Object1).
-  ifluent(perm(intGets(Agent0,Object1)),starWars) :- agent(Agent0),object(Object1).
-  fluent(pow(starWars,intGets(Agent0,Object1)),starWars) :- agent(Agent0),object(Object1).
-  fluent(perm(intGets(Agent0,Object1)),starWars) :- agent(Agent0),object(Object1).
-  event(viol(intGets(Agent0,Object1))) :- agent(Agent0),object(Object1).
-  evtype(viol(intGets(Agent0,Object1)),starWars,viol) :- agent(Agent0),object(Object1).
-  evinst(viol(intGets(Agent0,Object1)),starWars) :- agent(Agent0),object(Object1).
+  event(intGets(Agent0,ObjectName1)) :- agent(Agent0),objectname(ObjectName1).
+  evtype(intGets(Agent0,ObjectName1),starWars,inst) :- agent(Agent0),objectname(ObjectName1).
+  evinst(intGets(Agent0,ObjectName1),starWars) :- agent(Agent0),objectname(ObjectName1).
+  ifluent(pow(starWars,intGets(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
+  ifluent(perm(intGets(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
+  fluent(pow(starWars,intGets(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
+  fluent(perm(intGets(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
+  event(viol(intGets(Agent0,ObjectName1))) :- agent(Agent0),objectname(ObjectName1).
+  evtype(viol(intGets(Agent0,ObjectName1)),starWars,viol) :- agent(Agent0),objectname(ObjectName1).
+  evinst(viol(intGets(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
 %
 % Violation events
 %
@@ -234,32 +234,45 @@ fluent(at(Agent0,Place1),starWars) :-
 % generate rules
 %
 %
-% Translation of gets(R,T) generates intGets(R,T) if ['and', ['role', ['R', 'hero']], ['object', ['T', 'weapon']]] in 
-occurred(intGets(R,T),starWars,I) :- occurred(gets(R,T),starWars,I),
-   holdsat(pow(starWars,intGets(R,T)),starWars,I),
+% Translation of gets(R,S) generates intGets(R,S) if ['and', ['role', ['R', 'hero']], ['object', ['S', 'weapon']]] in 
+occurred(intGets(R,S),starWars,I) :- occurred(gets(R,S),starWars,I),
+   holdsat(pow(starWars,intGets(R,S)),starWars,I),
    holdsat(role(R,hero),starWars,I),
-   holdsat(object(T,weapon),starWars,I),
+   holdsat(object(S,weapon),starWars,I),
+   objectname(S),
    agent(R),
-   objectname(T),
    inst(starWars), instant(I).
 %
-% Translation of go(R,T) generates intHerosJourney(R,S,T) if ['and', ['role', ['S', 'dispatcher']], ['role', ['R', 'hero']]] in 
-occurred(intHerosJourney(R,S,T),starWars,I) :- occurred(go(R,T),starWars,I),
-   holdsat(pow(starWars,intHerosJourney(R,S,T)),starWars,I),
+% Translation of go(R,T) generates intHerosJourney(R,S,T,U) if ['and', ['role', ['R', 'hero']], ['place', ['T', 'away']]] in 
+occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(go(R,T),starWars,I),
+   holdsat(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   holdsat(place(T,away),starWars,I),
+   agent(R),
+   placename(T),
+   agent(S),
+   placename(U),
+   inst(starWars), instant(I).
+%
+% Translation of meet(R,S) generates intHerosJourney(R,S,T,U) if ['and', ['role', ['S', 'dispatcher']], ['role', ['R', 'hero']]] in 
+occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(meet(R,S),starWars,I),
+   holdsat(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I),
    holdsat(role(S,dispatcher),starWars,I),
    holdsat(role(R,hero),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of meet(R,S) generates intHerosJourney(R,S,T) if ['and', ['role', ['R', 'hero']], ['place', ['T', 'home']]] in 
-occurred(intHerosJourney(R,S,T),starWars,I) :- occurred(meet(R,S),starWars,I),
-   holdsat(pow(starWars,intHerosJourney(R,S,T)),starWars,I),
+% Translation of go(R,U) generates intHerosJourney(R,S,T,U) if ['and', ['role', ['R', 'hero']], ['place', ['U', 'home']]] in 
+occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(go(R,U),starWars,I),
+   holdsat(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I),
    holdsat(role(R,hero),starWars,I),
-   holdsat(place(T,home),starWars,I),
-   agent(S),
+   holdsat(place(U,home),starWars,I),
    agent(R),
+   placename(U),
+   agent(S),
    placename(T),
    inst(starWars), instant(I).
 %
@@ -275,138 +288,266 @@ initiated(perm(bring(R,S)),starWars,I) :-
    holdsat(object(S,friend),starWars,I),
    objectname(S),
    agent(R),
-   object(T),
+   objectname(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T) initiates ['phase', ['herosJourney', 'done']] if ['phase', ['herosJourney', 'phaseB']]
+% Translation of intGets(R,T) initiates ['perm', ['go', ['R', 'U']]] if ['and', ['role', ['R', 'hero']], ['object', ['S', 'friend']]]
+%
+initiated(perm(go(R,U)),starWars,I) :-
+   occurred(intGets(R,T),starWars,I),
+   holdsat(live(starWars),starWars,I), inst(starWars),
+   holdsat(role(R,hero),starWars,I),
+   holdsat(object(S,friend),starWars,I),
+   objectname(S),
+   agent(R),
+   objectname(T),
+   placename(U),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) initiates ['phase', ['herosJourney', 'done']] if ['phase', ['herosJourney', 'phaseD']]
 %
 initiated(phase(herosJourney,done),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I), inst(starWars),
+   holdsat(phase(herosJourney,phaseD),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) initiates ['phase', ['herosJourney', 'phaseD']] if ['and', ['and', ['phase', ['herosJourney', 'phaseC']], ['role', ['R', 'hero']]], ['place', ['U', 'home']]]
+%
+initiated(phase(herosJourney,phaseD),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I), inst(starWars),
+   holdsat(phase(herosJourney,phaseC),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   holdsat(place(U,home),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) initiates ['perm', ['go', ['R', 'U']]] if ['and', ['and', ['phase', ['herosJourney', 'phaseC']], ['role', ['R', 'hero']]], ['place', ['U', 'home']]]
+%
+initiated(perm(go(R,U)),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I), inst(starWars),
+   holdsat(phase(herosJourney,phaseC),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   holdsat(place(U,home),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) initiates ['phase', ['herosJourney', 'phaseC']] if ['and', ['and', ['phase', ['herosJourney', 'phaseB']], ['role', ['R', 'hero']]], ['place', ['T', 'away']]]
+%
+initiated(phase(herosJourney,phaseC),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I), inst(starWars),
    holdsat(phase(herosJourney,phaseB),starWars,I),
-   agent(S),
-   agent(R),
-   placename(T),
-   inst(starWars), instant(I).
-%
-% Translation of intHerosJourney(R,S,T) initiates ['phase', ['herosJourney', 'phaseB']] if ['and', ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['S', 'dispatcher']]], ['role', ['R', 'hero']]]
-%
-initiated(phase(herosJourney,phaseB),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
-   holdsat(live(starWars),starWars,I), inst(starWars),
-   holdsat(phase(herosJourney,phaseA),starWars,I),
-   holdsat(role(S,dispatcher),starWars,I),
    holdsat(role(R,hero),starWars,I),
+   holdsat(place(T,away),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T) initiates ['perm', ['meet', ['R', 'S']]] if ['and', ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['S', 'dispatcher']]], ['role', ['R', 'hero']]]
-%
-initiated(perm(meet(R,S)),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
-   holdsat(live(starWars),starWars,I), inst(starWars),
-   holdsat(phase(herosJourney,phaseA),starWars,I),
-   holdsat(role(S,dispatcher),starWars,I),
-   holdsat(role(R,hero),starWars,I),
-   agent(S),
-   agent(R),
-   placename(T),
-   inst(starWars), instant(I).
-%
-% Translation of intHerosJourney(R,S,T) initiates ['phase', ['herosJourney', 'phaseA']] if ['and', ['and', ['phase', ['herosJourney', 'inactive']], ['role', ['R', 'hero']]], ['place', ['T', 'home']]]
-%
-initiated(phase(herosJourney,phaseA),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
-   holdsat(live(starWars),starWars,I), inst(starWars),
-   holdsat(phase(herosJourney,inactive),starWars,I),
-   holdsat(role(R,hero),starWars,I),
-   holdsat(place(T,home),starWars,I),
-   agent(S),
-   agent(R),
-   placename(T),
-   inst(starWars), instant(I).
-%
-% Translation of intHerosJourney(R,S,T) initiates ['perm', ['go', ['R', 'T']]] if ['and', ['and', ['phase', ['herosJourney', 'inactive']], ['role', ['R', 'hero']]], ['place', ['T', 'home']]]
+% Translation of intHerosJourney(R,S,T,U) initiates ['perm', ['go', ['R', 'T']]] if ['and', ['and', ['phase', ['herosJourney', 'phaseB']], ['role', ['R', 'hero']]], ['place', ['T', 'away']]]
 %
 initiated(perm(go(R,T)),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I), inst(starWars),
+   holdsat(phase(herosJourney,phaseB),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   holdsat(place(T,away),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) initiates ['phase', ['herosJourney', 'phaseB']] if ['and', ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['S', 'dispatcher']]], ['role', ['R', 'hero']]]
+%
+initiated(phase(herosJourney,phaseB),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I), inst(starWars),
+   holdsat(phase(herosJourney,phaseA),starWars,I),
+   holdsat(role(S,dispatcher),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) initiates ['perm', ['meet', ['R', 'S']]] if ['and', ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['S', 'dispatcher']]], ['role', ['R', 'hero']]]
+%
+initiated(perm(meet(R,S)),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I), inst(starWars),
+   holdsat(phase(herosJourney,phaseA),starWars,I),
+   holdsat(role(S,dispatcher),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) initiates ['phase', ['herosJourney', 'phaseA']] if ['and', ['and', ['phase', ['herosJourney', 'inactive']], ['role', ['R', 'hero']]], ['place', ['U', 'home']]]
+%
+initiated(phase(herosJourney,phaseA),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I), inst(starWars),
    holdsat(phase(herosJourney,inactive),starWars,I),
    holdsat(role(R,hero),starWars,I),
-   holdsat(place(T,home),starWars,I),
+   holdsat(place(U,home),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) initiates ['perm', ['go', ['R', 'U']]] if ['and', ['and', ['phase', ['herosJourney', 'inactive']], ['role', ['R', 'hero']]], ['place', ['U', 'home']]]
+%
+initiated(perm(go(R,U)),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I), inst(starWars),
+   holdsat(phase(herosJourney,inactive),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   holdsat(place(U,home),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
 % terminate rules
 %
 %
-% Translation of intHerosJourney(R,S,T) terminates ['phase', ['herosJourney', 'done']] if ['phase', ['herosJourney', 'done']]
+% Translation of intHerosJourney(R,S,T,U) terminates ['phase', ['herosJourney', 'done']] if ['phase', ['herosJourney', 'done']]
 %
 terminated(phase(herosJourney,done),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I),inst(starWars),
    holdsat(phase(herosJourney,done),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T) terminates ['phase', ['herosJourney', 'phaseB']] if ['phase', ['herosJourney', 'phaseB']]
+% Translation of intHerosJourney(R,S,T,U) terminates ['phase', ['herosJourney', 'phaseD']] if ['phase', ['herosJourney', 'phaseD']]
 %
-terminated(phase(herosJourney,phaseB),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
+terminated(phase(herosJourney,phaseD),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I),inst(starWars),
-   holdsat(phase(herosJourney,phaseB),starWars,I),
+   holdsat(phase(herosJourney,phaseD),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T) terminates ['perm', ['meet', ['R', 'S']]] if ['phase', ['herosJourney', 'phaseB']]
+% Translation of intHerosJourney(R,S,T,U) terminates ['perm', ['go', ['R', 'U']]] if ['phase', ['herosJourney', 'phaseD']]
 %
-terminated(perm(meet(R,S)),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
+terminated(perm(go(R,U)),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I),inst(starWars),
-   holdsat(phase(herosJourney,phaseB),starWars,I),
+   holdsat(phase(herosJourney,phaseD),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T) terminates ['phase', ['herosJourney', 'phaseA']] if ['phase', ['herosJourney', 'phaseA']]
+% Translation of intHerosJourney(R,S,T,U) terminates ['phase', ['herosJourney', 'phaseC']] if ['phase', ['herosJourney', 'phaseC']]
 %
-terminated(phase(herosJourney,phaseA),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
+terminated(phase(herosJourney,phaseC),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I),inst(starWars),
-   holdsat(phase(herosJourney,phaseA),starWars,I),
+   holdsat(phase(herosJourney,phaseC),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T) terminates ['perm', ['go', ['R', 'T']]] if ['phase', ['herosJourney', 'phaseA']]
+% Translation of intHerosJourney(R,S,T,U) terminates ['perm', ['go', ['R', 'T']]] if ['phase', ['herosJourney', 'phaseC']]
 %
 terminated(perm(go(R,T)),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I),inst(starWars),
+   holdsat(phase(herosJourney,phaseC),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) terminates ['phase', ['herosJourney', 'phaseB']] if ['phase', ['herosJourney', 'phaseB']]
+%
+terminated(phase(herosJourney,phaseB),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I),inst(starWars),
+   holdsat(phase(herosJourney,phaseB),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) terminates ['perm', ['meet', ['R', 'S']]] if ['phase', ['herosJourney', 'phaseB']]
+%
+terminated(perm(meet(R,S)),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I),inst(starWars),
+   holdsat(phase(herosJourney,phaseB),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) terminates ['phase', ['herosJourney', 'phaseA']] if ['phase', ['herosJourney', 'phaseA']]
+%
+terminated(phase(herosJourney,phaseA),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I),inst(starWars),
    holdsat(phase(herosJourney,phaseA),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T) terminates ['phase', ['herosJourney', 'inactive']] if ['phase', ['herosJourney', 'inactive']]
+% Translation of intHerosJourney(R,S,T,U) terminates ['perm', ['go', ['R', 'U']]] if ['phase', ['herosJourney', 'phaseA']]
+%
+terminated(perm(go(R,U)),starWars,I) :-
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
+   holdsat(live(starWars),starWars,I),inst(starWars),
+   holdsat(phase(herosJourney,phaseA),starWars,I),
+   agent(S),
+   agent(R),
+   placename(U),
+   placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of intHerosJourney(R,S,T,U) terminates ['phase', ['herosJourney', 'inactive']] if ['phase', ['herosJourney', 'inactive']]
 %
 terminated(phase(herosJourney,inactive),starWars,I) :-
-   occurred(intHerosJourney(R,S,T),starWars,I),
+   occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I),inst(starWars),
    holdsat(phase(herosJourney,inactive),starWars,I),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
@@ -438,19 +579,20 @@ initiated(perm(null),starWars,I) :-
 %
 % set up initial state
 %
-% initially: pow(starWars,intHerosJourney(R,S,T))
-initiated(pow(starWars,intHerosJourney(R,S,T)),starWars,I) :-
+% initially: pow(starWars,intHerosJourney(R,S,T,U))
+initiated(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I) :-
    occurred(startShow,starWars,I),
    not holdsat(live(starWars),starWars,I), inst(starWars),
    agent(S),
    agent(R),
+   placename(U),
    placename(T),
    instant(I).
 % initially: pow(starWars,intGets(R,S))
 initiated(pow(starWars,intGets(R,S)),starWars,I) :-
    occurred(startShow,starWars,I),
    not holdsat(live(starWars),starWars,I), inst(starWars),
-   object(S),
+   objectname(S),
    agent(R),
    instant(I).
 % initially: phase(herosJourney,inactive)
@@ -470,6 +612,11 @@ initiated(role(obiWan,dispatcher),starWars,I) :-
    instant(I).
 % initially: place(tatooine,home)
 initiated(place(tatooine,home),starWars,I) :-
+   occurred(startShow,starWars,I),
+   not holdsat(live(starWars),starWars,I), inst(starWars),
+   instant(I).
+% initially: place(space,away)
+initiated(place(space,away),starWars,I) :-
    occurred(startShow,starWars,I),
    not holdsat(live(starWars),starWars,I), inst(starWars),
    instant(I).

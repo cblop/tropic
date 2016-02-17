@@ -269,13 +269,20 @@ or STRING to string"
                        (count (:quests params))])]
     (take num PARAMS)))
 
+(defn lookup-sit-letters [trope sit]
+  (let [params (get-sit-params trope)
+        vs (map event-name (vals (dissoc (:when sit) :verb)))
+        ps (apply concat (vals params))
+        ls (map second (filter #(in? vs (first %)) ps))]
+    ls))
+
 (defn sit-letters [sit]
   (let [num (count (remove :verb sit))]
     (take num PARAMS)))
 
 (defn generates [trope]
   (let [params (get-params trope)
-        wparams (get-sit-params trope)
+        wparams (get-when-params trope)
         header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
@@ -319,8 +326,8 @@ or STRING to string"
   (let [
         header "\n% INITIALLY: -----------"
         params (apply merge (map get-all-params (:tropes hmap)))
-        qq (println "all-params: ")
-        q (println params)
+        ;; qq (println "all-params: ")
+        ;; q (println params)
         story (:story hmap)
         instances (:instances story)
         role-list (map first (:roles params))
@@ -338,12 +345,14 @@ or STRING to string"
         phases (map #(event-name (:name %)) (:tropes hmap))
         phasestrs (map phasefn phases)
         powfn (fn [x] (str "pow(" (inst-name (:name x)) "(" (reduce str (interpose ", " (inst-letters x))) "))"))
+        situations (mapcat :situations (:tropes hmap))
+        wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         powers (map powfn (:tropes hmap))]
     ;; (concat rolestrs placestrs)
     ;; (concat role-list place-list)
     ;; roles
     ;; (map #(event-name (:class %)) instances)
-    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers phasestrs rolestrs placestrs objstrs))) ";\n")]
+    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers wpnames phasestrs rolestrs placestrs objstrs))) ";\n")]
     ;; (map :class instances)
     ))
 
@@ -352,7 +361,8 @@ or STRING to string"
         sitnorms (map :norms situations)
         sitevs (flatten (map #(map :permission (filter :permission %)) sitnorms))
         sparams (get-sit-params trope)
-        wstrs (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
+        ;; sit-letters is too simple
+        wstrs (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (lookup-sit-letters trope %))) ")") situations)
         ;; wpvec (map #(perm (event-str (:permission %) sparams)) sitnorms)
         ;; wpvec (map :permission (filter :permission sitnorms))
         ;; wpvec (flatten (map :permission sitnorms))
@@ -361,7 +371,7 @@ or STRING to string"
         ;; wpvec (filter :permission sitnorms)
         ;; wpvec [(:permission (first sitnorms))]
         ;; wpvec [(str (get :permission (first sitnorms)))]
-        p (println sitevs)
+        ;; p (println sitevs)
         wpparams (map #(param-str % sparams) sitevs)
         ]
     {:names wstrs :events wpvec :conds wpparams}))
