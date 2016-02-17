@@ -3,7 +3,6 @@
 %
 agent(lukeSkywalker).
 agent(obiWan).
-agent(hanSolo).
 role(hero).
 role(villain).
 role(dispatcher).
@@ -29,6 +28,7 @@ quest(destroyTheDeathStar).
 object(weapon).
 object(friend).
 objectname(lightsaber).
+objectname(hanSolo).
 %
 % -------------------------------PART 1-------------------------------
 %
