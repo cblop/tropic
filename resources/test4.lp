@@ -126,15 +126,6 @@ obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).
   event(viol(gets(Agent0,ObjectName1))) :- agent(Agent0),objectname(ObjectName1).
   evtype(viol(gets(Agent0,ObjectName1)), starWars, viol) :- agent(Agent0),objectname(ObjectName1).
   evinst(viol(gets(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
-% Event: bring (type: ex)
-  event(bring(Agent0,ObjectName1)) :- agent(Agent0),objectname(ObjectName1).
-  evtype(bring(Agent0,ObjectName1),starWars,ex) :- agent(Agent0),objectname(ObjectName1).
-  evinst(bring(Agent0,ObjectName1),starWars) :- agent(Agent0),objectname(ObjectName1).
-  ifluent(perm(bring(Agent0,ObjectName1)), starWars) :- agent(Agent0),objectname(ObjectName1).
-  fluent(perm(bring(Agent0,ObjectName1)), starWars) :- agent(Agent0),objectname(ObjectName1).
-  event(viol(bring(Agent0,ObjectName1))) :- agent(Agent0),objectname(ObjectName1).
-  evtype(viol(bring(Agent0,ObjectName1)), starWars, viol) :- agent(Agent0),objectname(ObjectName1).
-  evinst(viol(bring(Agent0,ObjectName1)),starWars) :- agent(Agent0),objectname(ObjectName1).
 %
 % null event for unknown events
 % Event: null (type: ex)

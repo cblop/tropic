@@ -192,7 +192,7 @@ or STRING to string"
   (let [
         sits (:when sit)
         ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
-        evs sits
+        evs [sits]
         roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
         objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
         places (make-unique (map #(select-keys % [:place]) evs))
@@ -255,14 +255,14 @@ or STRING to string"
                         (take (count (:places params)) (repeat "PlaceName"))
                         (take (count (:quests params)) (repeat "Quest")))
                      )
-        stypes (fn [x] (vector
-                        (take (count (:roles x)) (repeat "Agent"))
-                        (take (count (:objects x)) (repeat "ObjectName"))
-                        (take (count (:places x)) (repeat "PlaceName"))
-                        (take (count (:quests x)) (repeat "Quest"))
-                        ))
+        stypes (fn [x] (flatten (vector
+                                 (take (count (:roles x)) (repeat "Agent"))
+                                 (take (count (:objects x)) (repeat "ObjectName"))
+                                 (take (count (:places x)) (repeat "PlaceName"))
+                                 (take (count (:quests x)) (repeat "Quest"))
+                                 )))
         ss (map stypes sparams)
-        p (println (map stypes sparams))
+        p (println ss)
         finstr (fn [x ys] (str "inst event " x "(" (reduce str (interpose ", " ys)) ")" ";"))
         instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")
         sinstrs (map finstr snms ss)
@@ -317,8 +317,9 @@ or STRING to string"
 
 (defn generates [trope]
   (let [params (get-params trope)
-        ;; wparams (get-when-params trope)
-        wparams (get-params trope)
+        wparams (flatten (map get-when-params (:situations trope)))
+        ;; p (println wparams)
+        ;; wparams (get-params trope)
         header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
@@ -326,12 +327,12 @@ or STRING to string"
         wnames (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
         ename (event-name (:name trope))
         events (:events trope)
-        wstrs (map #(event-str (:when %) wparams) situations)
+        wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
         ;; wparams (map #(unify-params (:when %) roles objects) situations)
         gmake (fn [iname ev cnds] (str ev " generates " iname " if " (reduce str (interpose ", " cnds)) ";"))
         estrs (into [] (set (map #(event-str % params) events)))
         pstrs (map #(param-str % params) events)
-        wifs (map #(param-str % wparams) (map :when (filter :when situations)))
+        wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
         ;; perms (map perm estrs)
         ;; phases (make-phases ename (count events))
         ;; evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])

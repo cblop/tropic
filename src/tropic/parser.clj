@@ -26,7 +26,7 @@
         <'When '> event <':'>
 
     sequence =
-        <whitespace> event or? <'\\n'?> (<whitespace> <'Then '> event or? <'\\n'?>)*
+        (<whitespace> <'Then '>? event or? <'\\n'?>)+
 
     situationdef = <whitespace> situation (<'\\n'> <whitespace whitespace> norms | <'\\n'> <whitespace whitespace whitespace> consequence)+ <'\\n'?>
 
