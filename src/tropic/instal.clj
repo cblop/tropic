@@ -144,13 +144,15 @@ or STRING to string"
    "type Place;"
    "type PlaceName;"
    "type Quest;"
-   "type Object;\n"])
+   "type Object;"
+   "type ObjectName;\n"])
 
 (def fluents
   ["% FLUENTS ----------"
    "fluent role(Agent, Role);"
    "fluent phase(Trope, Phase);"
    "fluent place(PlaceName, Place);"
+   "fluent object(ObjectName, Object);"
    "fluent at(Agent, Place);\n"])
 
 
@@ -186,6 +188,20 @@ or STRING to string"
      :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
      :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
+(defn get-when-params [sit]
+  (let [
+        sits (:when sit)
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        evs sits
+        roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
+        objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
+        places (make-unique (map #(select-keys % [:place]) evs))
+        quests (into [] (filter #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))]
+    {:roles (map vector roles PARAMS)
+     :objects (map vector objects (prange (count roles) (count objects)))
+     :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
+     :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
+
 (defn get-sit-params [trope]
   (let [
         sits (map :when (filter :when (:situations trope)))
@@ -208,7 +224,7 @@ or STRING to string"
         quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
         types (flatten (vector
                         (take (count roles) (repeat "Agent"))
-                        (take (count objects) (repeat "Object"))
+                        (take (count objects) (repeat "ObjectName"))
                         (take (count places) (repeat "PlaceName"))
                         (take (count quests) (repeat "Quest")))
                        )]
@@ -219,26 +235,39 @@ or STRING to string"
   (let [header (str "% EXTERNAL EVENTS: " (namify (:name trope)) " ----------")
         params (get-params trope)
         events (:events trope)
-        ;; situations (:situations trope)
-        ;; all (concat events situations)
-        types (map ev-types events)
+        situations (map :when (:situations trope))
+        all (concat events situations)
+        types (map ev-types all)
         strng (fn [x y] (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
-    (cons header (into [] (set (map (fn [x y] (strng x y)) events types))))))
+    (cons header (into [] (set (map (fn [x y] (strng x y)) all types))))))
     ;; (prn-str types)
   ;; ))
 
 (defn inst-events [trope]
   (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
         nm (inst-name (:name trope))
+        snms (map inst-name (map :verb (map :when (:situations trope))))
         params (get-params trope)
+        sparams (map get-when-params (:situations trope))
         types (flatten (vector
                         (take (count (:roles params)) (repeat "Agent"))
-                        (take (count (:objects params)) (repeat "Object"))
+                        (take (count (:objects params)) (repeat "ObjectName"))
                         (take (count (:places params)) (repeat "PlaceName"))
                         (take (count (:quests params)) (repeat "Quest")))
                      )
-        instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")]
-    (cons header [instr])))
+        stypes (fn [x] (vector
+                        (take (count (:roles x)) (repeat "Agent"))
+                        (take (count (:objects x)) (repeat "ObjectName"))
+                        (take (count (:places x)) (repeat "PlaceName"))
+                        (take (count (:quests x)) (repeat "Quest"))
+                        ))
+        ss (map stypes sparams)
+        p (println (map stypes sparams))
+        finstr (fn [x ys] (str "inst event " x "(" (reduce str (interpose ", " ys)) ")" ";"))
+        instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")
+        sinstrs (map finstr snms ss)
+        ]
+    (cons header (conj sinstrs instr))))
 
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:name trope)))]))
@@ -269,6 +298,12 @@ or STRING to string"
                        (count (:quests params))])]
     (take num PARAMS)))
 
+
+(defn in? 
+  "true if seq contains elm"
+  [seq elm]
+  (some #(= elm %) seq))
+
 (defn lookup-sit-letters [trope sit]
   (let [params (get-sit-params trope)
         vs (map event-name (vals (dissoc (:when sit) :verb)))
@@ -282,7 +317,8 @@ or STRING to string"
 
 (defn generates [trope]
   (let [params (get-params trope)
-        wparams (get-when-params trope)
+        ;; wparams (get-when-params trope)
+        wparams (get-params trope)
         header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
@@ -306,10 +342,6 @@ or STRING to string"
     (concat [header] gen-a gen-s)
     ))
 
-(defn in? 
-  "true if seq contains elm"
-  [seq elm]
-  (some #(= elm %) seq))
 
 (into {} (filter #(not (or (empty? (second %)) (nil? (second %)))) {:hey ["ting"] :no []}))
 
