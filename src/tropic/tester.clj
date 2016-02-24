@@ -17,14 +17,27 @@
             "go(lukeSkywalker, tatooine)"
             ])
 
+(def test5 [
+            "meet(lukeSkywalker, obiWan)"
+            "gets(lukeSkywalker, lightsaber)"
+            "go(lukeSkywalker, space)"
+            "go(lukeSkywalker, tatooine)"
+            ])
+
 ;; (def all-states (doall (map norms-at-state (range (count test1)))))
 
 ; Eval to test
 (do
-  (run-query test4)
-  (let [all-states (doall (map norms-at-state (range (+ (count test4) 1))))]
+  (run-query test5)
+  (let [all-states (doall (map norms-at-state (range (+ (count test5) 1))))]
     (spit "swout.edn" "")
     (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
+
+;; (do
+;;   (run-query test4)
+;;   (let [all-states (doall (map norms-at-state (range (+ (count test4) 1))))]
+;;     (spit "swout.edn" "")
+;;     (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
 
 (do
   ;; (run-query test1)

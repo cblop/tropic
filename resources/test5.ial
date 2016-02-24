@@ -39,7 +39,6 @@ intHerosJourney(R, S, T, U) terminates phase(herosJourney, done), obl(go(R, T)) 
 % GENERATES: The Hero's Journey ----------
 go(R, U) generates intHerosJourney(R, S, T, U) if role(R, hero), place(U, home);
 meet(R, S) generates intHerosJourney(R, S, T, U) if role(S, dispatcher), role(R, hero);
-() generates intHerosJourney(R, S, T, U) if ;
 
 % INITIALLY: -----------
 initially

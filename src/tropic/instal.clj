@@ -349,7 +349,7 @@ or STRING to string"
         ;; sit-conds (map :when (filter :when situations))
         wnames (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
         ename (event-name (:name trope))
-        events (:events trope)
+        events (remove :obligation (:events trope))
         wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
         ;; wparams (map #(unify-params (:when %) roles objects) situations)
         gmake (fn [iname ev cnds] (str ev " generates " iname " if " (reduce str (interpose ", " cnds)) ";"))
@@ -365,9 +365,6 @@ or STRING to string"
         ]
     (concat [header] gen-a gen-s)
     ))
-
-
-(into {} (filter #(not (or (empty? (second %)) (nil? (second %)))) {:hey ["ting"] :no []}))
 
 
 (defn merge-lists [& maps]
