@@ -1,4 +1,4 @@
-Agent: lukeSkywalker obiWan
+Agent: lukeSkywalker obiWan darthVader
 Role: hero villain dispatcher friend
 Trope: herosJourney
 Phase: inactive done phaseA phaseB phaseC phaseD phaseE phaseF phaseG phaseH phaseI phaseJ

@@ -195,14 +195,14 @@
 
 ;; (instal-file "resources/test1.story" "resources/test1.ial")
 
-(test-file "resources/test4.story")
+(test-file "resources/test5.story")
 
-(parse-file "resources/test4.story")
+(parse-file "resources/test5.story")
 
-(make-map (parse-file "resources/test4.story") (parse-file "resources/test4.story"))
-(instal (make-map (parse-file "resources/test4.story") (parse-file "resources/test4.story")))
+(make-map (parse-file "resources/test5.story") (parse-file "resources/test5.story"))
+(instal (make-map (parse-file "resources/test5.story") (parse-file "resources/test5.story")))
 
-(instal-file "resources/test4.story" "resources/test4.ial")
+(instal-file "resources/test5.story" "resources/test5.ial")
 
 (-main "resources/starwars.story" "resources/output.ial")
 

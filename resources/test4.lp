@@ -3,6 +3,7 @@
 %
 agent(lukeSkywalker).
 agent(obiWan).
+agent(darthVader).
 role(hero).
 role(villain).
 role(dispatcher).

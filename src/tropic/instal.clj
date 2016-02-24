@@ -105,6 +105,26 @@ or STRING to string"
 (defn perm [ev]
   (str "perm(" ev ")"))
 
+(defn obl [{:keys [obligation deadline violation]} params]
+  (let [obl (if (nil? obligation) ""
+                (-> obligation
+                    (event-str params)
+                    ;; (param-str params)
+                    ))
+        dead (if (nil? deadline) ""
+                 (-> deadline
+                     (event-str params)
+                     ;; (param-str params)
+                     ))
+        viol (if (nil? violation) ""
+                 (-> violation
+                     (event-str params)
+                     ;; (param-str params)
+                     ))]
+      (cond (nil? deadline) (str "obl(" obl ")")
+            (nil? violation) (str "obl(" obl ", " dead ")")
+            :else (str "obl(" obl ", " dead ", " viol ")"))))
+
 (defn unify-params [params roles objects]
   (let [m (meta params)
         subject (if (nil? (:subject params)) "" (:subject params))
@@ -163,7 +183,10 @@ or STRING to string"
   (->> PARAMS (drop start) (take n)))
 
 (defn get-params [trope]
-  (let [evs (:events trope)
+  (let [events (remove :obligation (:events trope))
+        ;; might need to select-keys :obl :dead :viol
+        obls (map :obligation (filter :obligation (:events trope)))
+        evs (concat events obls)
         roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
         objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
         places (make-unique (map #(select-keys % [:place]) evs))
@@ -234,7 +257,7 @@ or STRING to string"
 (defn external-events [trope]
   (let [header (str "% EXTERNAL EVENTS: " (namify (:name trope)) " ----------")
         params (get-params trope)
-        events (:events trope)
+        events (remove :obligation (:events trope))
         situations (map :when (:situations trope))
         all (concat events situations)
         types (map ev-types all)
@@ -415,21 +438,24 @@ or STRING to string"
         ename (event-name (:name trope))
         header (str "% INITIATES: " (namify (:name trope)) " ----------")
         term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
-        events (:events trope)
+        events (remove :obligation (:events trope))
         imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         estrs (map #(event-str % params) events)
         pstrs (map #(param-str % params) events)
         perms (map perm estrs)
+        obls (map #(obl % params) (filter :obligation (:events trope)))
+        norms (concat perms obls)
+        ;; norms perms
         phases (make-phases ename (count events))
-        evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
+        evec (conj (into [] (map vector (rest phases) norms)) [(last phases)])
         cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
         sits (get-sits trope)
         ;; tvec (conj phases [(last phases)])
         tvec (map vector phases)
         init-a (map imake (repeat inst) evec cvec)
         init-s (map imake (:names sits) (:events sits) (:conds sits))
-        term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
+        term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
         ]
     (concat [header] init-a init-s [term-header] term-a)
     ))
