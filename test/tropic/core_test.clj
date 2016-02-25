@@ -202,6 +202,8 @@
 (make-map (parse-file "resources/test6.story") (parse-file "resources/test6.story"))
 (instal (make-map (parse-file "resources/test6.story") (parse-file "resources/test6.story")))
 
+(instal-file "resources/test4.story" "resources/test4.ial")
+(instal-file "resources/test5.story" "resources/test5.ial")
 (instal-file "resources/test6.story" "resources/test6.ial")
 
 (-main "resources/starwars.story" "resources/output.ial")

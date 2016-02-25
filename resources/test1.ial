@@ -8,11 +8,13 @@ type Place;
 type PlaceName;
 type Quest;
 type Object;
+type ObjectName;
 
 % FLUENTS ----------
 fluent role(Agent, Role);
 fluent phase(Trope, Phase);
 fluent place(PlaceName, Place);
+fluent object(ObjectName, Object);
 fluent at(Agent, Place);
 
 % EXTERNAL EVENTS: The Hero's Journey ----------

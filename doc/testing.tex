@@ -1,4 +1,4 @@
-% Created 2016-01-14 Thu 15:09
+% Created 2016-02-25 Thu 07:56
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -21,7 +21,7 @@
  pdftitle={},
  pdfkeywords={},
  pdfsubject={},
- pdfcreator={Emacs 25.0.50.1 (Org mode 8.3.3)}, 
+ pdfcreator={Emacs 24.5.1 (Org mode 8.3.3)}, 
  pdflang={English}}
 \begin{document}
 
@@ -31,51 +31,50 @@
 \label{sec:orgheadline9}
 The testing method I'm using is to use traces (sequences of external events) as tests. Each trace should test some kind of function of the system and increase in complexity as the number of tests increases.
 
-\subsection{Test 1: Simple trope declaration}
-\label{sec:orgheadline2}
+\subsection{Test 1: Simple trope declaration (PASS)}
+\label{sec:orgheadline1}
 The purpose of this test is to implement a simple version of the "Hero's Journey" trope. The following trace is the sequence of events a set of agents would need to carry out in order to fulfill this trope in the Star Wars universe:
 
 \begin{verbatim}
 observed(startShow,starWars,0).
-observed(meet(lukeSkywalker, obiWan),starWars,1).
-observed(go(lukeSkywalker, space),starWars,2).
-observed(go(lukeSkywalker, tatooine),starWars,3).
+observed(go(lukeSkywalker, tatooine),starWars,1).
+observed(meet(lukeSkywalker, obiWan),starWars,2).
+observed(go(lukeSkywalker, space),starWars,3).
+observed(go(lukeSkywalker, tatooine),starWars,4).
 \end{verbatim}
 
-The following TropICAL code fulfills the above trace:
+The following TropICAL code provides a story that the above trace can conform to:
 
 \begin{verbatim}
 "The Hero's Journey" is a trope where:
-  The Hero is at home
+  The Hero is at Home
   Then the Hero meets the Dispatcher
-  Then the Hero leaves Home
+  Then the Hero goes Away
   Then the Hero returns Home
 "Star Wars" is a story:
-  "Luke Skywalker" is its Hero
-  "Obi Wan" is its Dispatcher
-  "Tatooine" is its Home
+  It contains the "The Hero's Journey" trope
+  "Luke Skywalker" is the Hero
+  "Obi Wan" is the Dispatcher
+  "Tatooine" is the Home
+  "Space" is the Away
 \end{verbatim}
 
 Note that in the above code, the characters (Luke Skywalker, Obi Wan) fulfill their roles (Hero, Dispatcher) globally across the story. It is also possible to give characters scene-local scope, but that will follow in a later test. The same is true of places and quests in a story. All words are case insensitive.
 
 The events described in the trope simply initiate permissions for the corresponding characters to perform the described actions.
 
-The InstAL this code compiles to is in the \href{file://c:/Users/Matthew/Dropbox/clojure/tropic/resources/test1.ial}{test1.ial} file (provided in a separate document). This is then compiled to AnsProlog and run through the clingo solver with the above trace. The resulting answer set is expected to contain:
+The InstAL this code compiles to is in the \href{file:///home/cblop/Dropbox/clojure/tropic/resources/test1.ial}{test1.ial} file (provided in a separate document). This is then compiled to AnsProlog and run through the clingo solver with the above trace. The resulting answer set contains:
 
 \begin{verbatim}
-(answer set to follow)
+{:permissions (), :obligations (), :fluents ("phase(herosJourney,inactive)" "role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseA)"), :violations ()}
+{:permissions ("perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseB)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,space))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseC)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseD)"), :violations ()}
 \end{verbatim}
 
-
-\subsubsection{Files:}
-\label{sec:orgheadline1}
-TropICAL: \href{file://c:/Users/Matthew/Dropbox/clojure/tropic/resources/test1.story}{test1.story} 
-InstAL: \href{file://c:/Users/Matthew/Dropbox/clojure/tropic/resources/test1.ial}{test1.ial}
-ASP: \href{file://c:/Users/Matthew/Dropbox/clojure/tropic/resources/test1.lp}{test1.lp}
-Trace: \href{file://c:/Users/Matthew/Dropbox/clojure/tropic/resources/trace1.lp}{trace1.lp}
-
-\subsection{Test 2: Adding a simple quest}
-\label{sec:orgheadline3}
+\subsection{Test 2: Adding a simple quest (FAIL)}
+\label{sec:orgheadline2}
 
 Quests are a convenient way to add obligations to tropes, by giving characters tasks to complete. To test this, we add a third line to the trace:
 
@@ -109,14 +108,15 @@ The quest is added to the story description by referencing it from the trope des
   "Destroy the Death Star" is its Quest
 \end{verbatim}
 
-The resulting answer set is expected to contain:
+\textbf{UPDATE:} After spending some time on this, it turns out that we really need to use a \textbf{bridge institution} to cross-generate events from one institution to another. 
 
-\begin{verbatim}
-(answer set to follow)
-\end{verbatim}
+The reason for this is that rather than having a special syntax for quests, we need to nest institutions inside other institutions.
 
-\subsection{Test 3: A scene within a trope}
-\label{sec:orgheadline4}
+This requires restructuring everything so that each trope is contained inside its own institution. This is the best way of having nesting institutions.
+
+
+\subsection{Test 3: A scene within a trope (FAIL)}
+\label{sec:orgheadline3}
 
 This time, the trace is the same as above, but with an added event: the start of a scene called "Tatooine".
 
@@ -155,35 +155,75 @@ The TropicAL story description has been altered so that the character, place and
 
 This means that the entire Hero's Journey trope is contained in the "Tatooine" scene in this case. If the story were to have multiple scenes, the trope's events could be spread out between them.
 
-The resulting answer set is is expected to contain:
+\textbf{UPDATE}: Needs discussion, but since a scene contains multiple tropes it would be best to use Thomas King's multi-layer institutions to govern tropes in scenes. In any case, this test needs to be left until later.
 
-\begin{verbatim}
-(answer set to follow)
-\end{verbatim}
-
-\subsection{Test 4: Situations in tropes}
-\label{sec:orgheadline5}
+\subsection{Test 4: Situations in tropes (PASS)}
+\label{sec:orgheadline4}
 
 This is to test the "When X then Y" syntax for tropes. For this, we return to the simplified hero's journed without a quest. This time, our hero gets a lightsaber:
 
 \begin{verbatim}
 observed(startShow,starWars,0).
-observed(meet(lukeSkywalker, obiWan),starWars,1).
-observed(gets(lukeSkywalker, lightSaber),starWars,2).
-observed(bring(lukeSkywalker, hanSolo),starWars,3).
-observed(go(lukeSkywalker, space),starWars,4).
-observed(go(lukeSkywalker, tatooine),starWars,5).
+observed(go(lukeSkywalker, tatooine),starWars,1).
+observed(meet(lukeSkywalker, obiWan),starWars,2).
+observed(gets(lukeSkywalker, lightSaber),starWars,3).
+observed(bring(lukeSkywalker, hanSolo),starWars,4).
+observed(go(lukeSkywalker, space),starWars,5).
+observed(go(lukeSkywalker, tatooine),starWars,6).
 \end{verbatim}
 
 For this test, we alter the trope, adding a conditional based on a situation occurring:
 
 \begin{verbatim}
 "The Hero's Journey" is a trope where:
-  The Hero is at home
+  The Hero is at Home
   Then the Hero meets the Dispatcher
   When the Hero gets a Weapon:
     The Hero may bring a Friend
-    The Hero may leave Home
+    The Hero may go Away
+  Then the Hero goes Away
+  Then the Hero returns Home
+"Star Wars" is a story:
+  It contains the "The Hero's Journey" trope
+  "Luke Skywalker" is the Hero
+  "Obi Wan" is the Dispatcher
+  "Tatooine" is the Home
+  "Space" is the Away
+  "Han Solo" is the Friend
+  "Lightsaber" is the Weapon
+\end{verbatim}
+
+This states that when the hero gets a weapon, they may find friends and leave home. These permissions are granted to the hero once they have obtained a weapon of some kind.
+
+The answer set contains:
+
+\begin{verbatim}
+{:permissions (), :obligations (), :fluents ("phase(herosJourney,inactive)" "role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseA)"), :violations ()}
+{:permissions ("perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseB)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))" "perm(go(lukeSkywalker,space))" "perm(bring(lukeSkywalker,hanSolo))" "perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseB)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))" "perm(go(lukeSkywalker,space))" "perm(bring(lukeSkywalker,hanSolo))" "perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseB)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))" "perm(go(lukeSkywalker,space))" "perm(bring(lukeSkywalker,hanSolo))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseC)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))" "perm(bring(lukeSkywalker,hanSolo))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseD)"), :violations ()}
+\end{verbatim}
+
+\subsection{Test 5: Obligations without deadlines (FAIL)}
+\label{sec:orgheadline5}
+
+\begin{verbatim}
+observed(startShow,starWars,0).
+observed(meet(lukeSkywalker, obiWan),starWars,1).
+observed(gets(lukeSkywalker, lightSaber),starWars,2).
+observed(go(lukeSkywalker, space),starWars,2).
+observed(go(lukeSkywalker, tatooine),starWars,3).
+\end{verbatim}
+
+\begin{verbatim}
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  When the Hero gets a Weapon:
+    The Hero must leave Home
   Then the Hero leaves Home
   Then the Hero returns Home
 "Star Wars" is a story:
@@ -192,19 +232,12 @@ For this test, we alter the trope, adding a conditional based on a situation occ
   "Obi Wan" is its Dispatcher
   "Tatooine" is its Home
   "Light Saber" is its Weapon
-  "Han Solo" is its Friend
+  "Darth Vader" is its Villain
 \end{verbatim}
 
-This states that when the hero gets a weapon, they may find friends and leave home. These permissions are granted to the hero once they have obtained a weapon of some kind.
+\textbf{UPDATE}: After banging my head against a wall for a while, it turns out that obligations require both deadlines and violation events for InstAL to parse them. Solution is either to require an author to specify deadlines and consequences, or put "dummy" deadlines and consequences in where none are specified.
 
-The answer set is expected to contain:
-
-\begin{verbatim}
-(answer set to follow)
-\end{verbatim}
-
-
-\subsection{Test 5: Obligations with deadlines}
+\subsection{Test 6: Obligations with deadlines (FAIL)}
 \label{sec:orgheadline6}
 
 \begin{verbatim}
@@ -232,13 +265,9 @@ observed(go(lukeSkywalker, tatooine),starWars,3).
   "Darth Vader" is its Villain
 \end{verbatim}
 
-The answer set contains:
+\textbf{UPDATE}: See test 5.
 
-\begin{verbatim}
-(answer set to follow)
-\end{verbatim}
-
-\subsection{Test 6: Obligations with deadlines and violation events}
+\subsection{Test 7: Obligations with deadlines and violation events (FAIL)}
 \label{sec:orgheadline7}
 
 NOTE: The syntax of this test is subject to change!
@@ -275,11 +304,9 @@ This is described in the story as follows:
 
 The answer set is expected to contain:
 
-\begin{verbatim}
-(answer set to follow)
-\end{verbatim}
+\textbf{UPDATE}: Still working on this. Very, very close to passing.
 
-\subsection{Test 7: Multiple tropes}
+\subsection{Test 8: Multiple tropes (FAIL)}
 \label{sec:orgheadline8}
 
 This test examines the use of multiple tropes containing situations (When X:), obligations, deadlines and consequences.
@@ -323,7 +350,7 @@ The story now contains two trope descriptions: "The Hero's Journey" and "The Evi
   "Princess Leia" is its Hostage
 \end{verbatim}
 
-The answer set is expected to contain:
+\textbf{UPDATE}: I haven't run this one yet, but it should actually pass easily.
 
 \begin{verbatim}
 (answer set to follow)

@@ -1,48 +1,75 @@
+* <2016-02-25 Thu> Meeting Agenda
+- Go through tests for feedback and discussion
+- Discuss how to evaluate this research (Propp vs Trope / Institutions vs Planners)
+- Discuss how this research can benefit Sysemia
+
+** Research progress
+*** DONE INFORM.
+To investigate potential for use as a basis for authoring narrative and automatically creating formal models.
+*** DONE Example stories.
+Draft some stories in terms of tropes using INFORM to evaluate it for expressiveness and suitability.
+*** DONE Tropes to ASP translation.
+Investigate capacity to map trope features to InstAL/ASP.
+*** DONE Manual construction of models of tropes.
+Pick some example tropes that exemplify a range of features to translate into InstAL.
+*** TODO Model performance factors.
+Investigate the factors that affect model complexity and the scope there is for controlling them.  Discuss with
+Marina De Vos @ Bath.
+*** TODO Model refactorings.
+Explore scope for rewriting models in order to reduce grounding/solving costs.
+*** TODO (doing?) Story authoring methodology.
+Use the experience from 1, 2, 3 to start identifying the steps in a methodology for writing stories and capturing formal models of them.
+*** TODO Architecture toolchain.
+Identify the tools and the interfaces between them that support the process from the creation of stories through to interacting with them.
+*** TODO Staging computation.
+Working out which parts of the framework might possibly be pulled back to off-line processes (and consequently represented as data on-line) in order to reduce processor demands and memory footprint on lightweight deployment platforms
+*** TODO Rendering formal models in natural language.
+To complete the cycle... round-trip engineering?
 * Testing TropICAL's InstAL output
 The testing method I'm using is to use traces (sequences of external events) as tests. Each trace should test some kind of function of the system and increase in complexity as the number of tests increases.
 
-** Test 1: Simple trope declaration
+** Test 1: Simple trope declaration (PASS)
 The purpose of this test is to implement a simple version of the "Hero's Journey" trope. The following trace is the sequence of events a set of agents would need to carry out in order to fulfill this trope in the Star Wars universe:
 
 #+BEGIN_SRC prolog
 observed(startShow,starWars,0).
-observed(meet(lukeSkywalker, obiWan),starWars,1).
-observed(go(lukeSkywalker, space),starWars,2).
-observed(go(lukeSkywalker, tatooine),starWars,3).
+observed(go(lukeSkywalker, tatooine),starWars,1).
+observed(meet(lukeSkywalker, obiWan),starWars,2).
+observed(go(lukeSkywalker, space),starWars,3).
+observed(go(lukeSkywalker, tatooine),starWars,4).
 #+END_SRC
 
-The following TropICAL code fulfills the above trace:
+The following TropICAL code provides a story that the above trace can conform to:
 
 #+BEGIN_SRC prolog
 "The Hero's Journey" is a trope where:
-  The Hero is at home
+  The Hero is at Home
   Then the Hero meets the Dispatcher
-  Then the Hero leaves Home
+  Then the Hero goes Away
   Then the Hero returns Home
 "Star Wars" is a story:
-  "Luke Skywalker" is its Hero
-  "Obi Wan" is its Dispatcher
-  "Tatooine" is its Home
+  It contains the "The Hero's Journey" trope
+  "Luke Skywalker" is the Hero
+  "Obi Wan" is the Dispatcher
+  "Tatooine" is the Home
+  "Space" is the Away
 #+END_SRC
 
 Note that in the above code, the characters (Luke Skywalker, Obi Wan) fulfill their roles (Hero, Dispatcher) globally across the story. It is also possible to give characters scene-local scope, but that will follow in a later test. The same is true of places and quests in a story. All words are case insensitive.
 
 The events described in the trope simply initiate permissions for the corresponding characters to perform the described actions.
 
-The InstAL this code compiles to is in the [[file:~/Dropbox/clojure/tropic/resources/test1.ial][test1.ial]] file (provided in a separate document). This is then compiled to AnsProlog and run through the clingo solver with the above trace. The resulting answer set is expected to contain:
+The InstAL this code compiles to is in the [[file:~/Dropbox/clojure/tropic/resources/test1.ial][test1.ial]] file (provided in a separate document). This is then compiled to AnsProlog and run through the clingo solver with the above trace. The resulting answer set contains:
 
-#+BEGIN_SRC prolog
-(answer set to follow)
+#+BEGIN_SRC clojure
+{:permissions (), :obligations (), :fluents ("phase(herosJourney,inactive)" "role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseA)"), :violations ()}
+{:permissions ("perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseB)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,space))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseC)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseD)"), :violations ()}
 #+END_SRC
 
-
-*** Files:
-TropICAL: [[file:~/Dropbox/clojure/tropic/resources/test1.story][test1.story]] 
-InstAL: [[file:~/Dropbox/clojure/tropic/resources/test1.ial][test1.ial]]
-ASP: [[file:~/Dropbox/clojure/tropic/resources/test1.lp][test1.lp]]
-Trace: [[file:~/Dropbox/clojure/tropic/resources/trace1.lp][trace1.lp]]
-
-** Test 2: Adding a simple quest
+** Test 2: Adding a simple quest (FAIL)
 
 Quests are a convenient way to add obligations to tropes, by giving characters tasks to complete. To test this, we add a third line to the trace:
 
@@ -76,13 +103,14 @@ The quest is added to the story description by referencing it from the trope des
   "Destroy the Death Star" is its Quest
 #+END_SRC
 
-The resulting answer set is expected to contain:
+*UPDATE:* After spending some time on this, it turns out that we really need to use a *bridge institution* to cross-generate events from one institution to another. 
 
-#+BEGIN_SRC prolog
-(answer set to follow)
-#+END_SRC
+The reason for this is that rather than having a special syntax for quests, we need to nest institutions inside other institutions.
 
-** Test 3: A scene within a trope
+This requires restructuring everything so that each trope is contained inside its own institution. This is the best way of having nesting institutions.
+
+
+** Test 3: A scene within a trope (FAIL)
 
 This time, the trace is the same as above, but with an added event: the start of a scene called "Tatooine".
 
@@ -121,34 +149,73 @@ The TropicAL story description has been altered so that the character, place and
 
 This means that the entire Hero's Journey trope is contained in the "Tatooine" scene in this case. If the story were to have multiple scenes, the trope's events could be spread out between them.
 
-The resulting answer set is is expected to contain:
+*UPDATE*: Needs discussion, but since a scene contains multiple tropes it would be best to use Thomas King's multi-layer institutions to govern tropes in scenes. In any case, this test needs to be left until later.
 
-#+BEGIN_SRC prolog
-(answer set to follow)
-#+END_SRC
-
-** Test 4: Situations in tropes
+** Test 4: Situations in tropes (PASS)
 
 This is to test the "When X then Y" syntax for tropes. For this, we return to the simplified hero's journed without a quest. This time, our hero gets a lightsaber:
 
 #+BEGIN_SRC prolog
 observed(startShow,starWars,0).
-observed(meet(lukeSkywalker, obiWan),starWars,1).
-observed(gets(lukeSkywalker, lightSaber),starWars,2).
-observed(bring(lukeSkywalker, hanSolo),starWars,3).
-observed(go(lukeSkywalker, space),starWars,4).
-observed(go(lukeSkywalker, tatooine),starWars,5).
+observed(go(lukeSkywalker, tatooine),starWars,1).
+observed(meet(lukeSkywalker, obiWan),starWars,2).
+observed(gets(lukeSkywalker, lightSaber),starWars,3).
+observed(bring(lukeSkywalker, hanSolo),starWars,4).
+observed(go(lukeSkywalker, space),starWars,5).
+observed(go(lukeSkywalker, tatooine),starWars,6).
 #+END_SRC
 
 For this test, we alter the trope, adding a conditional based on a situation occurring:
 
 #+BEGIN_SRC prolog
 "The Hero's Journey" is a trope where:
-  The Hero is at home
+  The Hero is at Home
   Then the Hero meets the Dispatcher
   When the Hero gets a Weapon:
     The Hero may bring a Friend
-    The Hero may leave Home
+    The Hero may go Away
+  Then the Hero goes Away
+  Then the Hero returns Home
+"Star Wars" is a story:
+  It contains the "The Hero's Journey" trope
+  "Luke Skywalker" is the Hero
+  "Obi Wan" is the Dispatcher
+  "Tatooine" is the Home
+  "Space" is the Away
+  "Han Solo" is the Friend
+  "Lightsaber" is the Weapon
+#+END_SRC
+
+This states that when the hero gets a weapon, they may find friends and leave home. These permissions are granted to the hero once they have obtained a weapon of some kind.
+
+The answer set contains:
+
+#+BEGIN_SRC clojure
+{:permissions (), :obligations (), :fluents ("phase(herosJourney,inactive)" "role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseA)"), :violations ()}
+{:permissions ("perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseB)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))" "perm(go(lukeSkywalker,space))" "perm(bring(lukeSkywalker,hanSolo))" "perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseB)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))" "perm(go(lukeSkywalker,space))" "perm(bring(lukeSkywalker,hanSolo))" "perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseB)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))" "perm(go(lukeSkywalker,space))" "perm(bring(lukeSkywalker,hanSolo))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseC)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))" "perm(bring(lukeSkywalker,hanSolo))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "object(hanSolo,friend)" "object(lightsaber,weapon)" "phase(herosJourney,phaseD)"), :violations ()}
+#+END_SRC
+
+** Test 5: Obligations without deadlines (FAIL)
+
+#+BEGIN_SRC prolog
+observed(startShow,starWars,0).
+observed(meet(lukeSkywalker, obiWan),starWars,1).
+observed(gets(lukeSkywalker, lightSaber),starWars,2).
+observed(go(lukeSkywalker, space),starWars,2).
+observed(go(lukeSkywalker, tatooine),starWars,3).
+#+END_SRC
+
+#+BEGIN_SRC prolog
+"The Hero's Journey" is a trope where:
+  The Hero is at home
+  Then the Hero meets the Dispatcher
+  When the Hero gets a Weapon:
+    The Hero must leave Home
   Then the Hero leaves Home
   Then the Hero returns Home
 "Star Wars" is a story:
@@ -157,19 +224,12 @@ For this test, we alter the trope, adding a conditional based on a situation occ
   "Obi Wan" is its Dispatcher
   "Tatooine" is its Home
   "Light Saber" is its Weapon
-  "Han Solo" is its Friend
+  "Darth Vader" is its Villain
 #+END_SRC
 
-This states that when the hero gets a weapon, they may find friends and leave home. These permissions are granted to the hero once they have obtained a weapon of some kind.
+*UPDATE*: After banging my head against a wall for a while, it turns out that obligations require both deadlines and violation events for InstAL to parse them. Solution is either to require an author to specify deadlines and consequences, or put "dummy" deadlines and consequences in where none are specified.
 
-The answer set is expected to contain:
-
-#+BEGIN_SRC prolog
-(answer set to follow)
-#+END_SRC
-
-
-** Test 5: Obligations with deadlines
+** Test 6: Obligations with deadlines (FAIL)
 
 #+BEGIN_SRC prolog
 observed(startShow,starWars,0).
@@ -196,13 +256,9 @@ observed(go(lukeSkywalker, tatooine),starWars,3).
   "Darth Vader" is its Villain
 #+END_SRC
 
-The answer set contains:
+*UPDATE*: See test 5.
 
-#+BEGIN_SRC prolog
-(answer set to follow)
-#+END_SRC
-
-** Test 6: Obligations with deadlines and violation events
+** Test 7: Obligations with deadlines and violation events (FAIL)
 
 NOTE: The syntax of this test is subject to change!
 
@@ -238,11 +294,9 @@ This is described in the story as follows:
 
 The answer set is expected to contain:
 
-#+BEGIN_SRC prolog
-(answer set to follow)
-#+END_SRC
+*UPDATE*: Still working on this. Very, very close to passing.
 
-** Test 7: Multiple tropes
+** Test 8: Multiple tropes (FAIL)
 
 This test examines the use of multiple tropes containing situations (When X:), obligations, deadlines and consequences.
 
@@ -285,7 +339,7 @@ The story now contains two trope descriptions: "The Hero's Journey" and "The Evi
   "Princess Leia" is its Hostage
 #+END_SRC
 
-The answer set is expected to contain:
+*UPDATE*: I haven't run this one yet, but it should actually pass easily.
 
 #+BEGIN_SRC prolog
 (answer set to follow)

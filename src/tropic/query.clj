@@ -7,7 +7,7 @@
 
 ;; yeah, change this
 ;; and all the starWars stuff so it can generalise
-(def model (file "resources/test4.ial"))
+;; (def model (file "resources/test5.ial"))
 
 (defn make-query-string [event]
   (let [ag (:AGENT event)
@@ -28,16 +28,16 @@
 
 (defn make-timeline [qlength] (spit "resources/timeline.lp" (str "start(0).\ninstant(0..T) :- final(T).\nnext(T,T+1) :- instant(T).\nfinal(" qlength ").")))
 
-(defn run-instal [] (python2 "instal/pyinstal.py" "-d" "resources/domain.idc" "-i" "resources/test4.ial" "-o" "resources/test4.lp"))
+(defn run-instal [n] (python2 "instal/pyinstal.py" "-d" "resources/domain.idc" "-i" (str "resources/" n ".ial") "-o" (str "resources/" n ".lp")))
 
-(defn run-clingo [] (clingo "resources/test4.lp" "resources/timeline.lp" "resources/query.lp" {:out (file "resources/results.txt") :throw false}))
+(defn run-clingo [n] (clingo (str "resources/" n ".lp") "resources/timeline.lp" "resources/query.lp" {:out (file "resources/results.txt") :throw false}))
 
-(defn run-query [q]
+(defn run-query [q n]
   (do
     (make-query q)
     (make-timeline (+ 1 (count q)))
-    (run-instal)
-    (run-clingo)))
+    (run-instal n)
+    (run-clingo n)))
 
 (defn get-state [qlength]
   (let [strip-lives (fn [x] (remove #(re-matches #".*live.*" %) x))
@@ -78,12 +78,12 @@
 
 (defn filter-results [length]
   (let [state (get-state length)]
-      (hash-map :fluents (map strip-fluff (get-fluents state)) :tropes (map strip-fluff (get-tropes state)) :onstage (map strip-fluff (get-stage state))  :obligations (map strip-fluff (get-obls state)) :permissions (map strip-fluff (get-perms state)) :violations (map strip-fluff (get-viols state)))))
+      (hash-map :fluents (map strip-fluff (get-fluents state)) :obligations (map strip-fluff (get-obls state)) :permissions (map strip-fluff (get-perms state)) :violations (map strip-fluff (get-viols state)))))
 
-(defn norms-for-query [query]
-  (let [qlength (+ 1 (count query))]
-  (do (run-query query)
-      (filter-results qlength))))
+;; (defn norms-for-query [query]
+;;   (let [qlength (+ 1 (count query))]
+;;   (do (run-query query)
+;;       (filter-results qlength))))
 
 (defn norms-at-state [index]
   (let [i (+ 1 index)]

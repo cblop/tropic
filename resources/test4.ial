@@ -21,6 +21,7 @@ fluent at(Agent, Place);
 exogenous event gets(Agent, ObjectName);
 exogenous event go(Agent, PlaceName);
 exogenous event meet(Agent, Agent);
+exogenous event bring(Agent, ObjectName);
 % CREATION EVENT -----------
 create event startShow;
 

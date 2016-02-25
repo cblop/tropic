@@ -35,28 +35,28 @@
 
 ; Eval to test
 (do
-  (run-query test6)
+  (run-query test6 "test6")
   (let [all-states (doall (map norms-at-state (range (+ (count test6) 1))))]
     (spit "swout.edn" "")
     (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
 
-;; (do
-;;   (run-query test5)
-;;   (let [all-states (doall (map norms-at-state (range (+ (count test5) 1))))]
-;;     (spit "swout.edn" "")
-;;     (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
-
-;; (do
-;;   (run-query test4)
-;;   (let [all-states (doall (map norms-at-state (range (+ (count test4) 1))))]
-;;     (spit "swout.edn" "")
-;;     (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
+(do
+  (run-query test5 "test5")
+  (let [all-states (doall (map norms-at-state (range (+ (count test5) 1))))]
+    (spit "swout.edn" "")
+    (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
 
 (do
-  ;; (run-query test1)
-  ;; (let [all-states (doall (map norms-at-state (range (+ (count test1) 1))))]
-  ;;   (spit "swout.edn" "")
-  ;;   (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
+  (run-query test4 "test4")
+  (let [all-states (doall (map norms-at-state (range (+ (count test4) 1))))]
+    (spit "swout.edn" "")
+    (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
+
+(do
+  (run-query test1 "test1")
+  (let [all-states (doall (map norms-at-state (range (+ (count test1) 1))))]
+    (spit "swout.edn" "")
+    (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
 
 (doall (map norms-at-state (range (count test1))))
 
@@ -69,5 +69,5 @@
 
 (run-query test1)
 
-(run-instal)
-(run-clingo)
+(run-instal "test5")
+(run-clingo "test5")

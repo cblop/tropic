@@ -200,8 +200,10 @@ or STRING to string"
   (let [
         sits (map :when (filter :when (:situations trope)))
         perms (flatten (map #(map :permission (filter :permission %)) (map :norms (:situations trope))))
+        obls (map :obligation (filter :obligation (:events trope)))
+        deads (map :deadline (map :obligation (filter :obligation (:events trope))))
         ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
-        evs (concat sits perms (:events trope))
+        evs (concat sits perms obls deads (:events trope))
         roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
         objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
         places (make-unique (map #(select-keys % [:place]) evs))
@@ -217,7 +219,7 @@ or STRING to string"
         deads (map :deadline (filter :deadline obls))
         viols (map :violation (filter :violation obls))
         os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
-        o (println "deads: ")
+        ;; o (println "deads: ")
         p (println obls)
         ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
         evs (concat os deads viols)
@@ -295,20 +297,21 @@ or STRING to string"
         p (println (:events trope))
         events (concat evs deads)
         situations (map :when (:situations trope))
-        all (concat events situations)
+        sperms (mapcat #(map :permission (filter :permission %)) (map :norms (:situations trope)))
+        all (concat events situations sperms)
         types (map ev-types all)
         strng (fn [x y] (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
     (cons header (into [] (set (map (fn [x y] (strng x y)) all types))))))
     ;; (prn-str types)
   ;; ))
 
-(defn viol-events [trope]
-  (let [header (str "% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
-        params (get-obl-params trope)
-        viols (map #(-> % :obligation :violation) (:events trope))
-        types (map viol-types viols)
-        strng (fn [x y] (str "viol event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
-    (cons header (into [] (set (map (fn [x y] (strng x y)) all types))))))
+;; (defn viol-events [trope]
+;;   (let [header (str "% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
+;;         params (get-obl-params trope)
+;;         viols (map #(-> % :obligation :violation) (:events trope))
+;;         types (map viol-types viols)
+;;         strng (fn [x y] (str "viol event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
+;;     (cons header (into [] (set (map (fn [x y] (strng x y)) all types))))))
 
 (defn inst-events [trope]
   (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
@@ -448,51 +451,6 @@ or STRING to string"
           {}
           maps))
 
-(defn initially [hmap]
-  (let [
-        header "\n% INITIALLY: -----------"
-        params (apply merge (map get-all-params (:tropes hmap)))
-        ;; qq (println "all-params: ")
-        ;; q (println params)
-        story (:story hmap)
-        instances (:instances story)
-        role-list (map first (:roles params))
-        place-list (map first (:places params))
-        obj-list (map first (:objects params))
-        ;event-name?
-        roles (filter #(in? role-list (event-name (:class %))) instances)
-        places (filter #(in? place-list (event-name (:class %))) instances)
-        objects (filter #(in? obj-list (event-name (:class %))) instances)
-        fluentfn (fn [x t] (str t "(" (event-name (:iname x)) ", " (event-name (:class x)) ")"))
-        rolestrs (map #(fluentfn % "role") roles)
-        placestrs (map #(fluentfn % "place") places)
-        objstrs (map #(fluentfn % "object") objects)
-        phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
-        phases (map #(event-name (:name %)) (:tropes hmap))
-        phasestrs (map phasefn phases)
-        powfn (fn [x] (str "pow(" (inst-name (:name x)) "(" (reduce str (interpose ", " (inst-letters x))) "))"))
-        situations (mapcat :situations (:tropes hmap))
-        wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
-        powers (map powfn (:tropes hmap))]
-    ;; (concat rolestrs placestrs)
-    ;; (concat role-list place-list)
-    ;; roles
-    ;; (map #(event-name (:class %)) instances)
-    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers wpnames phasestrs rolestrs placestrs objstrs))) ";\n")]
-    ;; (map :class instances)
-    ))
-
-(defn get-sits [trope]
-  (let [situations (:situations trope)
-        sitnorms (map :norms situations)
-        sitevs (flatten (map #(map :permission (filter :permission %)) sitnorms))
-        sparams (get-sit-params trope)
-        wstrs (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (lookup-sit-letters trope %))) ")") situations)
-        wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
-        wpparams (map #(param-str % sparams) sitevs)
-        ]
-    {:names wstrs :events wpvec :conds wpparams}))
-
 (defn get-obls [trope]
   (let [
         obls (map :obligation (filter :obligation (:events trope)))
@@ -512,6 +470,56 @@ or STRING to string"
         p (println oifs)
         ]
     {:names ostrs :evs [pobls] :viols viols :conds [oifs]}))
+
+(defn initially [hmap]
+  (let [
+        header "\n% INITIALLY: -----------"
+        params (apply merge (map get-all-params (:tropes hmap)))
+        ;; qq (println "all-params: ")
+        ;; q (println params)
+        obls (map get-obls (:tropes hmap))
+        story (:story hmap)
+        instances (:instances story)
+        role-list (map first (:roles params))
+        place-list (map first (:places params))
+        obj-list (map first (:objects params))
+        ;event-name?
+        roles (filter #(in? role-list (event-name (:class %))) instances)
+        places (filter #(in? place-list (event-name (:class %))) instances)
+        objects (filter #(in? obj-list (event-name (:class %))) instances)
+        fluentfn (fn [x t] (str t "(" (event-name (:iname x)) ", " (event-name (:class x)) ")"))
+        rolestrs (map #(fluentfn % "role") roles)
+        placestrs (map #(fluentfn % "place") places)
+        objstrs (map #(fluentfn % "object") objects)
+        phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
+        phases (map #(event-name (:name %)) (:tropes hmap))
+        phasestrs (map phasefn phases)
+        powfn (fn [x] (str "pow(" (inst-name (:name x)) "(" (reduce str (interpose ", " (inst-letters x))) "))"))
+        situations (mapcat :situations (:tropes hmap))
+        wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
+        opnames (map #(str "pow(" % ")") (mapcat :names obls))
+        o (println "opnames: ")
+        p (println opnames)
+        powers (map powfn (:tropes hmap))]
+    ;; (concat rolestrs placestrs)
+    ;; (concat role-list place-list)
+    ;; roles
+    ;; (map #(event-name (:class %)) instances)
+    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
+    ;; (map :class instances)
+    ))
+
+(defn get-sits [trope]
+  (let [situations (:situations trope)
+        sitnorms (map :norms situations)
+        sitevs (flatten (map #(map :permission (filter :permission %)) sitnorms))
+        sparams (get-sit-params trope)
+        wstrs (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (lookup-sit-letters trope %))) ")") situations)
+        wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        wpparams (map #(param-str % sparams) sitevs)
+        ]
+    {:names wstrs :events wpvec :conds wpparams}))
+
 
 (defn initiates [trope]
   (let [params (get-params trope)

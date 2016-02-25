@@ -47,7 +47,10 @@ go(S, U) generates intGo(S, U) if role(S, villain), place(U, home);
 % INITIALLY: -----------
 initially
     pow(intHerosJourney(R, S, T, U)),
+    pow(intGo(S, U)),
     phase(herosJourney, inactive),
     role(lukeSkywalker, hero),
     role(obiWan, dispatcher),
-    place(tatooine, home);
+    role(darthVader, villain),
+    place(tatooine, home),
+    place(space, away);
