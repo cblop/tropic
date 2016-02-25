@@ -1,4 +1,4 @@
-clingo version 4.5.2
+clingo version 4.5.3
 Reading from resources/test4.lp ...
 Solving...
 Answer: 1
@@ -7,5 +7,5 @@ SATISFIABLE
 
 Models       : 1     
 Calls        : 1
-Time         : 0.068s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
-CPU Time     : 0.050s
+Time         : 0.046s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.040s

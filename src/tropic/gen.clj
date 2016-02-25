@@ -49,7 +49,7 @@
     :task (partial merge)
     ;; :norms (fn [& args] {:norms args})
     :norms (fn [& args] args)
-    :obligation (fn [& args] {:obligation (apply merge (first (apply hash-map args)))})
+    :obligation (fn [& args] {:obligation (apply merge args)})
     :event (partial merge)
     :class (fn [& args] {:class (make-string args)})
     :iname (fn [& args] {:iname (make-string args)})

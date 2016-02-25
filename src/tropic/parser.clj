@@ -83,13 +83,13 @@
 
     task = verb / (verb <(' the ' / ' a ' / ' an ')> item) / (verb <' '> item)
     move = mverb <' '> <'to '?> place
-    mverb = 'go' / 'goes' / 'leave' / 'leaves' / 'return' / 'returns' / 'at'
+    mverb = 'go' / 'goes' / 'leave' / 'leaves' / 'return' / 'returns' / 'at' / 'come' / 'comes'
     verb = word
     place = word
 
     consequence =
-        [<'The ' / 'the '>] item <' '> verb
-        | [<'The ' / 'the '>] character <' will '> task
+        [<'The ' / 'the '>] character <' will '>? <' '> (move / item)
+        | [<'The ' / 'the '>] item <' '> verb
 
     item = [<'The ' / 'the '>] (word / word <' '> word)
     state = word

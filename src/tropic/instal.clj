@@ -211,6 +211,39 @@ or STRING to string"
      :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
      :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
+(defn get-obl-params [trope]
+  (let [
+        obls (map :obligation (filter :obligation (:events trope)))
+        deads (map :deadline (filter :deadline obls))
+        viols (map :violation (filter :violation obls))
+        os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
+        o (println "deads: ")
+        p (println obls)
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        evs (concat os deads viols)
+        roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
+        objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
+        places (make-unique (map #(select-keys % [:place]) evs))
+        quests (into [] (filter #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))]
+    {:roles (map vector roles PARAMS)
+     :objects (map vector objects (prange (count roles) (count objects)))
+     :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
+     :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
+
+(defn get-dead-params [sit]
+  (let [
+        sits (:deadline sit)
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        evs [sits]
+        roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
+        objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
+        places (make-unique (map #(select-keys % [:place]) evs))
+        quests (into [] (filter #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))]
+    {:roles (map vector roles PARAMS)
+     :objects (map vector objects (prange (count roles) (count objects)))
+     :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
+     :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
+
 (defn get-when-params [sit]
   (let [
         sits (:when sit)
@@ -257,7 +290,10 @@ or STRING to string"
 (defn external-events [trope]
   (let [header (str "% EXTERNAL EVENTS: " (namify (:name trope)) " ----------")
         params (get-params trope)
-        events (remove :obligation (:events trope))
+        evs (remove :obligation (:events trope))
+        deads (remove nil? (map #(-> % :obligation :deadline) (:events trope)))
+        p (println (:events trope))
+        events (concat evs deads)
         situations (map :when (:situations trope))
         all (concat events situations)
         types (map ev-types all)
@@ -266,12 +302,22 @@ or STRING to string"
     ;; (prn-str types)
   ;; ))
 
+(defn viol-events [trope]
+  (let [header (str "% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
+        params (get-obl-params trope)
+        viols (map #(-> % :obligation :violation) (:events trope))
+        types (map viol-types viols)
+        strng (fn [x y] (str "viol event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
+    (cons header (into [] (set (map (fn [x y] (strng x y)) all types))))))
+
 (defn inst-events [trope]
   (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
         nm (inst-name (:name trope))
         snms (map inst-name (map :verb (map :when (:situations trope))))
+        onms (map inst-name (map :verb (map :obligation (filter :obligation (:events trope)))))
         params (get-params trope)
         sparams (map get-when-params (:situations trope))
+        oparams (map get-dead-params (map :obligation (filter :obligation (:events trope))))
         types (flatten (vector
                         (take (count (:roles params)) (repeat "Agent"))
                         (take (count (:objects params)) (repeat "ObjectName"))
@@ -285,12 +331,15 @@ or STRING to string"
                                  (take (count (:quests x)) (repeat "Quest"))
                                  )))
         ss (map stypes sparams)
-        p (println ss)
+        os (map stypes oparams)
+        o (println "os: ")
+        p (println oparams)
         finstr (fn [x ys] (str "inst event " x "(" (reduce str (interpose ", " ys)) ")" ";"))
         instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")
         sinstrs (map finstr snms ss)
+        oinstrs (map finstr onms os)
         ]
-    (cons header (conj sinstrs instr))))
+    (cons header (conj (concat sinstrs oinstrs) instr))))
 
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:name trope)))]))
@@ -334,36 +383,60 @@ or STRING to string"
         ls (map second (filter #(in? vs (first %)) ps))]
     ls))
 
+(defn lookup-obl-letters [trope obl]
+  (let [params (get-obl-params trope)
+        vs (map event-name (vals (dissoc obl :verb)))
+        ps (apply concat (vals params))
+        ls (map second (filter #(in? vs (first %)) ps))]
+    ls))
+
 (defn sit-letters [sit]
   (let [num (count (remove :verb sit))]
     (take num PARAMS)))
 
+(defn obl-letters [obl]
+  (let [num (count (dissoc obl :verb))]
+    (take num PARAMS)))
+
 (defn generates [trope]
   (let [params (get-params trope)
+        oparams (get-obl-params trope)
+        obls (map :obligation (filter :obligation (:events trope)))
+        deads (map :deadline (filter :deadline obls))
+        viols (map :violation (filter :violation obls))
+        os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
+        oevs (concat os deads viols)
         wparams (flatten (map get-when-params (:situations trope)))
-        ;; p (println wparams)
         ;; wparams (get-params trope)
         header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
+        o (println "oparams: ")
+        p (println situations)
+        q (println oevs)
         ;; sit-conds (map :when (filter :when situations))
         wnames (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
+        onames (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") oevs)
         ename (event-name (:name trope))
         events (remove :obligation (:events trope))
         wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
+        ostrs (into [] (set (map #(event-str % oparams) oevs)))
         ;; wparams (map #(unify-params (:when %) roles objects) situations)
         gmake (fn [iname ev cnds] (str ev " generates " iname " if " (reduce str (interpose ", " cnds)) ";"))
         estrs (into [] (set (map #(event-str % params) events)))
         pstrs (map #(param-str % params) events)
         wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
+        ;; oifs (map (fn [x ys] (param-str x ys)) oevs oparams)
+        oifs (map #(param-str % oparams) oevs)
         ;; perms (map perm estrs)
         ;; phases (make-phases ename (count events))
         ;; evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
         ;; cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
         gen-a (map gmake (repeat inst) estrs pstrs)
         gen-s (map gmake wnames wstrs wifs)
+        gen-d (map gmake onames ostrs oifs)
         ]
-    (concat [header] gen-a gen-s)
+    (concat [header] gen-a gen-s gen-d)
     ))
 
 
@@ -414,20 +487,31 @@ or STRING to string"
         sitnorms (map :norms situations)
         sitevs (flatten (map #(map :permission (filter :permission %)) sitnorms))
         sparams (get-sit-params trope)
-        ;; sit-letters is too simple
         wstrs (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (lookup-sit-letters trope %))) ")") situations)
-        ;; wpvec (map #(perm (event-str (:permission %) sparams)) sitnorms)
-        ;; wpvec (map :permission (filter :permission sitnorms))
-        ;; wpvec (flatten (map :permission sitnorms))
         wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
-        ;; wpvec sitnorms
-        ;; wpvec (filter :permission sitnorms)
-        ;; wpvec [(:permission (first sitnorms))]
-        ;; wpvec [(str (get :permission (first sitnorms)))]
-        ;; p (println sitevs)
         wpparams (map #(param-str % sparams) sitevs)
         ]
     {:names wstrs :events wpvec :conds wpparams}))
+
+(defn get-obls [trope]
+  (let [
+        obls (map :obligation (filter :obligation (:events trope)))
+        deads (map :deadline (filter :deadline obls))
+        viols (map :violation (filter :violation obls))
+        os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
+        oevs (concat os deads viols)
+        oparams (get-obl-params trope)
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        pobls (map #(obl % oparams) (filter :obligation (:events trope)))
+        ;; pobls (map #(perm (event-str % oparams)) os)
+        ;; pdeads (map #(perm (event-str % oparams)) deads)
+        ;; ostrs (into [] (set (map #(event-str % oparams) oevs)))
+        ostrs (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") deads)
+        oifs (mapcat #(param-str % oparams) oevs)
+        o (println "oifs: ")
+        p (println oifs)
+        ]
+    {:names ostrs :evs [pobls] :viols viols :conds [oifs]}))
 
 (defn initiates [trope]
   (let [params (get-params trope)
@@ -448,13 +532,15 @@ or STRING to string"
         evec (conj (into [] (map vector (rest phases) norms)) [(last phases)])
         cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
         sits (get-sits trope)
+        obls (get-obls trope)
         ;; tvec (conj phases [(last phases)])
         tvec (map vector phases)
         init-a (map imake (repeat inst) evec cvec)
         init-s (map imake (:names sits) (:events sits) (:conds sits))
+        term-o (map tmake (:names obls) (:evs obls) (:conds obls))
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
         ]
-    (concat [header] init-a init-s [term-header] term-a)
+    (concat [header] init-a init-s [term-header] term-a term-o)
     ))
 
 
