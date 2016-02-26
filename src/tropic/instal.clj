@@ -111,19 +111,17 @@ or STRING to string"
                     (event-str params)
                     ;; (param-str params)
                     ))
-        dead (if (nil? deadline) ""
+        dead (if (nil? deadline) "noDeadline"
                  (-> deadline
                      (event-str params)
                      ;; (param-str params)
                      ))
-        viol (if (nil? violation) ""
+        viol (if (nil? violation) "noViolation"
                  (-> violation
                      (event-str params)
                      ;; (param-str params)
                      ))]
-      (cond (nil? deadline) (str "obl(" obl ")")
-            (nil? violation) (str "obl(" obl ", " dead ")")
-            :else (str "obl(" obl ", " dead ", " viol ")"))))
+            (str "obl(" obl ", " dead ", " viol ")")))
 
 (defn unify-params [params roles objects]
   (let [m (meta params)
@@ -301,17 +299,19 @@ or STRING to string"
         all (concat events situations sperms)
         types (map ev-types all)
         strng (fn [x y] (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
-    (cons header (into [] (set (map (fn [x y] (strng x y)) all types))))))
+    (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["exogenous event noDeadline;"])))
     ;; (prn-str types)
   ;; ))
 
-;; (defn viol-events [trope]
-;;   (let [header (str "% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
-;;         params (get-obl-params trope)
-;;         viols (map #(-> % :obligation :violation) (:events trope))
-;;         types (map viol-types viols)
-;;         strng (fn [x y] (str "viol event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
-;;     (cons header (into [] (set (map (fn [x y] (strng x y)) all types))))))
+(defn viol-events [trope]
+  (let [header (str "% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
+        ;; params (get-obl-params trope)
+        ;; viols (map #(-> % :obligation :violation) (:events trope))
+        ;; types (map viol-types viols)
+        types []
+        all []
+        strng (fn [x y] (str "violation event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
+    (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["violation event noViolation;"])))
 
 (defn inst-events [trope]
   (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
@@ -340,7 +340,7 @@ or STRING to string"
         finstr (fn [x ys] (str "inst event " x "(" (reduce str (interpose ", " ys)) ")" ";"))
         instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")
         sinstrs (map finstr snms ss)
-        oinstrs (map finstr onms os)
+        oinstrs (map (fn [xs ys] (if (empty? ys) "" (finstr xs ys))) onms os)
         ]
     (cons header (conj (concat sinstrs oinstrs) instr))))
 
@@ -437,7 +437,7 @@ or STRING to string"
         ;; cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
         gen-a (map gmake (repeat inst) estrs pstrs)
         gen-s (map gmake wnames wstrs wifs)
-        gen-d (map gmake onames ostrs oifs)
+        gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
         ]
     (concat [header] gen-a gen-s gen-d)
     ))
@@ -455,7 +455,9 @@ or STRING to string"
   (let [
         obls (map :obligation (filter :obligation (:events trope)))
         deads (map :deadline (filter :deadline obls))
+        ;; deads (if (empty? ds) [{:verb "noDeadline"}] ds)
         viols (map :violation (filter :violation obls))
+        ;; viols (if (empty? vs) [{:verb "noViolation"}] vs)
         os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
         oevs (concat os deads viols)
         oparams (get-obl-params trope)
@@ -469,7 +471,7 @@ or STRING to string"
         o (println "oifs: ")
         p (println oifs)
         ]
-    {:names ostrs :evs [pobls] :viols viols :conds [oifs]}))
+    {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
 
 (defn initially [hmap]
   (let [
@@ -600,10 +602,11 @@ or STRING to string"
         insts (mapcat inst-events (:tropes hmap))
         inits (mapcat #(initiates %) (:tropes hmap))
         gens (mapcat generates (:tropes hmap))
+        viols (mapcat viol-events (:tropes hmap))
        ]
     ;; (get-params (first (:tropes hmap))))
     ;; (reduce str (interpose "\n" (concat types fluents exts ["\n"] insts ["\n"] inits ["\n"] gens))))
-    (reduce str (interpose "\n" (concat inst-name types fluents exts create insts inits gens initiallys))))
+    (reduce str (interpose "\n" (concat inst-name types fluents exts viols create insts inits gens initiallys))))
   )
 
 (defn instal-gen [text]

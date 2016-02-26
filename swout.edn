@@ -1,5 +1,5 @@
-{:permissions (), :obligations (), :fluents (), :violations ()}
-{:permissions (), :obligations (), :fluents (), :violations ()}
-{:permissions (), :obligations (), :fluents (), :violations ()}
-{:permissions (), :obligations (), :fluents (), :violations ()}
-{:permissions (), :obligations (), :fluents (), :violations ()}
+{:permissions (), :obligations (), :fluents ("phase(herosJourney,inactive)" "role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseA)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseA)"), :violations ()}
+{:permissions ("perm(go(lukeSkywalker,tatooine))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseA)"), :violations ()}
+{:permissions ("perm(meet(lukeSkywalker,obiWan))"), :obligations (), :fluents ("role(lukeSkywalker,hero)" "role(obiWan,dispatcher)" "place(tatooine,home)" "place(space,away)" "phase(herosJourney,phaseB)"), :violations ()}

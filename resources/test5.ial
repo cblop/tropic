@@ -20,27 +20,29 @@ fluent at(Agent, Place);
 % EXTERNAL EVENTS: The Hero's Journey ----------
 exogenous event go(Agent, PlaceName);
 exogenous event meet(Agent, Agent);
+exogenous event noDeadline;
+% VIOLATION EVENTS: The Hero's Journey ----------
+violation event noViolation;
 % CREATION EVENT -----------
 create event startShow;
 
 % INST EVENTS: The Hero's Journey ----------
 inst event intHerosJourney(Agent, Agent, PlaceName, PlaceName);
-inst event intGo(Agent, PlaceName);
+
 % INITIATES: The Hero's Journey ----------
 intHerosJourney(R, S, T, U) initiates phase(herosJourney, phaseA), perm(go(R, U)) if phase(herosJourney, inactive), role(R, hero), place(U, home);
 intHerosJourney(R, S, T, U) initiates phase(herosJourney, phaseB), perm(meet(R, S)) if phase(herosJourney, phaseA), role(S, dispatcher), role(R, hero);
 intHerosJourney(R, S, T, U) initiates phase(herosJourney, phaseC), perm(go(R, U)) if phase(herosJourney, phaseB), role(R, hero), place(U, home);
-intHerosJourney(R, S, T, U) initiates phase(herosJourney, done), obl(go(R, T), ) if phase(herosJourney, phaseC);
+intHerosJourney(R, S, T, U) initiates phase(herosJourney, done), obl(go(R, T), noDeadline, noViolation) if phase(herosJourney, phaseC);
 % TERMINATES: The Hero's Journey ----------
 intHerosJourney(R, S, T, U) terminates phase(herosJourney, inactive) if phase(herosJourney, inactive);
 intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseA), perm(go(R, U)) if phase(herosJourney, phaseA);
 intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseB), perm(meet(R, S)) if phase(herosJourney, phaseB);
 intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseC), perm(go(R, U)) if phase(herosJourney, phaseC);
-intHerosJourney(R, S, T, U) terminates phase(herosJourney, done), obl(go(R, T)) if phase(herosJourney, done);
+intHerosJourney(R, S, T, U) terminates phase(herosJourney, done), obl(go(R, T), noDeadline, noViolation) if phase(herosJourney, done);
 % GENERATES: The Hero's Journey ----------
 go(R, U) generates intHerosJourney(R, S, T, U) if role(R, hero), place(U, home);
 meet(R, S) generates intHerosJourney(R, S, T, U) if role(S, dispatcher), role(R, hero);
-go(R, S) generates intGo(R, S) if role(R, hero), place(S, away);
 
 % INITIALLY: -----------
 initially
