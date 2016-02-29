@@ -18,12 +18,13 @@ fluent object(ObjectName, Object);
 fluent at(Agent, Place);
 
 % EXTERNAL EVENTS: The Hero's Journey ----------
-exogenous event nodeadline();
 exogenous event gets(Agent, ObjectName);
 exogenous event go(Agent, PlaceName);
 exogenous event meet(Agent, Agent);
 exogenous event bring(Agent, ObjectName);
+exogenous event noDeadline;
 % VIOLATION EVENTS: The Hero's Journey ----------
+violation event noViolation;
 % CREATION EVENT -----------
 create event startShow;
 

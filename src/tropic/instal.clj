@@ -66,6 +66,7 @@ or STRING to string"
     (mapcat flatten [rstrs ostrs pstrs qstrs])
     ))
 
+
 (defn event-str
   [event params]
   (let [format (fn [xs]  (str (:verb event) "(" (reduce str (interpose ", " xs)) ")"))
@@ -140,18 +141,6 @@ or STRING to string"
 
 (defn namify [strs]
   (reduce str strs))
-
-
-#_(defn generates [trope roles objects]
-  (let [header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
-        situations (:situations trope)
-        wstrs (map #(event-str (:when %)) situations)
-        wparams (map #(unify-params (:when %) roles objects) situations)
-        gmake (fn [iname evs cnds] (str iname " generates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        gen-a (map gmake wstrs (map #(vector (str "int" (cap-first (str %)))) wstrs) wparams)
-        ]
-    (cons header gen-a)))
-
 
 (def types
   ["% TYPES ----------"
@@ -401,6 +390,7 @@ or STRING to string"
   (let [num (count (dissoc obl :verb))]
     (take num PARAMS)))
 
+
 (defn generates [trope]
   (let [params (get-params trope)
         oparams (get-obl-params trope)
@@ -522,6 +512,13 @@ or STRING to string"
         ]
     {:names wstrs :events wpvec :conds wpparams}))
 
+(defn norm-str [event params]
+  (if (:obligation event) (obl event params)
+    (perm (event-str event params))))
+
+(defn norm-params [ev params]
+  (if (:obligation ev)  (mapcat #(param-str % params) [(:obligation ev) (:deadline (:obligation ev)) (:violation (:obligation ev))])
+    (param-str ev params)))
 
 (defn initiates [trope]
   (let [params (get-params trope)
@@ -529,14 +526,17 @@ or STRING to string"
         ename (event-name (:name trope))
         header (str "% INITIATES: " (namify (:name trope)) " ----------")
         term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
-        events (remove :obligation (:events trope))
+        ;; events (remove :obligation (:events trope))
+        events (:events trope)
         imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
         tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        estrs (map #(event-str % params) events)
-        pstrs (map #(param-str % params) events)
-        perms (map perm estrs)
-        obls (map #(obl % params) (filter :obligation (:events trope)))
-        norms (concat perms obls)
+        ;; estrs (map #(event-str % params) events)
+        estrs (map #(norm-str % params) events)
+        pstrs (map #(norm-params % params) events)
+        ;; perms (map perm estrs)
+        ;; oblis (map #(obl % params) (filter :obligation (:events trope)))
+        ;; norms (concat perms oblis)
+        norms estrs
         ;; norms perms
         phases (make-phases ename (count events))
         evec (conj (into [] (map vector (rest phases) norms)) [(last phases)])
@@ -553,45 +553,6 @@ or STRING to string"
     (concat [header] init-a init-s [term-header] term-a term-o)
     ))
 
-
-#_(defn initiates [trope roles objects]
-  (let [inst (str (inst-name (:name trope)))
-        ename (event-name (:name trope))
-        header (str "% INITIATES: " (namify (:name trope)) " ----------")
-        term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
-        events (:events trope)
-        situations (:situations trope)
-        sitnorms (first (map :norms situations))
-        wstrs (map #(event-str (:when %)) situations)
-        wpvec (map #(perm (event-str (:permission %))) sitnorms)
-        wpparams (filter some? (map #(unify-params (:permission %) roles objects) sitnorms))
-        wperms (map perm wstrs)
-        estrs (map event-str events)
-        perms (map perm estrs)
-        wparams (map #(unify-params (:when %) roles objects) situations)
-        params (map #(unify-params % roles objects) events)
-        phases (make-phases ename (count events))
-        mphases (rest phases)
-        imake (fn [iname evs cnds] (str iname " initiates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        tmake (fn [iname evs cnds] (str iname " terminates " (reduce str (interpose ", " evs)) " if " (reduce str (interpose ", " cnds)) ";"))
-        evec (conj (into [] (map vector mphases perms)) [(last phases)])
-        tvec (conj (into [] (map vector (butlast mphases) perms)) [(last phases)])
-        cvec (conj (into [] (map conj params phases)) [(last (butlast mphases))])
-        svec (map vector wperms)
-        init-a (map imake (repeat inst) evec cvec)
-        term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) perms)) [(last phases)])) tvec)
-        init-b (map imake (repeat inst) svec wparams)
-        init-c (map imake (repeat (first (map #(str "int" (cap-first (str %))) wstrs))) (map vector wpvec) wpparams)
-        ]
-    ;; (imake (first evec) (first cvec))
-    ;; (map imake (repeat inst) evec cvec)
-    ;; (map imake (repeat inst) svec wparams)
-    ;; (map imake (map inst-name wstrs) (map vector wpvec) wpparams)
-    (concat [header] init-a init-b init-c [term-header] term-a)
-    ;; (concat [header] init-a init-b init-c [term-header] term-a)
-    ;; wpvec
-    ;; events
-    ))
 
 (defn instal [hmap]
   (let [;; initiallys [(str "initially\n    " (reduce str (interpose ",\n    " (mapcat #(initially % story) (:tropes hmap)))) ";")]

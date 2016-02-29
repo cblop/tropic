@@ -18,6 +18,7 @@
             ])
 
 (def test5 [
+            "go(lukeSkywalker, tatooine)"
             "meet(lukeSkywalker, obiWan)"
             "gets(lukeSkywalker, lightsaber)"
             "go(lukeSkywalker, space)"
