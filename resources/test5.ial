@@ -43,7 +43,8 @@ intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseC), perm(meet(R,
 intHerosJourney(R, S, T, U) terminates phase(herosJourney, phaseD), perm(go(R, U)) if phase(herosJourney, phaseD);
 intHerosJourney(R, S, T, U) terminates phase(herosJourney, done) if phase(herosJourney, done);
 % GENERATES: The Hero's Journey ----------
-go(R, U) generates intHerosJourney(R, S, T, U) if role(R, hero), place(U, home);
+%% go(R, U) generates intHerosJourney(R, S, T, U) if role(R, hero), place(U, home);
+%% go(R, T) generates intHerosJourney(R, S, T, U) if role(R, hero), place(T, away);
 meet(R, S) generates intHerosJourney(R, S, T, U) if role(S, dispatcher), role(R, hero);
 
 % INITIALLY: -----------
