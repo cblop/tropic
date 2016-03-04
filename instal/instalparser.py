@@ -1,5 +1,10 @@
 #------------------------------------------------------------------------
 # VERSION TWO REVISION HISTORY:
+# 20160203 JAP: added instal_print_all method
+# 20150708 JAP: merged changes from instalparser_v2 in pyinstal directory
+# 20150708 JAP: changed pattern in t_NAME to allow underscore as first character
+# 20150623 TL: fixed error on obligation fluent. 
+# 20150618 TL: added comparison operators '>' and '<', '>=' and '<=' 
 # 20140618 JAP: removed ) that caused parse error in initiation of null events
 # 20140601 TL: corrected other aspects regarding noninertial fluents
 # 20140528 TL: corrected noninertial initiation to holdsat from initiated
@@ -102,7 +107,7 @@ class myLexer():
         'when'        : 'WHEN',
         }
 
-    tokens =  ['NAME','TYPE_NAME','NUMBER','LPAR','RPAR','SEMI','COMMA','EQUALS','NOTEQUAL'] + list(reserved.values())
+    tokens =  ['NAME','TYPE_NAME','NUMBER','LPAR','RPAR','SEMI','COMMA','EQUALS','NOTEQUAL', 'LESS', 'GREATER', 'LESSEQ', 'GREATEREQ'] + list(reserved.values())
 
     # Tokens
 
@@ -114,7 +119,7 @@ class myLexer():
     t_NOTEQUAL = r'!='
 
     def t_NAME(self,t):
-        r'[a-z][a-zA-Z_0-9]*'
+        r'[a-z_][a-zA-Z_0-9]*' # changed to allow _ to start a variable name
         t.type = self.reserved.get(t.value,'NAME')    # Check for reserved words
         return t
     
@@ -204,7 +209,7 @@ class makeInstalParser():
     def check_fluent_or_op(self,p):
         if not ((p[0] in self.fluents) or
                 (p[0] in self.noninertial_fluents) or
-                (p[0] in ['==','!='])):
+                (p[0] in ['==','!=', '<', '>'])):
             self.instal_error(
                 "% ERROR: Not a fluent/operator in {x}"
                 .format(x=p)) # needs prettifying
@@ -435,6 +440,10 @@ class makeInstalParser():
     def p_expr(self,p):
         """ expr : term EQUALS term
             expr : term NOTEQUAL term
+            expr : term LESS term
+            expr : term LESSEQ term
+            expr : term GREATER term
+            expr : term GREATEREQ term
         """
         p[0] = [p[2],[p[1],p[3]]]
 
@@ -726,6 +735,14 @@ class makeInstalParser():
             self.instal_print("   {l}=={r},".format(l=c[1][0],r=c[1][1]))
         elif c[0]=='!=':
             self.instal_print("   {l}!={r},".format(l=c[1][0],r=c[1][1]))
+        elif c[0]=='<':
+            self.instal_print("   {l}<{r},".format(l=c[1][0],r=c[1][1]))
+        elif c[0]=='>':
+            self.instal_print("   {l}>{r},".format(l=c[1][0],r=c[1][1]))
+        elif c[0]=='<=':
+            self.instal_print("   {l}<={r},".format(l=c[1][0],r=c[1][1]))
+        elif c[0]=='>=':
+            self.instal_print("   {l}>={r},".format(l=c[1][0],r=c[1][1]))
         else:
             self.instal_print("   holdsat({fluent},{inst},I),"
                               .format(fluent=self.term2string(c), inst=self.names["institution"]))
@@ -759,7 +776,7 @@ class makeInstalParser():
                     for (t1,t2) in zip(evd[op],args):
                         if t2 in d:
                             if t1<>d[t2]:
-                                self.instal_error("% ERROR: {v} has type {t1} and type {t2}".format(v=t2,t1=t1,t2=d[t2]))
+                                self.instal_error("% ERROR: {v} has type {t1} and type {t2} in {t}".format(v=t2,t1=t1,t2=d[t2],t=t))
                         # only remember t2 if it is a variable (not a literal)
                         if self.isVar(t2): d[t2] = t1
                     # print "after collectVars: d = ",d
@@ -1069,6 +1086,17 @@ true.\
                                       .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=self.names["institution"]))
                
             # The 2nd obligation rule 
+            self.instal_print("ifluent(obl({e},{d},{v}), {inst}) :-".format(e=e,d=d,v=v,inst=self.names["institution"]))   #20150623 TL
+            if e_event:
+                self.instal_print("   event({e}),".format(e=e))       
+            if e_fluent:
+                self.instal_print("   fluent({e},{inst}),".format(e=e,inst=self.names["institution"])) 
+            if d_event:
+                self.instal_print("   event({d}),".format(d=d))
+            if d_fluent:
+                self.instal_print("   fluent({d},{inst}),".format(d=d,inst=self.names["institution"])) 
+            self.instal_print("   event({v}), {te},{td},{tv},inst({inst})."
+                                      .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=self.names["institution"]))
             self.instal_print("fluent(obl({e},{d},{v}), {inst}) :-".format(e=e,d=d,v=v,inst=self.names["institution"]))
             if e_event:
                 self.instal_print("   event({e}),".format(e=e))       
@@ -1335,10 +1363,10 @@ true.\
                         if not(cond==[]):
                             #instal_print("   {x},".format(x=extendedterm2string(cond)))
                             self.instal_print(
-                                "   holdsat({x},I),"
-                                .format(x=self.extendedterm2string(cond))) #TL:20130118
+                                "   holdsat({x},{inst},I),"
+                                .format(x=self.extendedterm2string(cond),inst=names["institution"])) #TL:20130118
                         # JAP 20130224: instant or start??
-                        self.instal_print("   instant(I).")
+                        self.instal_print("   inst({inst}), instant(I).".format(inst=self.names["institution"]))
 
     def instal_print_dissolve(self):
         # dissolve
@@ -1355,6 +1383,43 @@ true.\
 
 #------------------------------------------------------------------------
 
+    def instal_print_all(self):
+        self.instal_print("%\n% "
+                          "-------------------------------"
+                          "PART 1"
+                          "-------------------------------"
+                          "\n%")
+        self.instal_print_standard_prelude()
+        self.instal_print_constraints()
+        self.instal_print_types()
+        self.instal_print_exevents()
+        self.instal_print_nullevent()
+        self.instal_print_inevents()
+        self.instal_print_vievents()
+        self.instal_print_crevents()
+        self.instal_print_dievents()
+        self.instal_print_dissolve()
+        self.instal_print_inertial_fluents()
+        self.instal_print_noninertial_fluents()
+        self.instal_print_violation_fluents()
+        self.instal_print_obligation_fluents()
+        self.instal_print("%\n% "
+                          "-------------------------------"
+                          "PART 2"
+                          "-------------------------------"
+                          "\n%")
+        self.instal_print_generates()
+        self.instal_print_initiates()
+        self.instal_print_terminates()
+        self.instal_print_noninertials()
+        self.instal_print("%\n% "
+                          "-------------------------------"
+                          "PART 3"
+                          "-------------------------------"
+                          "\n%")
+        self.instal_print_initially()
+        self.instal_print("%\n% End of file\n%")
+        
     # def instal_parse(d):
     #     yacc.yacc()
     #     yacc.parse(d)

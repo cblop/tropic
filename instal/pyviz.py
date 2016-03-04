@@ -3,6 +3,8 @@
 #------------------------------------------------------------------------
 # REVISION HISTORY
 # add new entries here at the top tagged by date and initials
+# JAP 20151208: additional provenance data recorded in output
+# JAP 20151204: fixed problem in data selection for "what"
 # JAP 20140810: add tableWidth parameter to specify width in cm of state
 # JAP 20140723: fixed off-by-one error in number of states
 # JAP 20140723: rewrote indentation of state tables to use description list
@@ -29,6 +31,7 @@ from itertools import izip
 from itertools import count
 import argparse
 from math import ceil
+from datetime import date
 
 class myLexer():
 
@@ -156,29 +159,30 @@ for line in document:#sys.stdin:
     for term in re.split(' ',line):
         mylex.lexer.input(term)
         l = [tok.value for tok in mylex.lexer]
-        # print("tok.value = ",l)
+        print("% tok.value = ",l)
         if l==[]: continue # skip blanks
         if l[0] in ['holdsat','observed','initiated','terminated','occurred']:
             # some rather tacky dead-reckoning
+            # JAP 20151204: changed [2:-3] to [2:-5] to suppress inst duplication
             what = string.join(l[2:-5],'').replace('_','\_').replace(',',', ').replace('(','(\\allowbreak{}') # allows line breaks after a left paren
-            where = l[-4]
+            where = ": "+l[-4]
             when = int(l[-2])
             # print(what,where,when)
             if l[0]=='holdsat':
                 # processHoldsat(l)
-                holdsat[when].append(what+": "+where)
+                holdsat[when].append(what+where)
             elif l[0]=='observed':
                 # processObserved(l)
-                observed[when].append(what+": "+where)
+                observed[when].append(what+where)
             elif l[0]=='initiated':
                 # processInitiated(l)
-                initiated[when].append(what+": "+where)
+                initiated[when].append(what+where)
             elif l[0]=='terminated':
                 # processTerminated(l)
-                terminated[when].append(what+": "+where)
+                terminated[when].append(what+where)
             elif l[0]=='occurred':
                 # processOccurred(l)
-                occurred[when].append(what+": "+where) if what!='null' else False
+                occurred[when].append(what+where) if what!='null' else False
         else:
             print("% skipping \"{term}\""
                   .format(term=string.join(l,'')))
@@ -192,7 +196,7 @@ event_count=max(len(occurred),len(observed))
 inst_count=max(len(holdsat),len(initiated),len(terminated))
 # note: default selected states extended by 1 to account for nth event
 # leading to n+1th state
-selected_states = parse_range(args.states) if args.states else set(range(0,max(event_count,inst_count)+1))
+selected_states = parse_range(args.states) if args.states else set(range(0,max(event_count,inst_count)))
 nstates=len(selected_states)
 displayWidth=nstates if displayWidth==0 else displayWidth
 
@@ -233,7 +237,7 @@ for t in range(0,max(event_count,inst_count)+1):
              "\\item \\textbf{"+x+"}\n" # bold new fluents
              for x in sorted(holdsat[t]) if x not in terminated[t]],'')
                  + string.join(
-            ["\\item \\textbf{"+x+"}\n" for x in sorted(initiated[t])],'')
+            ["\\item \\textbf{"+x+"}\n" for x in sorted(initiated[t])],'') # Tingting wants this to be initiated[t-1]
                  # then inertial ones
                  + string.join(
             ["\\item "+x+"\n" if (t>0) and
@@ -274,13 +278,21 @@ for r in states_by_row:
                       "node[above]{{}}(i{i});"
                       .format(i=t))
                 # provenance of trace
-                print("\\draw(i{i})+(-\\labelOffset,0)node[rotate=90,anchor=south]"
-                      "{{Answer set={a}, source={f}}};"
+                x=date.today()
+                x=x.timetuple()
+                print("\\draw(i{i})+(-\\labelOffset,0)"
+                      "node[rotate=90,anchor=south]"
+                      "{{\\begin{{tabular}}{{r@{{}}l}}"
+                      "Answer set: &{a}\\\\source: &{f}\\\\date: &{y}-{m}-{d}"
                       .format(
                         i=t,
                         a=answer_set,
+                        y=x.tm_year,
+                        m=str(x.tm_mon).zfill(2),
+                        d=str(x.tm_mday).zfill(2),
                         f=args.answerset_file.replace('_','\_') if args.answerset_file
-                        else 'stdin'))
+                        else 'stdin')+
+                      "\\end{tabular}};")
             else:
                 print("\draw[-latex,dashed](i{i})+(180:\\horizontalOffset) --"
                       "node[above]{l}(i{i});"

@@ -119,14 +119,14 @@ obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).
   evtype(viol(meet(Agent0,Agent1)), starWars, viol) :- agent(Agent0),agent(Agent1).
   evinst(viol(meet(Agent0,Agent1)),starWars) :- agent(Agent0),agent(Agent1).
 % Event: noDeadline (type: ex)
-  event(noDeadline) :- true.
-  evtype(noDeadline,starWars,ex) :- true.
-  evinst(noDeadline,starWars) :- true.
-  ifluent(perm(noDeadline), starWars) :- true.
-  fluent(perm(noDeadline), starWars) :- true.
-  event(viol(noDeadline)) :- true.
-  evtype(viol(noDeadline), starWars, viol) :- true.
-  evinst(viol(noDeadline),starWars) :- true.
+  event(noDeadline(Agent0)) :- agent(Agent0).
+  evtype(noDeadline(Agent0),starWars,ex) :- agent(Agent0).
+  evinst(noDeadline(Agent0),starWars) :- agent(Agent0).
+  ifluent(perm(noDeadline(Agent0)), starWars) :- agent(Agent0).
+  fluent(perm(noDeadline(Agent0)), starWars) :- agent(Agent0).
+  event(viol(noDeadline(Agent0))) :- agent(Agent0).
+  evtype(viol(noDeadline(Agent0)), starWars, viol) :- agent(Agent0).
+  evinst(viol(noDeadline(Agent0)),starWars) :- agent(Agent0).
 %
 % null event for unknown events
 % Event: null (type: ex)
@@ -154,9 +154,9 @@ obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).
 % Violation events
 %
 % Event: noViolation (type: in)
-  event(noViolation) :- true.
-  evtype(noViolation,starWars,viol) :- true.
-  evinst(noViolation,starWars) :- true.
+  event(noViolation(Agent0)) :- agent(Agent0).
+  evtype(noViolation(Agent0),starWars,viol) :- agent(Agent0).
+  evinst(noViolation(Agent0),starWars) :- agent(Agent0).
 %
 % Creation events
 %
@@ -212,29 +212,33 @@ fluent(at(Agent0,Place1),starWars) :-
 %
 % obligation fluents
 %
-oblfluent(obl(go(Agent0,PlaceName1),noDeadline,noViolation), starWars) :-
+oblfluent(obl(go(Agent0,PlaceName1),noDeadline(Agent2),noViolation(Agent3)), starWars) :-
    event(go(Agent0,PlaceName1)),
-   event(noDeadline),
-   event(noViolation), agent(Agent0),placename(PlaceName1),true,true,inst(starWars).
-fluent(obl(go(Agent0,PlaceName1),noDeadline,noViolation), starWars) :-
+   event(noDeadline(Agent2)),
+   event(noViolation(Agent3)), agent(Agent0),placename(PlaceName1),agent(Agent2),agent(Agent3),inst(starWars).
+ifluent(obl(go(Agent0,PlaceName1),noDeadline(Agent2),noViolation(Agent3)), starWars) :-
    event(go(Agent0,PlaceName1)),
-   event(noDeadline),
-   event(noViolation), agent(Agent0),placename(PlaceName1),true,true,inst(starWars).
-terminated(obl(go(Agent0,PlaceName1),noDeadline,noViolation),starWars,I) :-
+   event(noDeadline(Agent2)),
+   event(noViolation(Agent3)), agent(Agent0),placename(PlaceName1),agent(Agent2),agent(Agent3),inst(starWars).
+fluent(obl(go(Agent0,PlaceName1),noDeadline(Agent2),noViolation(Agent3)), starWars) :-
+   event(go(Agent0,PlaceName1)),
+   event(noDeadline(Agent2)),
+   event(noViolation(Agent3)), agent(Agent0),placename(PlaceName1),agent(Agent2),agent(Agent3),inst(starWars).
+terminated(obl(go(Agent0,PlaceName1),noDeadline(Agent2),noViolation(Agent3)),starWars,I) :-
    event(go(Agent0,PlaceName1)), occurred(go(Agent0,PlaceName1),starWars,I),
-   event(noDeadline),
-   holdsat(obl(go(Agent0,PlaceName1),noDeadline,noViolation),starWars,I),
-   event(noViolation), agent(Agent0),placename(PlaceName1),true,true,inst(starWars).
-terminated(obl(go(Agent0,PlaceName1),noDeadline,noViolation),starWars,I) :-
+   event(noDeadline(Agent2)),
+   holdsat(obl(go(Agent0,PlaceName1),noDeadline(Agent2),noViolation(Agent3)),starWars,I),
+   event(noViolation(Agent3)), agent(Agent0),placename(PlaceName1),agent(Agent2),agent(Agent3),inst(starWars).
+terminated(obl(go(Agent0,PlaceName1),noDeadline(Agent2),noViolation(Agent3)),starWars,I) :-
    event(go(Agent0,PlaceName1)), 
-   event(noDeadline), occurred(noDeadline,starWars,I),
-   holdsat(obl(go(Agent0,PlaceName1),noDeadline,noViolation),starWars,I),
-   event(noViolation), agent(Agent0),placename(PlaceName1),true,true,inst(starWars).
-occurred(noViolation,starWars,I) :-
+   event(noDeadline(Agent2)), occurred(noDeadline(Agent2),starWars,I),
+   holdsat(obl(go(Agent0,PlaceName1),noDeadline(Agent2),noViolation(Agent3)),starWars,I),
+   event(noViolation(Agent3)), agent(Agent0),placename(PlaceName1),agent(Agent2),agent(Agent3),inst(starWars).
+occurred(noViolation(Agent3),starWars,I) :-
    event(go(Agent0,PlaceName1)), 
-   event(noDeadline), occurred(noDeadline,starWars,I),
-   holdsat(obl(go(Agent0,PlaceName1),noDeadline,noViolation),starWars,I),
-   event(noViolation), agent(Agent0),placename(PlaceName1),true,true,inst(starWars).
+   event(noDeadline(Agent2)), occurred(noDeadline(Agent2),starWars,I),
+   holdsat(obl(go(Agent0,PlaceName1),noDeadline(Agent2),noViolation(Agent3)),starWars,I),
+   event(noViolation(Agent3)), agent(Agent0),placename(PlaceName1),agent(Agent2),agent(Agent3),inst(starWars).
 %
 % -------------------------------PART 2-------------------------------
 %
@@ -253,15 +257,15 @@ occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(meet(R,S),starWars,I),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of go(R,T) generates intHerosJourney(R,S,T,U) if ['and', ['role', ['R', 'hero']], ['place', ['T', 'away']]] in 
-occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(go(R,T),starWars,I),
+% Translation of go(R,U) generates intHerosJourney(R,S,T,U) if ['and', ['role', ['R', 'hero']], ['place', ['U', 'home']]] in 
+occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(go(R,U),starWars,I),
    holdsat(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I),
    holdsat(role(R,hero),starWars,I),
-   holdsat(place(T,away),starWars,I),
+   holdsat(place(U,home),starWars,I),
    agent(R),
-   placename(T),
-   agent(S),
    placename(U),
+   agent(S),
+   placename(T),
    inst(starWars), instant(I).
 %
 % initiate rules
@@ -335,28 +339,26 @@ initiated(perm(meet(R,S)),starWars,I) :-
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T,U) initiates ['phase', ['herosJourney', 'phaseB']] if ['and', ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['R', 'hero']]], ['place', ['T', 'away']]]
+% Translation of intHerosJourney(R,S,T,U) initiates ['phase', ['herosJourney', 'phaseB']] if ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['R', 'hero']]]
 %
 initiated(phase(herosJourney,phaseB),starWars,I) :-
    occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I), inst(starWars),
    holdsat(phase(herosJourney,phaseA),starWars,I),
    holdsat(role(R,hero),starWars,I),
-   holdsat(place(T,away),starWars,I),
    agent(S),
    agent(R),
    placename(U),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T,U) initiates ['obl', [['go', ['Agent', 'PlaceName']], ['noDeadline', []], ['noViolation', []]]] if ['and', ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['R', 'hero']]], ['place', ['T', 'away']]]
+% Translation of intHerosJourney(R,S,T,U) initiates ['obl', [['go', ['Agent', 'PlaceName']], ['noDeadline', ['Agent']], ['noViolation', ['Agent']]]] if ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['R', 'hero']]]
 %
-initiated(obl(go(Agent,PlaceName),noDeadline,noViolation),starWars,I) :-
+initiated(obl(go(Agent,PlaceName),noDeadline(Agent),noViolation(Agent)),starWars,I) :-
    occurred(intHerosJourney(R,S,T,U),starWars,I),
    holdsat(live(starWars),starWars,I), inst(starWars),
    holdsat(phase(herosJourney,phaseA),starWars,I),
    holdsat(role(R,hero),starWars,I),
-   holdsat(place(T,away),starWars,I),
    agent(S),
    agent(R),
    placename(U),
@@ -552,32 +554,32 @@ initiated(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I) :-
    agent(R),
    placename(U),
    placename(T),
-   instant(I).
+   inst(starWars), instant(I).
 % initially: phase(herosJourney,inactive)
 initiated(phase(herosJourney,inactive),starWars,I) :-
    occurred(startShow,starWars,I),
    not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+   inst(starWars), instant(I).
 % initially: role(lukeSkywalker,hero)
 initiated(role(lukeSkywalker,hero),starWars,I) :-
    occurred(startShow,starWars,I),
    not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+   inst(starWars), instant(I).
 % initially: role(obiWan,dispatcher)
 initiated(role(obiWan,dispatcher),starWars,I) :-
    occurred(startShow,starWars,I),
    not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+   inst(starWars), instant(I).
 % initially: place(tatooine,home)
 initiated(place(tatooine,home),starWars,I) :-
    occurred(startShow,starWars,I),
    not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+   inst(starWars), instant(I).
 % initially: place(space,away)
 initiated(place(space,away),starWars,I) :-
    occurred(startShow,starWars,I),
    not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+   inst(starWars), instant(I).
 %
 % End of file
 %
