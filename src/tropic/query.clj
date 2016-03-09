@@ -21,10 +21,10 @@
 
 (defn make-query [q]
   (let [post (for [x (vec (range (count q)))
-                 :let [y (str "observed(" (nth q x) ",starWars," (+ 1 x) ").")]]
+                 :let [y (str "observed(" (nth q x) ",starWars," x ").")]]
                y)
         post-string (str/join "\n" post)]
-    (spit "resources/query.lp" (str "observed(startShow,starWars,0).\n" post-string))))
+    (spit "resources/query.lp" post-string)))
 
 (defn make-timeline [qlength] (spit "resources/timeline.lp" (str "start(0).\ninstant(0..T) :- final(T).\nnext(T,T+1) :- instant(T).\nfinal(" qlength ").")))
 
@@ -46,7 +46,9 @@
     (strip-lives (filter #(re-matches (re-pattern (str "holdsat..*.," qlength ".")) %) res))))
 
 (defn get-obls [state]
-  (filter #(.contains % "obl(") state))
+  (->> state
+       (filter #(.contains % "obl("))
+       (remove #(.contains % "null"))))
 
 (defn get-perms [state]
   (->> state

@@ -1,5 +1,6 @@
 #------------------------------------------------------------------------
 # VERSION TWO REVISION HISTORY:
+# 20160307 JAP: enhanced printing of conditions in initially
 # 20160203 JAP: added instal_print_all method
 # 20150708 JAP: merged changes from instalparser_v2 in pyinstal directory
 # 20150708 JAP: changed pattern in t_NAME to allow underscore as first character
@@ -1291,9 +1292,7 @@ true.\
                 self.instal_print("% initially: {x}"
                                   .format(x=self.extendedterm2string(i)))
                 if not(cond==[]):
-                    self.instal_print(
-                        "% condition: {x}"
-                        .format(x=self.extendedterm2string(cond)))
+                    self.instal_print("% condition: {x}".format(x=cond))
                 self.instal_print("holdsat({inf},{inst},I) :-"
                              .format(inst=self.names["institution"], inf=self.extendedterm2string(i)))
                 self.collectVars(i,fvars)
@@ -1303,9 +1302,12 @@ true.\
                         .format(pred=self.types[fvars[k]],tvar=k))
                 if not(cond==[]):
                     #instal_print("   {x},".format(x=extendedterm2string(cond)))
-                    self.instal_print(
-                        "   holdsat({x},{inst},I),"
-                        .format(inst=self.names["institution"], x=self.extendedterm2string(cond))) #TL:20130118
+                    # self.instal_print(
+                    #     "   holdsat({x},{inst},I),"
+                    #     .format(inst=self.names["institution"], x=self.extendedterm2string(cond))) #TL:20130118
+                    # JAP: 20160307 commented out lines above and added line
+                    #               below after bug processing Matt's test5.ial
+                    self.printCondition(cond)
                 self.instal_print("   inst({inst}), start(I).".format(inst=self.names["institution"]))
         else:
             self.instal_print("% at least one create event")

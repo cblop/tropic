@@ -59,7 +59,9 @@
     (spit "swout.edn" "")
     (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
 
-(doall (map norms-at-state (range (count test1))))
+(doall (map norms-at-state (range (count test5))))
+
+;; (get-state 3)
 
 (norms-at-state 0)
 (norms-at-state 1)

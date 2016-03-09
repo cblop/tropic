@@ -106,6 +106,30 @@ or STRING to string"
 (defn perm [ev]
   (str "perm(" ev ")"))
 
+(defn obl-p [{:keys [obligation deadline violation]} params]
+  (let [obl (if (nil? obligation) ""
+                (->> obligation
+                    (ev-types)
+                    (interpose ", ")
+                    (reduce str)
+                    ;; (reduce str (param-str params))
+                    ))
+        dead (if (nil? deadline) "noDeadline"
+                 (->> deadline
+                     (ev-types)
+                     (interpose ", ")
+                     (reduce str)
+                     ;; (reduce str (param-str params))
+                     ))
+        viol (if (nil? violation) "noViolation"
+                 (->> violation
+                     (ev-types)
+                     (interpose ", ")
+                     (reduce str)
+                     ;; (reduce str)(param-str params)
+                     ))]
+    (str "obl(" (:verb obligation) "(" obl "), " dead ", " viol ");")))
+
 (defn obl [{:keys [obligation deadline violation]} params]
   (let [obl (if (nil? obligation) ""
                 (-> obligation
@@ -302,6 +326,64 @@ or STRING to string"
         strng (fn [x y] (str "violation event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
     (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["violation event noViolation;"])))
 
+(defn get-param-obls [trope]
+  (let [
+        obls (map :obligation (filter :obligation (:events trope)))
+        deads (map :deadline (filter :deadline obls))
+        ;; deads (if (empty? ds) [{:verb "noDeadline"}] ds)
+        viols (map :violation (filter :violation obls))
+        ;; viols (if (empty? vs) [{:verb "noViolation"}] vs)
+        os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
+        oevs (concat os deads viols)
+        oparams (get-obl-params trope)
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        ;; pobls (map #(perm (event-str % oparams)) os)
+        ;; pdeads (map #(perm (event-str % oparams)) deads)
+        ;; ostrs (into [] (set (map #(event-str % oparams) oevs)))
+        stypes (fn [x] (flatten (vector
+                                 (take (count (:roles x)) (repeat "Agent"))
+                                 (take (count (:objects x)) (repeat "ObjectName"))
+                                 (take (count (:places x)) (repeat "PlaceName"))
+                                 (take (count (:quests x)) (repeat "Quest"))
+                                 )))
+        ot (map stypes oparams)
+        pobls (map #(obl-p % oparams) (filter :obligation (:events trope)))
+        ostrs (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " ot)) ")") deads)
+        oifs (mapcat #(param-str % oparams) oevs)
+        o (println "oifs: ")
+        p (println oifs)
+        ]
+    {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
+
+(defn get-obls [trope]
+  (let [
+        obls (map :obligation (filter :obligation (:events trope)))
+        deads (map :deadline (filter :deadline obls))
+        ;; deads (if (empty? ds) [{:verb "noDeadline"}] ds)
+        viols (map :violation (filter :violation obls))
+        ;; viols (if (empty? vs) [{:verb "noViolation"}] vs)
+        os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
+        oevs (concat os deads viols)
+        oparams (get-obl-params trope)
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        pobls (map #(obl % oparams) (filter :obligation (:events trope)))
+        ;; pobls (map #(perm (event-str % oparams)) os)
+        ;; pdeads (map #(perm (event-str % oparams)) deads)
+        ;; ostrs (into [] (set (map #(event-str % oparams) oevs)))
+        ostrs (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") deads)
+        oifs (mapcat #(param-str % oparams) oevs)
+        o (println "oifs: ")
+        p (println oifs)
+        ]
+    {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
+
+(defn obl-events [trope]
+  (let [header (str "% OBLIGATION FLUENTS: " (namify (:name trope)) " ----------")
+        obls (get-param-obls trope)
+        strng (fn [x] (str "obligation fluent " (reduce str x)))]
+        (cons header (into [] (map strng (:evs obls))))))
+
+
 (defn inst-events [trope]
   (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
         nm (inst-name (:name trope))
@@ -441,27 +523,6 @@ or STRING to string"
           {}
           maps))
 
-(defn get-obls [trope]
-  (let [
-        obls (map :obligation (filter :obligation (:events trope)))
-        deads (map :deadline (filter :deadline obls))
-        ;; deads (if (empty? ds) [{:verb "noDeadline"}] ds)
-        viols (map :violation (filter :violation obls))
-        ;; viols (if (empty? vs) [{:verb "noViolation"}] vs)
-        os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
-        oevs (concat os deads viols)
-        oparams (get-obl-params trope)
-        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
-        pobls (map #(obl % oparams) (filter :obligation (:events trope)))
-        ;; pobls (map #(perm (event-str % oparams)) os)
-        ;; pdeads (map #(perm (event-str % oparams)) deads)
-        ;; ostrs (into [] (set (map #(event-str % oparams) oevs)))
-        ostrs (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") deads)
-        oifs (mapcat #(param-str % oparams) oevs)
-        o (println "oifs: ")
-        p (println oifs)
-        ]
-    {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
 
 (defn initially [hmap]
   (let [
@@ -486,7 +547,11 @@ or STRING to string"
         phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
         phases (map #(event-name (:name %)) (:tropes hmap))
         phasestrs (map phasefn phases)
-        powfn (fn [x] (str "pow(" (inst-name (:name x)) "(" (reduce str (interpose ", " (inst-letters x))) "))"))
+        powfn (fn [x] (let [letters (inst-letters x)
+                            cnds (reduce str (flatten (interpose ", " (map #(interpose "!=" %) (partition 2 letters)))))]
+                        (str "pow(" (inst-name (:name x))
+                             "(" (reduce str (interpose ", " letters))
+                             ")) if " cnds)))
         situations (mapcat :situations (:tropes hmap))
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
@@ -561,13 +626,14 @@ or STRING to string"
         create ["% CREATION EVENT -----------" "create event startShow;\n"]
         exts (mapcat external-events (:tropes hmap))
         insts (mapcat inst-events (:tropes hmap))
+        obls (mapcat obl-events (:tropes hmap))
         inits (mapcat #(initiates %) (:tropes hmap))
         gens (mapcat generates (:tropes hmap))
         viols (mapcat viol-events (:tropes hmap))
        ]
     ;; (get-params (first (:tropes hmap))))
     ;; (reduce str (interpose "\n" (concat types fluents exts ["\n"] insts ["\n"] inits ["\n"] gens))))
-    (reduce str (interpose "\n" (concat inst-name types fluents exts viols create insts inits gens initiallys))))
+    (reduce str (interpose "\n" (concat inst-name types fluents obls exts viols create insts inits gens initiallys))))
   )
 
 (defn instal-gen [text]
