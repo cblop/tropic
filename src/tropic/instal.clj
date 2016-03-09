@@ -106,6 +106,20 @@ or STRING to string"
 (defn perm [ev]
   (str "perm(" ev ")"))
 
+(defn ev-types [event]
+  (let [roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
+        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        places (map event-name (vals (select-keys event [:place])))
+        quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        types (flatten (vector
+                        (take (count roles) (repeat "Agent"))
+                        (take (count objects) (repeat "ObjectName"))
+                        (take (count places) (repeat "PlaceName"))
+                        (take (count quests) (repeat "Quest")))
+                       )]
+    types
+    ))
+
 (defn obl-p [{:keys [obligation deadline violation]} params]
   (let [obl (if (nil? obligation) ""
                 (->> obligation
@@ -286,19 +300,6 @@ or STRING to string"
      :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
      :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
-(defn ev-types [event]
-  (let [roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
-        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
-        places (map event-name (vals (select-keys event [:place])))
-        quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
-        types (flatten (vector
-                        (take (count roles) (repeat "Agent"))
-                        (take (count objects) (repeat "ObjectName"))
-                        (take (count places) (repeat "PlaceName"))
-                        (take (count quests) (repeat "Quest")))
-                       )]
-    types
-    ))
 
 (defn external-events [trope]
   (let [header (str "% EXTERNAL EVENTS: " (namify (:name trope)) " ----------")
@@ -354,6 +355,19 @@ or STRING to string"
         p (println oifs)
         ]
     {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
+
+(defn in? 
+  "true if seq contains elm"
+  [seq elm]
+  (some #(= elm %) seq))
+
+(defn lookup-obl-letters [trope obl]
+  (let [params (get-obl-params trope)
+        vs (map event-name (vals (dissoc obl :verb)))
+        ps (apply concat (vals params))
+        ls (map second (filter #(in? vs (first %)) ps))]
+    ls))
+
 
 (defn get-obls [trope]
   (let [
@@ -445,21 +459,9 @@ or STRING to string"
     (take num PARAMS)))
 
 
-(defn in? 
-  "true if seq contains elm"
-  [seq elm]
-  (some #(= elm %) seq))
-
 (defn lookup-sit-letters [trope sit]
   (let [params (get-sit-params trope)
         vs (map event-name (vals (dissoc (:when sit) :verb)))
-        ps (apply concat (vals params))
-        ls (map second (filter #(in? vs (first %)) ps))]
-    ls))
-
-(defn lookup-obl-letters [trope obl]
-  (let [params (get-obl-params trope)
-        vs (map event-name (vals (dissoc obl :verb)))
         ps (apply concat (vals params))
         ls (map second (filter #(in? vs (first %)) ps))]
     ls))
@@ -551,7 +553,8 @@ or STRING to string"
                             cnds (reduce str (flatten (interpose ", " (map #(interpose "!=" %) (partition 2 letters)))))]
                         (str "pow(" (inst-name (:name x))
                              "(" (reduce str (interpose ", " letters))
-                             ")) if " cnds)))
+                             ;; ")) if " cnds)))
+                             "))")))
         situations (mapcat :situations (:tropes hmap))
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
@@ -633,7 +636,7 @@ or STRING to string"
        ]
     ;; (get-params (first (:tropes hmap))))
     ;; (reduce str (interpose "\n" (concat types fluents exts ["\n"] insts ["\n"] inits ["\n"] gens))))
-    (reduce str (interpose "\n" (concat inst-name types fluents obls exts viols create insts inits gens initiallys))))
+    (reduce str (interpose "\n" (concat inst-name types fluents exts viols insts obls inits gens initiallys))))
   )
 
 (defn instal-gen [text]
