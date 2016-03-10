@@ -120,8 +120,10 @@ or STRING to string"
     types
     ))
 
-(defn obl-p [{:keys [obligation deadline violation]} params]
-  (let [obl (if (nil? obligation) ""
+(defn obl-p [{:keys [obligation]} params]
+  (let [deadline (:deadline obligation)
+        violation (:violation obligation)
+        obl (if (nil? obligation) ""
                 (->> obligation
                     (ev-types)
                     (interpose ", ")
@@ -142,24 +144,30 @@ or STRING to string"
                      (reduce str)
                      ;; (reduce str)(param-str params)
                      ))]
-    (str "obl(" (:verb obligation) "(" obl "), " dead ", " viol ");")))
+    (str "obl(" (:verb obligation) "(" obl "), " (:verb deadline) "(" dead ")" ", " viol ");")))
 
-(defn obl [{:keys [obligation deadline violation]} params]
-  (let [obl (if (nil? obligation) ""
+(defn obl [{:keys [obligation]} params]
+  (let [deadline (:deadline obligation)
+        violation (:violation obligation)
+        p (println "OBLS: ")
+        x (println params)
+        d (println "DEAD: ")
+        y (println (event-str deadline params))
+        obl (if (nil? obligation) ""
                 (-> obligation
                     (event-str params)
                     ;; (param-str params)
                     ))
         dead (if (nil? deadline) "noDeadline"
-                 (-> deadline
-                     (event-str params)
-                     ;; (param-str params)
-                     ))
+                 (event-str deadline params))
         viol (if (nil? violation) "noViolation"
                  (-> violation
                      (event-str params)
                      ;; (param-str params)
-                     ))]
+                     ))
+        s (println "WHAT: ")
+        t (println (str "obl(" obl ", " dead ", " viol ")"))
+        ]
             (str "obl(" obl ", " dead ", " viol ")")))
 
 (defn unify-params [params roles objects]
@@ -245,7 +253,7 @@ or STRING to string"
         viols (map :violation (filter :violation obls))
         os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
         ;; o (println "deads: ")
-        p (println obls)
+        ;; p (println obls)
         ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
         evs (concat os deads viols)
         roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
