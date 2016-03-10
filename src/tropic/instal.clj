@@ -82,12 +82,6 @@ or STRING to string"
     (format (flatten [rletters oletters pletters qletters]))
     ))
 
-#_(defn event-str
-  [event]
-  (let [estr (event-name (:verb event))
-        letters (take (- (count (vals event)) 1) PARAMS)]
-    (str estr "(" (reduce str (interpose ", " letters)) ")")))
-
 (defn sit-str
   [sit]
   (let [when (:when sit)
@@ -411,7 +405,7 @@ or STRING to string"
         nm (inst-name (:name trope))
         snms (map inst-name (map :verb (map :when (:situations trope))))
         onms (map inst-name (map :verb (map :obligation (filter :obligation (:events trope)))))
-        params (get-params trope)
+        params (get-all-params trope)
         sparams (map get-when-params (:situations trope))
         oparams (map get-dead-params (map :obligation (filter :obligation (:events trope))))
         types (flatten (vector
@@ -459,7 +453,7 @@ or STRING to string"
 
 
 (defn inst-letters [trope]
-  (let [params (get-params trope)
+  (let [params (get-all-params trope)
         num (reduce + [(count (:roles params))
                        (count (:objects params))
                        (count (:places params))
@@ -484,7 +478,7 @@ or STRING to string"
 
 
 (defn generates [trope]
-  (let [params (get-params trope)
+  (let [params (get-all-params trope)
         oparams (get-obl-params trope)
         obls (map :obligation (filter :obligation (:events trope)))
         deads (map :deadline (filter :deadline obls))
@@ -496,9 +490,9 @@ or STRING to string"
         header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
-        o (println "oparams: ")
-        p (println situations)
-        q (println oevs)
+        o (println "GENS: ")
+        p (println params)
+        ;; q (println oevs)
         ;; sit-conds (map :when (filter :when situations))
         wnames (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
         onames (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") oevs)
@@ -508,7 +502,7 @@ or STRING to string"
         ostrs (into [] (set (map #(event-str % oparams) oevs)))
         ;; wparams (map #(unify-params (:when %) roles objects) situations)
         gmake (fn [iname ev cnds] (str ev " generates " iname " if " (reduce str (interpose ", " cnds)) ";"))
-        estrs (into [] (set (map #(event-str % params) events)))
+        estrs (map #(event-str % params) events)
         pstrs (map #(param-str % params) events)
         wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
         ;; oifs (map (fn [x ys] (param-str x ys)) oevs oparams)
@@ -517,7 +511,7 @@ or STRING to string"
         ;; phases (make-phases ename (count events))
         ;; evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
         ;; cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
-        gen-a (map gmake (repeat inst) estrs pstrs)
+        gen-a (into [] (set (map gmake (repeat inst) estrs pstrs)))
         gen-s (map gmake wnames wstrs wifs)
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
         ]
@@ -597,7 +591,9 @@ or STRING to string"
     (param-str ev params)))
 
 (defn initiates [trope]
-  (let [params (get-params trope)
+  (let [params (get-all-params trope)
+        p (println "PARAMS: ")
+        q (println params)
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         ename (event-name (:name trope))
         header (str "% INITIATES: " (namify (:name trope)) " ----------")
