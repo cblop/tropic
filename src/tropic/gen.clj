@@ -38,7 +38,7 @@
     ;; ;; :consequence (partial hash-map :consequence)
     :permission (fn [& args] (hash-map :permission (apply merge args)))
     :deadline (fn [& args] (hash-map :deadline (:consequence (first args))))
-    :violation (partial hash-map :violation)
+    :violation (fn [& args] (hash-map :violation (first (first args))))
     :visit (fn [& args] (hash-map :verb (first args) :place (:object (second args))))
     ;; :tropedef (fn [& args] {:trope (copy-meta (first args) (apply merge args))})
     :tropedef (fn [& args] {:trope {:name (first (get-by-key :name args))

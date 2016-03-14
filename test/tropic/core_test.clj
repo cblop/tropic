@@ -198,13 +198,18 @@
 (test-file "resources/test6.story")
 
 (parse-file "resources/test6.story")
+(parse-file "resources/test7.story")
+(nth (nth (nth (nth (parse-file "resources/test7.story") 1) 2) 2) 4)
 
 (make-map (parse-file "resources/test6.story") (parse-file "resources/test6.story"))
 (instal (make-map (parse-file "resources/test6.story") (parse-file "resources/test6.story")))
 
+(make-map (parse-file "resources/test7.story") (parse-file "resources/test7.story"))
+
 (instal-file "resources/test4.story" "resources/test4.ial")
 (instal-file "resources/test5.story" "resources/test5.ial")
 (instal-file "resources/test6.story" "resources/test6.ial")
+(instal-file "resources/test7.story" "resources/test7.ial")
 
 (-main "resources/starwars.story" "resources/output.ial")
 
