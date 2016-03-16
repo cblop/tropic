@@ -319,15 +319,19 @@ or STRING to string"
     ;; (prn-str types)
   ;; ))
 
+(defn viol-name [obl]
+  (let [vstuff (->> obl
+                   (filter :deadline)
+                   (filter :violation)
+                   (vals)
+                )]
+    (str "viol" (reduce str vstuff))))
+
 (defn viol-events [trope]
   (let [header (str "% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
-        ;; params (get-obl-params trope)
-        viols (map #(-> % :obligation :violation) (:events trope))
-        types (map ev-types (:permission viols))
-        ;; types []
-        ;; all []
-        strng (fn [x y] (str "violation event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
-    (concat (cons header (into [] (set (map (fn [x y] (strng x y)) viols types)))) ["violation event noViolation;"])))
+        viols (filter :obligation (:events trope))
+        strng (fn [x] (str "violation event " (viol-name x) "(" ")" ";"))]
+    (concat (cons header (into [] (set (map strng viols)))) ["violation event noViolation;"])))
 
 (defn get-param-obls [trope]
   (let [
