@@ -60,12 +60,14 @@
         <' if '> <'they '?> event
 
     event =
-        (character <' is'>? <' '> (move / task)) | give | meet
+        (character <' is'>? <' '> (move / task)) | give | meet | kill
 
     give =
         character <' gives '> character <' a ' / ' an '?> item
     meet =
         character <' meets '> character
+    kill =
+        character <' kills '> character
 
     place = name
 
@@ -77,11 +79,13 @@
     permission = character <' may '> (move / task)conditional? <'\\n'?>
     obligation = character <' must '> (move / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
 
-    violation = event
+    violation = norms
 
     deadline = consequence
 
-    task = verb / (verb <(' the ' / ' a ' / ' an ')> item) / (verb <' '> item)
+    task = pverb <' '> role-b / verb / (verb <(' the ' / ' a ' / ' an ')> item) / (verb <' '> item)
+    role-b = name
+    pverb = 'kill' / 'kills'
     move = mverb <' '> <'to '?> place
     mverb = 'go' / 'goes' / 'leave' / 'leaves' / 'return' / 'returns' / 'at' / 'come' / 'comes'
     verb = word

@@ -155,10 +155,9 @@ or STRING to string"
         dead (if (nil? deadline) "noDeadline"
                  (event-str deadline params))
         viol (if (nil? violation) "noViolation"
-                 (-> violation
-                     (event-str params)
+                 (viol-name {:obligation obligation})
                      ;; (param-str params)
-                     ))
+                     )
         s (println "WHAT: ")
         t (println (str "obl(" obl ", " dead ", " viol ")"))
         ]
@@ -320,17 +319,19 @@ or STRING to string"
   ;; ))
 
 (defn viol-name [obl]
-  (let [vstuff (->> obl
-                   (filter :deadline)
-                   (filter :violation)
+  (let [vstuff (-> obl
+                   (:obligation)
+                   (dissoc :deadline)
+                   (dissoc :violation)
                    (vals)
-                )]
-    (str "viol" (reduce str vstuff))))
+                   )
+        name (cap-first (event-name (reduce str (interpose " " vstuff))))]
+    (str "viol" (reduce str name))))
 
 (defn viol-events [trope]
   (let [header (str "% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
         viols (filter :obligation (:events trope))
-        strng (fn [x] (str "violation event " (viol-name x) "(" ")" ";"))]
+        strng (fn [x] (str "violation event " (viol-name x)";"))]
     (concat (cons header (into [] (set (map strng viols)))) ["violation event noViolation;"])))
 
 (defn get-param-obls [trope]
@@ -594,6 +595,20 @@ or STRING to string"
   (if (:obligation ev)  (mapcat #(param-str % params) [(:obligation ev) (:deadline (:obligation ev)) (:violation (:obligation ev))])
     (param-str ev params)))
 
+(defn get-viols [trope]
+  (let [obls (filter :obligation (:events trope))
+        vs (:viols (get-obls trope))
+        pevs (map :permission (filter :permission (map :violation (filter :violation (map :obligation obls)))))
+        params (get-obl-params trope)
+        ;; evs pevs
+        evs (map #(perm (event-str % params)) pevs)
+        vnames (map viol-name (filter #(:violation (:obligation %)) obls))
+        conds (map #(param-str % params) pevs)
+        x (println "EYY: ")
+        y (println evs)
+        ]
+    {:names vnames :events [evs] :conds conds}))
+
 (defn initiates [trope]
   (let [params (get-all-params trope)
         p (println "PARAMS: ")
@@ -619,14 +634,18 @@ or STRING to string"
         cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
         sits (get-sits trope)
         obls (get-obls trope)
+        viols (get-viols trope)
+        r (println "VIALS: ")
+        s (println viols)
         ;; tvec (conj phases [(last phases)])
         tvec (map vector phases)
         init-a (map imake (repeat inst) evec cvec)
         init-s (map imake (:names sits) (:events sits) (:conds sits))
+        init-v (map imake (:names viols) (:events viols) (:conds viols))
         term-o (map tmake (:names obls) (:evs obls) (:conds obls))
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
         ]
-    (concat [header] init-a init-s [term-header] term-a term-o)
+    (concat [header] init-a init-s init-v [term-header] term-a term-o)
     ))
 
 

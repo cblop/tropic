@@ -26,6 +26,7 @@
     :item (partial param-map :object)
     :move (fn [& args] {:verb "go" :place (first (get-by-key :place args))})
     :mverb (partial param-map :mverb)
+    :pverb (partial param-map :verb)
     :place (partial param-map :place)
     :character (partial param-map :role)
     :sequence (fn [& args] {:events (into [] (remove-blank args))})
