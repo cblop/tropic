@@ -329,7 +329,7 @@ or STRING to string"
     (str "viol" (reduce str name))))
 
 (defn viol-events [trope]
-  (let [header (str "% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
+  (let [header (str "\n% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
         viols (filter :obligation (:events trope))
         strng (fn [x] (str "violation event " (viol-name x)";"))]
     (concat (cons header (into [] (set (map strng viols)))) ["violation event noViolation;"])))
@@ -399,14 +399,14 @@ or STRING to string"
     {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
 
 (defn obl-events [trope]
-  (let [header (str "% OBLIGATION FLUENTS: " (namify (:name trope)) " ----------")
+  (let [header (str "\n% OBLIGATION FLUENTS: " (namify (:name trope)) " ----------")
         obls (get-param-obls trope)
         strng (fn [x] (str "obligation fluent " (reduce str x)))]
         (cons header (into [] (map strng (:evs obls))))))
 
 
 (defn inst-events [trope]
-  (let [header (str "% INST EVENTS: " (reduce str (:name trope)) " ----------")
+  (let [header (str "\n% INST EVENTS: " (reduce str (:name trope)) " ----------")
         nm (inst-name (:name trope))
         snms (map inst-name (map :verb (map :when (:situations trope))))
         onms (map inst-name (map :verb (map :obligation (filter :obligation (:events trope)))))
@@ -520,7 +520,7 @@ or STRING to string"
         gen-s (map gmake wnames wstrs wifs)
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
         ]
-    (concat [header] gen-a gen-s gen-d)
+    (concat [header] gen-a gen-s gen-d ["\n"])
     ))
 
 
@@ -615,7 +615,7 @@ or STRING to string"
         q (println params)
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         ename (event-name (:name trope))
-        header (str "% INITIATES: " (namify (:name trope)) " ----------")
+        header (str "\n% INITIATES: " (namify (:name trope)) " ----------")
         term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
         ;; events (remove :obligation (:events trope))
         events (:events trope)
@@ -645,7 +645,7 @@ or STRING to string"
         term-o (map tmake (:names obls) (:evs obls) (:conds obls))
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
         ]
-    (concat [header] init-a init-s init-v [term-header] term-a term-o)
+    (concat [header] init-a init-s init-v ["\n"] [term-header] term-a term-o ["\n"])
     ))
 
 
