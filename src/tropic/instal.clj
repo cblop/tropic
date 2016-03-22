@@ -1,12 +1,14 @@
 (ns tropic.instal
   (:require [clojure.string :as str]
             [tropic.gen :refer [make-map]]
+            [clojure.math.combinatorics :as combo]
             [tropic.parser :refer [parse]]))
 
 (def INACTIVE "inactive")
 (def DONE "done")
 (def PHASES ["A" "B" "C" "D" "E" "F"])
 (def PARAMS ["R" "S" "T" "U" "V" "W" "X" "Y" "Z"])
+(def WS "    ")
 
 (defn capitalize-words
   "Capitalize every word in a string"
@@ -114,6 +116,17 @@ or STRING to string"
     types
     ))
 
+
+(defn viol-name [obl]
+  (let [vstuff (-> obl
+                   (:obligation)
+                   (dissoc :deadline)
+                   (dissoc :violation)
+                   (vals)
+                   )
+        name (cap-first (event-name (reduce str (interpose " " vstuff))))]
+    (str "viol" (reduce str name))))
+
 (defn obl-p [{:keys [obligation]} params]
   (let [deadline (:deadline obligation)
         violation (:violation obligation)
@@ -132,12 +145,7 @@ or STRING to string"
                      ;; (reduce str (param-str params))
                      ))
         viol (if (nil? violation) "noViolation"
-                 (->> violation
-                     (ev-types)
-                     (interpose ", ")
-                     (reduce str)
-                     ;; (reduce str)(param-str params)
-                     ))]
+                 (viol-name {:obligation obligation}))]
     (str "obl(" (:verb obligation) "(" obl "), " (:verb deadline) "(" dead ")" ", " viol ");")))
 
 (defn obl [{:keys [obligation]} params]
@@ -318,15 +326,6 @@ or STRING to string"
     ;; (prn-str types)
   ;; ))
 
-(defn viol-name [obl]
-  (let [vstuff (-> obl
-                   (:obligation)
-                   (dissoc :deadline)
-                   (dissoc :violation)
-                   (vals)
-                   )
-        name (cap-first (event-name (reduce str (interpose " " vstuff))))]
-    (str "viol" (reduce str name))))
 
 (defn viol-events [trope]
   (let [header (str "\n% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
@@ -339,8 +338,9 @@ or STRING to string"
         obls (map :obligation (filter :obligation (:events trope)))
         deads (map :deadline (filter :deadline obls))
         ;; deads (if (empty? ds) [{:verb "noDeadline"}] ds)
-        viols (map :violation (filter :violation obls))
-        ;; viols (if (empty? vs) [{:verb "noViolation"}] vs)
+        ;; viols (map :violation (filter :violation obls))
+        vs (map :violation (filter :violation obls))
+        viols (if (empty? vs) [{:verb "noViolation"}] vs)
         os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
         oevs (concat os deads viols)
         oparams (get-obl-params trope)
@@ -532,7 +532,6 @@ or STRING to string"
           {}
           maps))
 
-
 (defn initially [hmap]
   (let [
         header "\n% INITIALLY: -----------"
@@ -556,23 +555,25 @@ or STRING to string"
         phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
         phases (map #(event-name (:name %)) (:tropes hmap))
         phasestrs (map phasefn phases)
+        powifs (fn [letters] (reduce str (flatten (interpose ", " (map (partial interpose " != ") (partition 2 1 letters))))))
         powfn (fn [x] (let [letters (inst-letters x)
                             cnds (reduce str (flatten (interpose ", " (map #(interpose "!=" %) (partition 2 letters)))))]
                         (str "pow(" (inst-name (:name x))
                              "(" (reduce str (interpose ", " letters))
                              ;; ")) if " cnds)))
-                             "))")))
+                             ")) if " (powifs letters))))
         situations (mapcat :situations (:tropes hmap))
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
         o (println "opnames: ")
         p (println opnames)
-        powers (map powfn (:tropes hmap))]
+        powers (map powfn (:tropes hmap))
+        powstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") powers))]
     ;; (concat rolestrs placestrs)
     ;; (concat role-list place-list)
     ;; roles
     ;; (map #(event-name (:class %)) instances)
-    [header (str "initially\n    " (reduce str (interpose ",\n    " (concat powers wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
+    [header (str powstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
     ;; (map :class instances)
     ))
 

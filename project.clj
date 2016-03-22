@@ -7,5 +7,6 @@
                  [instaparse "1.4.1"]
                  [rhizome "0.2.5"]
                  [enlive "1.1.6"]
+                 [org.clojure/math.combinatorics "0.1.1"]
                  [me.raynes/conch "0.8.0"]
                  [com.rpl/specter "0.9.0"]])

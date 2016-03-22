@@ -211,6 +211,7 @@
 (instal-file "resources/test6.story" "resources/test6.ial")
 (instal-file "resources/test7.story" "resources/test7.ial")
 
+
 (-main "resources/starwars.story" "resources/output.ial")
 
 (def role-test
