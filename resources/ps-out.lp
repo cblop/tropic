@@ -272,18 +272,6 @@ occurred(intGo(R,T),starWars,I) :- occurred(go(R,T),starWars,I),
    placename(T),
    inst(starWars), instant(I).
 %
-% Translation of go(R,V) generates intHerosJourney(R,S,T,U,V) if ['and', ['role', ['R', 'hero']], ['place', ['V', 'home']]] in 
-occurred(intHerosJourney(R,S,T,U,V),starWars,I) :- occurred(go(R,V),starWars,I),
-   holdsat(pow(starWars,intHerosJourney(R,S,T,U,V)),starWars,I),
-   holdsat(role(R,hero),starWars,I),
-   holdsat(place(V,home),starWars,I),
-   agent(R),
-   placename(V),
-   agent(S),
-   placename(U),
-   agent(T),
-   inst(starWars), instant(I).
-%
 % Translation of meet(R,T) generates intHerosJourney(R,S,T,U,V) if ['and', ['role', ['T', 'dispatcher']], ['role', ['R', 'hero']]] in 
 occurred(intHerosJourney(R,S,T,U,V),starWars,I) :- occurred(meet(R,T),starWars,I),
    holdsat(pow(starWars,intHerosJourney(R,S,T,U,V)),starWars,I),
@@ -294,6 +282,18 @@ occurred(intHerosJourney(R,S,T,U,V),starWars,I) :- occurred(meet(R,T),starWars,I
    agent(S),
    placename(U),
    placename(V),
+   inst(starWars), instant(I).
+%
+% Translation of go(R,V) generates intHerosJourney(R,S,T,U,V) if ['and', ['role', ['R', 'hero']], ['place', ['V', 'home']]] in 
+occurred(intHerosJourney(R,S,T,U,V),starWars,I) :- occurred(go(R,V),starWars,I),
+   holdsat(pow(starWars,intHerosJourney(R,S,T,U,V)),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   holdsat(place(V,home),starWars,I),
+   agent(R),
+   placename(V),
+   agent(S),
+   placename(U),
+   agent(T),
    inst(starWars), instant(I).
 %
 % initiate rules
