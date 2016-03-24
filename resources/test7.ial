@@ -35,59 +35,84 @@ obligation fluent obl(go(Agent, PlaceName), go(Agent, PlaceName), violHeroGoAway
 
 % INITIATES: The Hero's Journey ----------
 intHerosJourney(R, S, T, U, V) initiates
-        phase(herosJourney, phaseA), perm(go(R, V)) if
-                phase(herosJourney, inactive), role(R, hero), place(V, home);
+    phase(herosJourney, phaseA),
+    perm(go(R, V)) if
+        phase(herosJourney, inactive),
+        role(R, hero),
+        place(V, home);
 intHerosJourney(R, S, T, U, V) initiates
-        phase(herosJourney, phaseB), obl(go(R, U), go(S, V), violHeroGoAway) if
-                phase(herosJourney, phaseA), role(R, hero), place(U, away), role(S, villain), place(V, home);
+    phase(herosJourney, phaseB),
+    obl(go(R, U), go(S, V), violHeroGoAway) if
+        phase(herosJourney, phaseA),
+        role(R, hero),
+        place(U, away),
+        role(S, villain),
+        place(V, home);
 intHerosJourney(R, S, T, U, V) initiates
-        phase(herosJourney, phaseC), perm(meet(R, T)) if
-                phase(herosJourney, phaseB), role(T, dispatcher), role(R, hero);
+    phase(herosJourney, phaseC),
+    perm(meet(R, T)) if
+        phase(herosJourney, phaseB),
+        role(T, dispatcher),
+        role(R, hero);
 intHerosJourney(R, S, T, U, V) initiates
-        phase(herosJourney, phaseD), perm(go(R, V)) if
-                phase(herosJourney, phaseC), role(R, hero), place(V, home);
+    phase(herosJourney, phaseD),
+    perm(go(R, V)) if
+        phase(herosJourney, phaseC),
+        role(R, hero),
+        place(V, home);
 intHerosJourney(R, S, T, U, V) initiates
-        phase(herosJourney, done) if
-                phase(herosJourney, phaseD);
+    phase(herosJourney, done) if
+        phase(herosJourney, phaseD);
 violHeroGoAway initiates
-        perm(kill(R, S)) if
-                role(R, hero), role(S, villain);
+    perm(kill(R, S)) if
+        role(R, hero),
+        role(S, villain);
 
 
 % TERMINATES: The Hero's Journey ----------
 intHerosJourney(R, S, T, U, V) terminates
-        phase(herosJourney, inactive) if
-                phase(herosJourney, inactive);
+    phase(herosJourney, inactive) if
+        phase(herosJourney, inactive);
 intHerosJourney(R, S, T, U, V) terminates
-        phase(herosJourney, phaseA), perm(go(R, V)) if
-                phase(herosJourney, phaseA);
+    phase(herosJourney, phaseA),
+    perm(go(R, V)) if
+        phase(herosJourney, phaseA);
 intHerosJourney(R, S, T, U, V) terminates
-        phase(herosJourney, phaseB), obl(go(R, U), go(S, V), violHeroGoAway) if
-                phase(herosJourney, phaseB);
+    phase(herosJourney, phaseB),
+    obl(go(R, U), go(S, V), violHeroGoAway) if
+        phase(herosJourney, phaseB);
 intHerosJourney(R, S, T, U, V) terminates
-        phase(herosJourney, phaseC), perm(meet(R, T)) if
-                phase(herosJourney, phaseC);
+    phase(herosJourney, phaseC),
+    perm(meet(R, T)) if
+        phase(herosJourney, phaseC);
 intHerosJourney(R, S, T, U, V) terminates
-        phase(herosJourney, phaseD), perm(go(R, V)) if
-                phase(herosJourney, phaseD);
+    phase(herosJourney, phaseD),
+    perm(go(R, V)) if
+        phase(herosJourney, phaseD);
 intHerosJourney(R, S, T, U, V) terminates
-        phase(herosJourney, done) if
-                phase(herosJourney, done);
+    phase(herosJourney, done) if
+        phase(herosJourney, done);
 intGo(S, U) terminates
-        obl(go(R, T), go(S, U), violHeroGoAway) if
-                role(R, hero), place(T, away), role(S, villain), place(U, home);
+    obl(go(R, T), go(S, U), violHeroGoAway) if
+        role(R, hero),
+        place(T, away),
+        role(S, villain),
+        place(U, home);
 
 
 % GENERATES: The Hero's Journey ----------
 go(R, V) generates
-        intHerosJourney(R, S, T, U, V) if
-                role(R, hero), place(V, home);
+    intHerosJourney(R, S, T, U, V) if
+        role(R, hero),
+        place(V, home);
 meet(R, T) generates
-        intHerosJourney(R, S, T, U, V) if
-                role(T, dispatcher), role(R, hero);
+    intHerosJourney(R, S, T, U, V) if
+        role(T, dispatcher),
+        role(R, hero);
 go(R, T) generates
-        intGo(R, T) if
-                role(R, hero), place(T, away);
+    intGo(R, T) if
+        role(R, hero),
+        place(T, away);
 
 
 

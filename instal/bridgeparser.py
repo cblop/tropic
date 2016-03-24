@@ -1,25 +1,23 @@
 #!/usr/bin/python
 # REVISION HISTORY
 #------------------------------------------------------------------------
-# 20140618 JAP: applied pychecker
-# 20140211 TL: created the parser
+# Pending: wrong print for ifluent(ipow(obl
+# Pending: xinitiate obligation is not working
+# 20150807 TL: fix the error on the termination rules from fluent to ifluent.
+# 20140609 TL: fix the getInst(): now returns a list of institutions 
+# 20140528 TL: fix the bugs to print ipow and tpow with perm/pow inside
+# 20140507 TL: fix the cross consequence rules semantics  
 # 20140214 TL: done the first working version
-#              To do: - adapt check_event and check_fluent 
-#                     - hard-coded all_lists 
+# 20140211 TL: created the parser
+# 
+#            
 #------------------------------------------------------------------------
 
 from __future__ import print_function
-# import re # JAP 20140618 pychecker reports not used
+import re
 import sys
 import ply.lex as lex
 import ply.yacc as yacc
-
-# import argparse
-
-# sys.path.insert(0,"../..")
-
-# if sys.version_info[0] >= 3:
-#     raw_input = input
 
 #------------------------------------------------------------------------
 # LEXER for instal
@@ -408,8 +406,8 @@ class makeInstalParser():
     #  TL 20140215 rule for declaraing cross fluents. new 
     def p_cross_fluent_declaration(self,p):
         """ cross_fluent_declaration : CROSS FLUENT GPOW LPAR TYPE_NAME COMMA typed_term COMMA TYPE_NAME RPAR SEMI
-            cross_fluent_declaration : CROSS FLUENT TPOW LPAR TYPE_NAME COMMA typed_term COMMA TYPE_NAME RPAR SEMI
-            cross_fluent_declaration : CROSS FLUENT IPOW LPAR TYPE_NAME COMMA typed_term COMMA TYPE_NAME RPAR SEMI
+            cross_fluent_declaration : CROSS FLUENT TPOW LPAR TYPE_NAME COMMA fluent COMMA TYPE_NAME RPAR SEMI
+            cross_fluent_declaration : CROSS FLUENT IPOW LPAR TYPE_NAME COMMA fluent COMMA TYPE_NAME RPAR SEMI
         """
         if p[3] == "gpow":
             self.cross_generation_fluents = [[p[5],p[7],p[9]]] + self.cross_generation_fluents
@@ -419,6 +417,7 @@ class makeInstalParser():
         else:
             self.cross_termination_fluents = [[p[5],p[7],p[9]]] + self.cross_termination_fluents
         p[0] = [p[1]]
+        
         
 
 
@@ -485,6 +484,7 @@ class makeInstalParser():
         sf = p[1]
         #self.check_event(p[1])
         df = p[3]
+        # print p[3]
         cond = []
         if len(p)>5: # process conditions
             cond = p[4]
@@ -639,7 +639,7 @@ class makeInstalParser():
         elif p[0] == 'obl':
             r=p[0]+'('+self.term2string(p[1][0])+','+self.term2string(p[1][1])+','+self.term2string(p[1][2])+')'
         elif p[0] in ['gpow', 'tpow', 'ipow']:
-            r=p[0]+'('+ p[1][0][0] +','+self.term2string(p[1][1])+ ','+ p[1][2][0] + ')'
+            r=p[0]+'('+ p[1][0][0] +','+self.extendedterm2string(p[1][1])+ ','+ p[1][2][0] + ')'
         else:
             r=self.term2string(p)
         return r
@@ -681,18 +681,18 @@ class makeInstalParser():
         self.saved_enumerator=i+len(p)
         return r
 
-    def printCondition(self,c):
+    def printCondition(self,c,inst):
         # print "printCondition: c = ",c
         if c==[]: return
         if c[0]=='and':
-            self.printCondition(c[1])
-            self.printCondition(c[2])
+            self.printCondition(c[1],inst)
+            self.printCondition(c[2],inst)
         elif c[0]=='not':
             self.instal_print("   not")
-            self.printCondition(c[1])
+            self.printCondition(c[1],inst)
         else:
             self.instal_print("   holdsat({fluent},{inst},I),"
-                              .format(fluent=self.term2string(c), inst=self.getInst(c[0])))
+                              .format(fluent=self.term2string(c), inst=inst))
 
 
 
@@ -754,20 +754,37 @@ class makeInstalParser():
         return varH
 
     # TL: get inst information from alllists. new  
+    # structure of all_lists (collected in main file ): 
+    #  all_lists[name] = [copy.deepcopy(parser.exevents), copy.deepcopy(parser.inevents), copy.deepcopy(parser.vievents), copy.deepcopy(parser.fluents), copy.deepcopy(parser.obligation_fluents), copy.deepcopy(parser.noninertial_fluents)]  
     def getInst(self,test):
+        instList = [] 
         for inst, lists in self.all_lists.iteritems():
             #TL: if the test is not an obligation fluent 
             if type(test) <> type([ ]): 
                 if lists[0].has_key(test) or lists[1].has_key(test) or lists[2].has_key(test) or lists[3].has_key(test) or lists[5].has_key(test):
-                    return inst
-            #TL: if the test is an obligation fluent 
+                    #return inst
+                    instList.append(inst)
             else:
-                for of in lists[4]:
-                    if of[0][0] == test[0][0] and of[1][0] == test[1][0] and of[2][0] == test[2][0]:
-                        return inst
-        
-        self.instal_error("ERROR: Unknown event/fluent of {test}".format(test=test))
-        exit(-1)
+                if test[0] == 'perm' or test[0] == 'pow':
+                    if lists[0].has_key(test[1][0]) or lists[1].has_key(test[1][0]) or lists[2].has_key(test[1][0]) or lists[3].has_key(test[1][0]) or lists[5].has_key(test[1][0]):
+                        #return inst
+                        instList.append(inst)
+
+                elif test[0] == 'obl':
+                    test = test[1]
+                    for of in lists[4]:
+                        if of[0][0] == test[0][0] and of[1][0] == test[1][0] and of[2][0] == test[2][0]:
+                            #return inst
+                            instList.append(inst)
+                else: # for normal flunets 
+                    if lists[0].has_key(test[0]) or lists[1].has_key(test[0]) or lists[2].has_key(test[0]) or lists[3].has_key(test[0]) or lists[5].has_key(test[0]):
+                            #return inst
+                        instList.append(inst)
+        if instList == []:
+            self.instal_error("ERROR: Unknown event/fluent of {test}".format(test=test))
+            exit(-1)
+        else:
+            return instList
 
 
     #------------------------------------------------------------------------
@@ -775,16 +792,23 @@ class makeInstalParser():
     # output formatting functions
 
     # JAP: 20121114
+    # JAP 20160315: replaced inst(In;InS) with inst(In), inst(InS)... why so?
     standard_prelude = "\
 % fluent rules\n\
-holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I),\n\
-    next(I,J),fluent(P, In),instant(I),instant(J), inst(In).\n\
+holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I), not xterminated(InS,P,In,I), \n\
+    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In), inst(InS).\n\
 holdsat(P,In,J):- initiated(P,In,I),next(I,J),\n\
     ifluent(P, In),instant(I),instant(J), inst(In).\n\
 holdsat(P,In,J):- initiated(P,In,I),next(I,J), \n\
     oblfluent(P, In),instant(I),instant(J), inst(In).\n\
 holdsat(P,In,J):- initiated(P,In,I),next(I,J), \n\
     nifluent(P, In),instant(I),instant(J), inst(In).\n\
+holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),\n\
+    ifluent(P, In),instant(I),instant(J), inst(InS;In).\n\
+holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J), \n\
+    oblfluent(P, In),instant(I),instant(J), inst(InS;In).\n\
+holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J), \n\
+    nifluent(P, In),instant(I),instant(J), inst(InS;In).\n\
 true.\
 "
 
@@ -793,6 +817,7 @@ true.\
         # Printing of standard prelude should be conditional on whether
         # we are extending an existing definition or not.  For now, that
         # option is not supported.
+        #self.instal_print(self.all_lists)
         self.instal_print("%\n% Standard prelude for {institution}\n%"
                           .format(**self.names))
         self.instal_print(self.standard_prelude)
@@ -812,20 +837,21 @@ true.\
         # print exevents
         self.instal_print("%\n% Exogenous events")
         for ev in self.exevents:
-            self.instal_print(
-                "% Event: {ev} (type: ex)\n"
-                "  event({ev}{args}) :- {rhs}.\n" #args1(Arg1) etc.
-                "  evtype({ev}{args},{inst},ex) :- {rhs}.\n"
-                "  evinst({ev}{args},{inst}) :- {rhs}.\n"
-                "  ifluent(perm({ev}{args}), {inst}) :- {rhs}.\n"
-                "  fluent(perm({ev}{args}), {inst}) :- {rhs}.\n"
-                "  event(viol({ev}{args})) :- {rhs}.\n"
-                "  evtype(viol({ev}{args}), {inst}, viol) :- {rhs}.\n"
-                "  evinst(viol({ev}{args}),{inst}) :- {rhs}."
-                .format(ev=ev,
-                        args=self.args2string(self.exevents[ev]),
-                        rhs=self.typecheck(self.exevents[ev]),
-                        inst=self.getInst(ev)))
+            for inst in self.getInst(ev):
+                self.instal_print(
+                    "% Event: {ev} (type: ex) of institution {inst}\n"
+                    "  event({ev}{args}) :- {rhs}.\n" #args1(Arg1) etc.
+                    "  evtype({ev}{args},{inst},ex) :- {rhs}.\n"
+                    "  evinst({ev}{args},{inst}) :- {rhs}.\n"
+                    "  ifluent(perm({ev}{args}), {inst}) :- {rhs}.\n"
+                    "  fluent(perm({ev}{args}), {inst}) :- {rhs}.\n"
+                    "  event(viol({ev}{args})) :- {rhs}.\n"
+                    "  evtype(viol({ev}{args}), {inst}, viol) :- {rhs}.\n"
+                    "  evinst(viol({ev}{args}),{inst}) :- {rhs}."
+                    .format(ev=ev,
+                            args=self.args2string(self.exevents[ev]),
+                            rhs=self.typecheck(self.exevents[ev]),
+                            inst=inst))
 
     def instal_print_nullevent(self):
     # print nullevents
@@ -845,36 +871,38 @@ true.\
         # print inevents
         self.instal_print("% Institutional events")
         for ev in self.inevents:
-            self.instal_print(
-                "% Event: {ev} (type: in)\n"
-                "  event({ev}{args}) :- {rhs}.\n" # as above
-                "  evtype({ev}{args},{inst},inst) :- {rhs}.\n"
-                "  evinst({ev}{args},{inst}) :- {rhs}.\n"
-                "  ifluent(pow({inst},{ev}{args}),{inst}) :- {rhs}.\n"
-                "  ifluent(perm({ev}{args}),{inst}) :- {rhs}.\n"
-                "  fluent(pow({inst},{ev}{args}),{inst}) :- {rhs}.\n"
-                "  fluent(perm({ev}{args}),{inst}) :- {rhs}.\n"
-                "  event(viol({ev}{args})) :- {rhs}.\n"
-                "  evtype(viol({ev}{args}),{inst},viol) :- {rhs}.\n"
-                "  evinst(viol({ev}{args}),{inst}) :- {rhs}."
-                .format(ev=ev,
-                        args=self.args2string(self.inevents[ev]),
-                        rhs=self.typecheck(self.inevents[ev]),
-                        inst=self.getInst(ev)))
+            for inst in self.getInst(ev):
+                self.instal_print(
+                    "% Event: {ev} (type: in) of institution {inst}\n"
+                    "  event({ev}{args}) :- {rhs}.\n" # as above
+                    "  evtype({ev}{args},{inst},inst) :- {rhs}.\n"
+                    "  evinst({ev}{args},{inst}) :- {rhs}.\n"
+                    "  ifluent(pow({inst},{ev}{args}),{inst}) :- {rhs}.\n"
+                    "  ifluent(perm({ev}{args}),{inst}) :- {rhs}.\n"
+                    "  fluent(pow({inst},{ev}{args}),{inst}) :- {rhs}.\n"
+                    "  fluent(perm({ev}{args}),{inst}) :- {rhs}.\n"
+                    "  event(viol({ev}{args})) :- {rhs}.\n"
+                    "  evtype(viol({ev}{args}),{inst},viol) :- {rhs}.\n"
+                    "  evinst(viol({ev}{args}),{inst}) :- {rhs}."
+                    .format(ev=ev,
+                            args=self.args2string(self.inevents[ev]),
+                            rhs=self.typecheck(self.inevents[ev]),
+                            inst=inst))
 
     def instal_print_vievents(self):
         # print vievents
-        self.instal_print("%\n% Violation events\n%")
+        self.instal_print("%\n% Violation events of institution {inst}\n%")
         for ev in self.vievents:
-            self.instal_print(
-                "% Event: {ev} (type: in)\n"
-                "  event({ev}{args}) :- {rhs}.\n"
-                "  evtype({ev}{args},{inst},viol) :- {rhs}.\n"
-                "  evinst({ev}{args},{inst}) :- {rhs}."
-                .format(ev=ev,
-                        args=self.args2string(self.vievents[ev]),
-                        rhs=self.typecheck(self.vievents[ev]),
-                        inst=self.getInst(ev)))
+            for inst in self.getInst(ev):
+                self.instal_print(
+                    "% Event: {ev} (type: in)\n"
+                    "  event({ev}{args}) :- {rhs}.\n"
+                    "  evtype({ev}{args},{inst},viol) :- {rhs}.\n"
+                    "  evinst({ev}{args},{inst}) :- {rhs}."
+                    .format(ev=ev,
+                            args=self.args2string(self.vievents[ev]),
+                            rhs=self.typecheck(self.vievents[ev]),
+                            inst=inst))
 
     def instal_print_crevents(self):
         # print crevents
@@ -916,18 +944,19 @@ true.\
 
     def instal_print_inertial_fluents(self):
         # inertial fluents
-        self.instal_print("%\n% inertial fluents\n%")
+        self.instal_print("%\n% inertial fluents \n%")
         for inf in self.fluents:
             # JAP 20130205: added code for unique naming + predicates
-            self.instal_print(
-                "ifluent({name}{args},{inst}) :-\n"
-                "  {preds}.\n"
-                "fluent({name}{args},{inst}) :-\n"
-                "  {preds}.\n"
-                .format(name=inf,
-                        args=self.args2string(self.fluents[inf]),
-                        preds=self.typecheck(self.fluents[inf]),
-                        inst=self.getInst(inf)))
+            for inst in self.getInst(inf):
+                self.instal_print(
+                    "ifluent({name}{args},{inst}) :-\n"
+                    "  {preds}.\n"
+                    "fluent({name}{args},{inst}) :-\n"
+                    "  {preds}.\n"
+                    .format(name=inf,
+                            args=self.args2string(self.fluents[inf]),
+                            preds=self.typecheck(self.fluents[inf]),
+                            inst=inst))
             # for t in fluents[inf]:
             #     instal_print("   {pred}({tvar}),".format(pred=t.lower(),tvar=t))
             # instal_print("   true.")
@@ -937,14 +966,15 @@ true.\
         self.instal_print("%\n% noninertial fluents\n%")
         for nif in self.noninertial_fluents:
             # JAP 20130205: added code for unique naming + predicates
-            self.instal_print(
-                "nifluent({name}{args}, {inst}) :-\n"
-                "  {preds}.\n"
-                "fluent({name}{args}, {inst}) :-\n"
-                "  {preds}.\n"
-                .format(name=nif,
-                        args=self.args2string(self.noninertial_fluents[nif]),
-                        preds=self.typecheck(self.noninertial_fluents[nif]), inst=self.getInst(nif))) # JAP 20140618 nif was inf (typo?)
+            for inst in self.getInst(inf):
+                self.instal_print(
+                    "nifluent({name}{args}, {inst}) :-\n"
+                    "  {preds}.\n"
+                    "fluent({name}{args}, {inst}) :-\n"
+                    "  {preds}.\n"
+                    .format(name=nif,
+                            args=self.args2string(self.noninertial_fluents[nif]),
+                            preds=self.typecheck(self.noninertial_fluents[nif]), inst=inst))
             # for t in noninertial_fluents[nif]:
             #     instal_print("   {pred}({tvar}),".format(pred=t.lower(),tvar=t))
             # instal_print("   true.")
@@ -965,41 +995,69 @@ true.\
             te = self.typecheck(xf[1][1])
 
             self.instal_print("fluent(gpow({sinst},{e},{dinst}), {inst}) :- \n"
-                              "    inst({sinst}; {dinst}; {inst}), \n"
+                              # JAP 201603015: was "    inst({sinst}; {dinst}; {inst}), \n"
+                              "    inst({sinst}), inst({dinst}), inst({inst}), \n"
                               "    event({e}), evinst({e}, {dinst}), evtype({e}, {dinst}, ex), {te}."
                               .format(e=e,te =te, sinst=sinst,dinst=dinst,inst=self.names["institution"]))
             self.instal_print("ifluent(gpow({sinst},{e},{dinst}), {inst}) :- \n"
-                              "    inst({sinst}; {dinst}; {inst}), \n"
+                              # JAP 201603015: was "    inst({sinst}; {dinst}; {inst}), \n"
+                              "    inst({sinst}), inst({dinst}), inst({inst}), \n"
                               "    event({e}), evinst({e}, {dinst}), evtype({e}, {dinst}, ex), {te}."
                               .format(e=e,te =te, sinst=sinst,dinst=dinst,inst=self.names["institution"]))
         for xf in self.cross_initiation_fluents:
             sinst = self.args2string(xf[0][0]).strip('()')
             dinst = self.args2string(xf[2][0], cont = True).strip('()')
-            f=xf[1][0]+self.args2string(xf[1][1])
-            tf = self.typecheck(xf[1][1])
-
+            f=self.extendedterm2string(xf[1])
+            fvars = {}
+            tf = self.collectVars(xf[1],fvars)
+           # tf = self.typecheck(xf[1][1])
             self.instal_print("fluent(ipow({sinst},{f},{dinst}), {inst}) :- \n"
-                              "    inst({sinst}; {dinst}; {inst}), \n"
-                              "    fluent({f}, {dinst}), {tf}."
-                              .format(f=f,tf =tf, sinst=sinst,dinst=dinst,inst=self.names["institution"]))
+                              # JAP 20160315: was "    inst({sinst}; {dinst}; {inst}), "
+                              "    inst({sinst}), inst({dinst}), inst({inst}), "
+                              .format(f=f,sinst=sinst,dinst=dinst,inst=self.names["institution"]))
+            for k in fvars:
+                self.instal_print(
+                    "   {pred}({tvar}),"
+                    .format(pred=self.types[fvars[k]],tvar=k))
+            self.instal_print("    fluent({f}, {dinst})."
+                              .format(f=f, dinst=dinst))
+
             self.instal_print("ifluent(ipow({sinst},{f},{dinst}), {inst}) :- \n"
-                              "    inst({sinst}; {dinst}; {inst}), \n"
-                              "    fluent({f}, {dinst}), {tf}."
-                              .format(f=f,tf =tf, sinst=sinst,dinst=dinst,inst=self.names["institution"]))
+                              # JAP 20160315: was "    inst({sinst}; {dinst}; {inst}), "
+                              "    inst({sinst}), inst({dinst}), inst({inst}), "
+                              .format(f=f,sinst=sinst,dinst=dinst,inst=self.names["institution"]))
+            for k in fvars:
+                self.instal_print(
+                    "   {pred}({tvar}),"
+                    .format(pred=self.types[fvars[k]],tvar=k))
+            self.instal_print("    fluent({f}, {dinst})."
+                              .format(f=f, dinst=dinst))
         for xf in self.cross_termination_fluents:
             sinst = self.args2string(xf[0][0]).strip('()')
             dinst = self.args2string(xf[2][0], cont = True).strip('()')
-            f=xf[1][0]+self.args2string(xf[1][1])
-            tf = self.typecheck(xf[1][1])
-
+            f=self.extendedterm2string(xf[1])
+            fvars = {}
+            tf = self.collectVars(xf[1],fvars)
+           # tf = self.typecheck(xf[1][1])
             self.instal_print("fluent(tpow({sinst},{f},{dinst}), {inst}) :- \n"
-                              "    inst({sinst}; {dinst}; {inst}), \n"
-                              "    fluent({f}, {dinst}), {tf}."
-                              .format(f=f,tf =tf, sinst=sinst,dinst=dinst,inst=self.names["institution"]))
+                              "    inst({sinst}; {dinst}; {inst}), "
+                              .format(f=f,sinst=sinst,dinst=dinst,inst=self.names["institution"]))
+            for k in fvars:
+                self.instal_print(
+                    "   {pred}({tvar}),"
+                    .format(pred=self.types[fvars[k]],tvar=k))
+            self.instal_print("    fluent({f}, {dinst})."
+                              .format(f=f, dinst=dinst))
+
             self.instal_print("ifluent(tpow({sinst},{f},{dinst}), {inst}) :- \n"
-                              "    inst({sinst}; {dinst}; {inst}), \n"
-                              "    fluent({f}, {dinst}), {tf}."
-                              .format(f=f,tf =tf, sinst=sinst,dinst=dinst,inst=self.names["institution"]))
+                              "    inst({sinst}; {dinst}; {inst}), "
+                              .format(f=f,sinst=sinst,dinst=dinst,inst=self.names["institution"]))
+            for k in fvars:
+                self.instal_print(
+                    "   {pred}({tvar}),"
+                    .format(pred=self.types[fvars[k]],tvar=k))
+            self.instal_print("    fluent({f}, {dinst})."
+                              .format(f=f, dinst=dinst))
 
 
 
@@ -1016,95 +1074,95 @@ true.\
             te=self.typecheck(of[0][1])
             td=self.typecheck(of[1][1],cont=True)
             tv=self.typecheck(of[2][1],cont=True)
-            inst = self.getInst(of)
-            
+            #inst = self.getInst(of)
+            for inst in self.getInst(of):
             # TL20131228: set values for boolean e_event, e_fluent, d_event and d_fluent to indicate the type of e and d 
-            e_event = False
-            e_fluent = False
-            d_event = False
-            d_fluent = False
-            if self.exevents.has_key(of[0][0]) or self.inevents.has_key(of[0][0]) or self.vievents.has_key(of[0][0]) or self.crevents.has_key(of[0][0]) or self.dievents.has_key(of[0][0]):
-                e_event = True #TL 20131228: if e is an obliged event
-            elif self.fluents.has_key(of[0][0]) or self.noninertial_fluents.has_key(of[0][0]):
-                e_fluent = True  #TL 20131228: if e is an obliged fluent to achieve 
-            else:
-                self.instal_error("Type of obliged event/fluent {e} in the obligation is unknown. ".format(e=e))
-                exit(-1) 
-            if self.exevents.has_key(of[1][0]) or self.inevents.has_key(of[1][0]) or self.vievents.has_key(of[1][0]) or self.crevents.has_key(of[1][0]) or self.dievents.has_key(of[1][0]):
-                d_event = True #TL 20131228: if d is an event 
-            elif self.fluents.has_key(of[1][0]) or self.noninertial_fluents.has_key(of[1][0]):
-                d_fluent = True #TL 20131228: if d is a fluent 
-            else:
-                self.instal_error("Type of obliged event/fluent {d} in the obligation is unknown. ".format(d=d))
-                exit(-1)              
+                e_event = False
+                e_fluent = False
+                d_event = False
+                d_fluent = False
+                if self.exevents.has_key(of[0][0]) or self.inevents.has_key(of[0][0]) or self.vievents.has_key(of[0][0]) or self.crevents.has_key(of[0][0]) or self.dievents.has_key(of[0][0]):
+                    e_event = True #TL 20131228: if e is an obliged event
+                elif self.fluents.has_key(of[0][0]) or self.noninertial_fluents.has_key(of[0][0]):
+                    e_fluent = True  #TL 20131228: if e is an obliged fluent to achieve 
+                else:
+                    self.instal_error("Type of obliged event/fluent {e} in the obligation is unknown. ".format(e=e))
+                    exit(-1) 
+                if self.exevents.has_key(of[1][0]) or self.inevents.has_key(of[1][0]) or self.vievents.has_key(of[1][0]) or self.crevents.has_key(of[1][0]) or self.dievents.has_key(of[1][0]):
+                    d_event = True #TL 20131228: if d is an event 
+                elif self.fluents.has_key(of[1][0]) or self.noninertial_fluents.has_key(of[1][0]):
+                    d_fluent = True #TL 20131228: if d is a fluent 
+                else:
+                    self.instal_error("Type of obliged event/fluent {d} in the obligation is unknown. ".format(d=d))
+                    exit(-1)              
+                self.instal_print("%\n% Translation of the obligation fluent obl({e},{d},{v}) of {inst}: \n%".format(e=e,d=d,v=v,inst=inst))        
+                # The first obligation rule 
+                self.instal_print("oblfluent(obl({e},{d},{v}), {inst}) :-".format(e=e,d=d,v=v,inst=inst))
+                if e_event:
+                    self.instal_print("   event({e}),".format(e=e))       
+                if e_fluent:
+                    self.instal_print("   fluent({e},{inst}),".format(e=e,inst=inst)) 
+                if d_event:
+                    self.instal_print("   event({d}),".format(d=d))
+                if d_fluent:
+                    self.instal_print("   fluent({d},{inst}),".format(d=d,inst=inst)) 
+                self.instal_print("   event({v}), {te},{td},{tv},inst({inst})."
+                                          .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
+                   
+                # The 2nd obligation rule 
+                self.instal_print("fluent(obl({e},{d},{v}), {inst}) :-".format(e=e,d=d,v=v,inst=inst))
+                if e_event:
+                    self.instal_print("   event({e}),".format(e=e))       
+                if e_fluent:
+                    self.instal_print("   fluent({e},{inst}),".format(e=e,inst=inst)) 
+                if d_event:
+                    self.instal_print("   event({d}),".format(d=d))
+                if d_fluent:
+                    self.instal_print("   fluent({d},{inst}),".format(d=d,inst=inst)) 
+                self.instal_print("   event({v}), {te},{td},{tv},inst({inst})."
+                                          .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
 
-            # The first obligation rule 
-            self.instal_print("oblfluent(obl({e},{d},{v}), {inst}) :-".format(e=e,d=d,v=v,inst=inst))
-            if e_event:
-                self.instal_print("   event({e}),".format(e=e))       
-            if e_fluent:
-                self.instal_print("   fluent({e},{inst}),".format(e=e,inst=inst)) 
-            if d_event:
-                self.instal_print("   event({d}),".format(d=d))
-            if d_fluent:
-                self.instal_print("   fluent({d},{inst}),".format(d=d,inst=inst)) 
-            self.instal_print("   event({v}), {te},{td},{tv},inst({inst})."
-                                      .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
-               
-            # The 2nd obligation rule 
-            self.instal_print("fluent(obl({e},{d},{v}), {inst}) :-".format(e=e,d=d,v=v,inst=inst))
-            if e_event:
-                self.instal_print("   event({e}),".format(e=e))       
-            if e_fluent:
-                self.instal_print("   fluent({e},{inst}),".format(e=e,inst=inst)) 
-            if d_event:
-                self.instal_print("   event({d}),".format(d=d))
-            if d_fluent:
-                self.instal_print("   fluent({d},{inst}),".format(d=d,inst=inst)) 
-            self.instal_print("   event({v}), {te},{td},{tv},inst({inst})."
-                                      .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
+                #The 3rd obligation rule 
+                self.instal_print("terminated(obl({e},{d},{v}),{inst},I) :-".format(e=e,d=d,v=v,inst=inst))
+                if e_event:
+                    self.instal_print("   event({e}), occurred({e},{inst},I),".format(e=e,inst=inst))       
+                if e_fluent:
+                    self.instal_print("   fluent({e},{inst}), holdsat({e},{inst},I),".format(e=e,inst=inst)) 
+                if d_event:
+                    self.instal_print("   event({d}),".format(d=d))
+                if d_fluent:
+                    self.instal_print("   fluent({d},{inst}),".format(d=d,inst=inst)) 
+                self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"   
+                                  "   event({v}), {te},{td},{tv},inst({inst})."
+                                          .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
 
-            #The 3rd obligation rule 
-            self.instal_print("terminated(obl({e},{d},{v}),{inst},I) :-".format(e=e,d=d,v=v,inst=inst))
-            if e_event:
-                self.instal_print("   event({e}), occurred({e},{inst},I),".format(e=e,inst=inst))       
-            if e_fluent:
-                self.instal_print("   fluent({e},{inst}), holdsat({e},{inst},I),".format(e=e,inst=inst)) 
-            if d_event:
-                self.instal_print("   event({d}),".format(d=d))
-            if d_fluent:
-                self.instal_print("   fluent({d},{inst}),".format(d=d,inst=inst)) 
-            self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"   
-                              "   event({v}), {te},{td},{tv},inst({inst})."
-                                      .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
+                #The fourth obligation rule 
+                self.instal_print("terminated(obl({e},{d},{v}),{inst},I) :-".format(e=e,d=d,v=v,inst=inst))
+                if e_event:
+                    self.instal_print("   event({e}), ".format(e=e))       
+                if e_fluent:
+                    self.instal_print("   fluent({e},{inst}),".format(e=e,inst=inst)) 
+                if d_event:
+                    self.instal_print("   event({d}), occurred({d},{inst},I),".format(d=d,inst=inst))
+                if d_fluent:
+                    self.instal_print("   fluent({d},{inst}),  holdsat({d},{inst},I),".format(d=d,inst=inst)) 
+                self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"   
+                                  "   event({v}), {te},{td},{tv},inst({inst})."
+                                          .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
 
-            #The fourth obligation rule 
-            self.instal_print("terminated(obl({e},{d},{v}),{inst},I) :-".format(e=e,d=d,v=v,inst=inst))
-            if e_event:
-                self.instal_print("   event({e}), ".format(e=e))       
-            if e_fluent:
-                self.instal_print("   fluent({e},{inst}),".format(e=e,inst=inst)) 
-            if d_event:
-                self.instal_print("   event({d}), occurred({d},{inst},I),".format(d=d,inst=inst))
-            if d_fluent:
-                self.instal_print("   fluent({d},{inst}),  holdsat({d},{inst},I),".format(d=d,inst=inst)) 
-            self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"   
-                              "   event({v}), {te},{td},{tv},inst({inst})."
-                                      .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
-
-            #The fifth obligation rule 
-            self.instal_print("occurred({v},{inst},I) :-".format(v=v,inst=inst))
-            if e_event:
-                self.instal_print("   event({e}), ".format(e=e))       
-            if e_fluent:
-                self.instal_print("   fluent({e},{inst}), not holdsat({e}, {inst}, I),".format(e=e,inst=inst)) 
-            if d_event:
-                self.instal_print("   event({d}), occurred({d},{inst},I),".format(d=d,inst=inst))
-            if d_fluent:
-                self.instal_print("   fluent({d},{inst}),  holdsat({d},{inst},I),".format(d=d,inst=inst)) 
-            self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"   
-                              "   event({v}), {te},{td},{tv},inst({inst})."
-                                      .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
+                #The fifth obligation rule 
+                self.instal_print("occurred({v},{inst},I) :-".format(v=v,inst=inst))
+                if e_event:
+                    self.instal_print("   event({e}), ".format(e=e))       
+                if e_fluent:
+                    self.instal_print("   fluent({e},{inst}), not holdsat({e}, {inst}, I),".format(e=e,inst=inst)) 
+                if d_event:
+                    self.instal_print("   event({d}), occurred({d},{inst},I),".format(d=d,inst=inst))
+                if d_fluent:
+                    self.instal_print("   fluent({d},{inst}),  holdsat({d},{inst},I),".format(d=d,inst=inst)) 
+                self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"   
+                                  "   event({v}), {te},{td},{tv},inst({inst})."
+                                          .format(e=e,d=d,v=v,te=te,td=td,tv=tv,inst=inst))
 
 
 
@@ -1126,30 +1184,34 @@ true.\
             for x in exev:
                 vars2 = {}
                 self.collectVars(x,vars2)
-                self.instal_print(
-                    "%\n"
-                    "% Translation of {inev} xgenerates {x} if {condition} in {time}\n"
-                    "occurred({x},{dinst},I{time}) :- occurred({inev},{sinst},I),\n"
-                    "   holdsat(gpow({sinst},{x},{dinst}),{inst},I{time}), \n"
-                    "   inst({dinst};{sinst}), "
-                    .format(inev=self.extendedterm2string(inev),
-                            x=self.extendedterm2string(x),
-                            inst=self.names["institution"],
-                            sinst=self.getInst(inev[0]),   # TL: needs to call getInst  
-                            dinst=self.getInst(x[0]),
-                            condition=cond, time = time))
-                self.printCondition(cond)
-                for k in vars1:
-                    self.instal_print(
-                        "   {pred}({tvar}),"
-                        .format(pred=self.types[vars1[k]],tvar=k))
-                for k in vars2:
-                    # should check for consistent usage of k in vars1 and vars2
-                    if k not in vars1:
-                        self.instal_print(
-                            "   {pred}({tvar}),"
-                            .format(pred=self.types[vars2[k]],tvar=k))
-                self.instal_print("   inst({inst}), instant(I).".format(inst=self.names["institution"]))
+                for sinst in self.getInst(inev[0]):
+                    for dinst in self.getInst(x[0]):
+                        if sinst == dinst: continue 
+                        else:
+                            self.instal_print(
+                                "%\n"
+                                "% Translation of {inev} of {sinst} xgenerates {x} of {dinst} if {condition} in {time}\n"
+                                "occurred({x},{dinst},I{time}) :- occurred({inev},{sinst},I),\n"
+                                "   holdsat(gpow({sinst},{x},{dinst}),{inst},I{time}), \n"
+                                "   inst({dinst};{sinst}), "
+                                .format(inev=self.extendedterm2string(inev),
+                                        x=self.extendedterm2string(x),
+                                        inst=self.names["institution"],
+                                        sinst=sinst,   # TL: needs to call getInst  
+                                        dinst=dinst,
+                                        condition=cond, time = time))
+                            self.printCondition(cond, sinst)
+                            for k in vars1:
+                                self.instal_print(
+                                    "   {pred}({tvar}),"
+                                    .format(pred=self.types[vars1[k]],tvar=k))
+                            for k in vars2:
+                                    # should check for consistent usage of k in vars1 and vars2
+                                if k not in vars1:
+                                    self.instal_print(
+                                        "   {pred}({tvar}),"
+                                        .format(pred=self.types[vars2[k]],tvar=k))
+                            self.instal_print("   inst({inst}), instant(I).".format(inst=self.names["institution"]))
 
    
     def instal_print_xinitiates(self):
@@ -1164,34 +1226,39 @@ true.\
             for x in df:
                 vars2 = {}
                 self.collectVars(x,vars2)
-                self.instal_print(
-                    "%\n% Translation of {sf} xinitiates {x} if {condition}"
-                    .format(sf=self.term2string(sf),x=x,condition=cond))
-                self.instal_print("%\ninitiated({x},{dinst},I) :-\n"
-                                  "   holdsat({sf},{sinst},I),\n"
-                                  "   holdsat(ipow({sinst}, {x}, {dinst}), {inst}, I), \n"
-                                  "   holdsat(live({inst}),{inst},I), inst({inst}), \n"
-                                  "   inst({dinst};{sinst}), "
-                                  .format(x=self.extendedterm2string(x),
-                                          sf=self.term2string(sf),
-                                          sinst = self.getInst(sf[0]),
-                                          dinst = self.getInst(x[0]),
-                                          inst=self.names["institution"]))
-                self.printCondition(cond)
-                for k in vars1:
-                    self.instal_print(
-                        "   {pred}({tvar}),"
-                        .format(pred=self.types[vars1[k]],tvar=k))
-                for k in vars2:
-                    # should check for consistent usage of k in vars1 and vars2
-                    if k not in vars1:
-                        self.instal_print(
-                            "   {pred}({tvar}),"
-                            .format(pred=self.types[vars2[k]],tvar=k))
-                self.instal_print("   inst({inst}), instant(I).".format(inst=self.names["institution"]))
+                #self.instal_print("x:{x}".format(x=x))
+                for sinst in self.getInst(sf[0]):
+                    for dinst in self.getInst(x):
+                        if sinst == dinst: continue 
+                        else:
+                            self.instal_print(
+                                "%\n% Translation of {sf} of {sinst} xinitiates {x} of {dinst} if {condition}"
+                                .format(sf=self.term2string(sf),x=x,condition=cond, sinst = sinst, dinst = dinst))
+                            self.instal_print("%\nxinitiated({sinst}, {x},{dinst},I) :-\n"
+                                              "   occurred({sf},{sinst},I),\n"
+                                              "   holdsat(ipow({sinst}, {x}, {dinst}), {inst}, I), \n"
+                                              "   holdsat(live({inst}),{inst},I), inst({inst}), \n"
+                                              "   inst({dinst};{sinst}), "
+                                              .format(x=self.extendedterm2string(x),
+                                                      sf=self.term2string(sf),
+                                                      sinst = sinst,
+                                                      dinst = dinst,
+                                                      inst=self.names["institution"]))
+                            self.printCondition(cond, sinst)
+                            for k in vars1:
+                                self.instal_print(
+                                    "   {pred}({tvar}),"
+                                    .format(pred=self.types[vars1[k]],tvar=k))
+                            for k in vars2:
+                                # should check for consistent usage of k in vars1 and vars2
+                                if k not in vars1:
+                                    self.instal_print(
+                                        "   {pred}({tvar}),"
+                                        .format(pred=self.types[vars2[k]],tvar=k))
+                            self.instal_print("   inst({inst}), instant(I).".format(inst=self.names["institution"]))
 
     def instal_print_xterminates(self):
-        # initiates
+        # terminates
         # inev -> sf  inits -> df  
         self.instal_print("%\n% cross termination rules\n%")
         for rl in self.xterminates:
@@ -1202,38 +1269,41 @@ true.\
             for x in df:
                 vars2 = {}
                 self.collectVars(x,vars2)
-                self.instal_print(
-                    "%\n% Translation of {sf} xterminates {x} if {condition}"
-                    .format(sf=self.term2string(sf),x=x,condition=cond))
-                self.instal_print("%\nterminated({x},{dinst},I) :-\n"
-                                  "   holdsat({sf},{sinst},I),\n"
-                                  "   holdsat(tpow({sinst}, {x}, {dinst}), {inst}, I), \n"
-                                  "   holdsat(live({inst}),{inst},I), inst({inst}), \n"
-                                  "   inst({dinst};{sinst}), "
-                                  .format(x=self.extendedterm2string(x),
-                                          sf=self.term2string(sf),
-                                          sinst = self.getInst(sf[0]),
-                                          dinst = self.getInst(x[0]),
-                                          inst=self.names["institution"]))
-                self.printCondition(cond)
-                for k in vars1:
-                    self.instal_print(
-                        "   {pred}({tvar}),"
-                        .format(pred=self.types[vars1[k]],tvar=k))
-                for k in vars2:
-                    # should check for consistent usage of k in vars1 and vars2
-                    if k not in vars1:
-                        self.instal_print(
-                            "   {pred}({tvar}),"
-                            .format(pred=self.types[vars2[k]],tvar=k))
-                self.instal_print("   inst({inst}), instant(I).".format(inst=self.names["institution"]))
+                for sinst in self.getInst(sf[0]):
+                    for dinst in self.getInst(x):
+                        if sinst == dinst: continue 
+                        else:
+                            self.instal_print(
+                                "%\n% Translation of {sf} of {sinst} xterminates {x} of {dinst} if {condition}"
+                                .format(sf=self.term2string(sf),x=x,condition=cond, sinst = sinst, dinst = dinst))
+                            self.instal_print("%\nxterminated({sinst}, {x}, {dinst}, I) :-\n"
+                                              "   occurred({sf},{sinst},I),\n"
+                                              "   holdsat(tpow({sinst}, {x}, {dinst}), {inst}, I), \n"
+                                              "   holdsat(live({inst}),{inst},I), inst({inst}), \n"
+                                              "   inst({dinst};{sinst}), "
+                                              .format(x=self.extendedterm2string(x),
+                                                      sf=self.term2string(sf),
+                                                      sinst = sinst,
+                                                      dinst = dinst,
+                                                      inst=self.names["institution"]))
+                            self.printCondition(cond, sinst)
+                            for k in vars1:
+                                self.instal_print(
+                                    "   {pred}({tvar}),"
+                                    .format(pred=self.types[vars1[k]],tvar=k))
+                            for k in vars2:
+                                # should check for consistent usage of k in vars1 and vars2
+                                if k not in vars1:
+                                    self.instal_print(
+                                        "   {pred}({tvar}),"
+                                        .format(pred=self.types[vars2[k]],tvar=k))
+                            self.instal_print("   inst({inst}), instant(I).".format(inst=self.names["institution"]))
 
 
 
     def instal_print_initially(self):
         # initially
         self.instal_print("%\n% initially\n%")
-        #print(self.initials)
         # note this needs revision to time.lp
         if len(self.crevents) == 0:
             self.instal_print("% no creation event")
@@ -1265,7 +1335,7 @@ true.\
                         .format(inst=self.names["institution"], x=self.extendedterm2string(cond))) #TL:20130118
                 # TL new for cross fluents 
                 if i[0] in ['gpow', 'tpow', 'ipow']:
-                    self.instal_print("   inst( {dinst}; {sinst}), ".format(sinst=i[1][0][0] ,dinst=i[1][2][0],inst=self.names["institution"]))
+                    self.instal_print("   inst({dinst}; {sinst}), ".format(sinst=i[1][0][0] ,dinst=i[1][2][0],inst=self.names["institution"]))
                 self.instal_print("   inst({inst}), start(I).".format(inst=self.names["institution"]))
         else:
             self.instal_print("% at least one create event")
@@ -1330,6 +1400,70 @@ true.\
             self.instal_print("   instant(I).")
 
 #------------------------------------------------------------------------
+
+    # function to print domain file 
+    def print_domain(self, domain_file):
+        typename = r"([A-Z][a-zA-Z0-9_]*)"
+        literal = r"([a-z|\d][a-zA-Z0-9_]*)"
+        f = open(domain_file,'r')
+        self.instal_print("%\n% Domain declarations for {institution}\n%".format(**self.names))
+        for l in f.readlines():
+            l = l.rstrip() # lose trailing \n
+            [t,r] = re.split(": ",l)
+            if not(re.search(typename,l)):
+                self.instal_error("ERROR: No type name in {x}".format(x=l))
+                exit(-1)
+            #check t is declared
+            if not(t in self.types):
+                self.instal_error("ERROR: type not declared in {x}".format(x=l))
+                exit(-1)
+            t = self.types[t]
+            r = re.split(" ",r)
+            for s in r:
+                if not(re.search(literal,s)):
+                    self.instal_error("ERROR: Unrecognized literal in {x}".format(x=l))
+                    exit(-1)
+                self.instal_print("{typename}({literalname}).".format(
+                        typename=t,literalname=s))
+            f.close() 
+
+    def instal_print_all(self):
+        self.instal_print("%\n% "
+                          "-------------------------------"
+                          "PART 1"
+                          "-------------------------------"
+                          "\n%")
+        self.instal_print_standard_prelude()
+        # self.instal_print_constraints()
+        self.instal_print_types()
+        self.instal_print_exevents()
+        self.instal_print_nullevent()
+        self.instal_print_inevents()
+        self.instal_print_vievents()
+        self.instal_print_crevents()
+        self.instal_print_dievents()
+        self.instal_print_dissolve()
+        self.instal_print_inertial_fluents()
+        self.instal_print_noninertial_fluents()
+        self.instal_print_violation_fluents()
+        self.instal_print_obligation_fluents()
+        self.instal_print_cross_fluents()
+        self.instal_print("%\n% "
+                          "-------------------------------"
+                          "PART 2"
+                          "-------------------------------"
+                          "\n%")
+        self.instal_print_xgenerates()
+        self.instal_print_xinitiates()
+        self.instal_print_xterminates()
+        # self.instal_print_noninertials()
+        self.instal_print("%\n% "
+                          "-------------------------------"
+                          "PART 3"
+                          "-------------------------------"
+                          "\n%")
+        self.instal_print_initially()
+        self.instal_print("%\n% End of file\n%")
 
     # def instal_parse(d):
     #     yacc.yacc()

@@ -8,7 +8,7 @@
 (def DONE "done")
 (def PHASES ["A" "B" "C" "D" "E" "F"])
 (def PARAMS ["R" "S" "T" "U" "V" "W" "X" "Y" "Z"])
-(def WS "        ")
+(def WS "    ")
 
 (defn capitalize-words
   "Capitalize every word in a string"
@@ -506,7 +506,7 @@ or STRING to string"
         wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
         ostrs (into [] (set (map #(event-str % oparams) oevs)))
         ;; wparams (map #(unify-params (:when %) roles objects) situations)
-        gmake (fn [iname ev cnds] (str ev " generates\n" WS iname " if\n" WS WS (reduce str (interpose ", " cnds)) ";"))
+        gmake (fn [iname ev cnds] (str ev " generates\n" WS iname " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";"))
         estrs (map #(event-str % params) events)
         pstrs (map #(param-str % params) events)
         wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
@@ -620,8 +620,8 @@ or STRING to string"
         term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
         ;; events (remove :obligation (:events trope))
         events (:events trope)
-        imake (fn [iname evs cnds] (str iname " initiates\n" WS (reduce str (interpose ", " evs)) " if\n" WS WS (reduce str (interpose ", " cnds)) ";"))
-        tmake (fn [iname evs cnds] (str iname " terminates\n" WS (reduce str (interpose ", " evs)) " if\n" WS WS (reduce str (interpose ", " cnds)) ";"))
+        imake (fn [iname evs cnds] (str iname " initiates\n" WS (reduce str (interpose (str ",\n" WS) evs)) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";"))
+        tmake (fn [iname evs cnds] (str iname " terminates\n" WS (reduce str (interpose (str ",\n" WS) evs)) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";"))
         ;; estrs (map #(event-str % params) events)
         estrs (map #(norm-str % params) events)
         pstrs (map #(norm-params % params) events)

@@ -1,6 +1,7 @@
 #------------------------------------------------------------------------
 # VERSION TWO REVISION HISTORY:
-# 20160307 JAP: enhanced printing of conditions in initially
+# 20160314 JAP: moved print_domain from driver to here
+# 20160307 JAP: fixed printing of comparison conditions in initially
 # 20160203 JAP: added instal_print_all method
 # 20150708 JAP: merged changes from instalparser_v2 in pyinstal directory
 # 20150708 JAP: changed pattern in t_NAME to allow underscore as first character
@@ -56,7 +57,7 @@
 #------------------------------------------------------------------------
 
 from __future__ import print_function
-# import re # JAP 20140618 pychecker reports not used
+import re
 import sys
 import ply.lex as lex
 import ply.yacc as yacc
@@ -161,38 +162,35 @@ class makeInstalParser():
         self.lexer = myLexer()
         self.tokens = self.lexer.tokens
         self.parser = yacc.yacc(module=self,write_tables=0,debug=False)
-
-    instal_output = sys.stdout
-
-    instal_err = sys.stderr
+        self.instal_input = sys.stdin
+        self.instal_output = sys.stdout
+        self.instal_err = sys.stderr
+        # TL 20131218: defined for mode option passed by command argument 
+        self.mode = ""
+        # dictionaries
+        self.names = { "institution":"noname" }
+        self.types = { }
+        self.exevents = { }
+        self.inevents = { }
+        self.vievents = { }
+        self.crevents = { }
+        self.dievents = { }
+        self.fluents = { }
+        self.noninertial_fluents = { }
+        self.violation_fluents = { }
+        self.obligation_fluents = [ ]
+        self.generates = [ ]
+        self.initiates = [ ]
+        self.terminates = [ ]
+        self.noninertials = [ ]
+        self.initials = [ ]
+        self.thisinitials = [ ]
 
     def instal_print(self,p): print(p,file=self.instal_output)
 
     def instal_error(self,p): print(p,file=self.instal_err)
 
     def instal_warn(self,p): print(p,file=self.instal_err)
-
-    # TL 20131218: defined for mode option passed by command argument 
-    mode = ""
-
-    # dictionaries
-    names = { "institution":"noname" }
-    types = { }
-    exevents = { }
-    inevents = { }
-    vievents = { }
-    crevents = { }
-    dievents = { }
-    fluents = { }
-    noninertial_fluents = { }
-    violation_fluents = { }
-    obligation_fluents = [ ]
-    generates = [ ]
-    initiates = [ ]
-    terminates = [ ]
-    noninertials = [ ]
-    initials = [ ]
-    thisinitials = [ ]
 
     # start = 'institution'
 
@@ -861,31 +859,29 @@ true.\
                           .format(**self.names))
 
     def instal_print_constraints(self):
-        self.instal_print("%\n% Constraints for obserable events depending on mode option\n%".format(**self.names))
+        self.instal_print("%\n% Constraints for observable events depending on mode option\n%".format(**self.names))
         if self.mode == "single":
             self.instal_print( "%%  mode SINGLE is chosen:\n"  
-                        "{observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
-                        ":- observed(E,In,J),observed(F,In,J),instant(J),evtype(E,In,ex),\n"
-                            "evtype(F,In,ex), E!=F,inst(In). \n"
-                        "obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).\n"
-                        "         :- not obs(In,I), not final(I), instant(I), inst(In).\n")
-        elif self.mode == "composite":
-            self.instal_print("%%  mode COMPOSITE is chosen:\n" 
-                        "{compObserved(E, J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
-                        ":- compObserved(E,J),compObserved(F,J),instant(J),evtype(E,InX,ex),\n"
-                        "   evtype(F,InY,ex), E!=F,inst(InX;InY). \n"
-                        "obs(I):- compObserved(E,I),evtype(E,In,ex),instant(I),inst(In).\n"
-                        "      :- not obs(I), not final(I), instant(I), inst(In).\n"
-                        "observed(E,In,I) :- compObserved(E,I), inst(In), instant(I).")
+                               "{observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
+                               ":- observed(E,In,J),observed(F,In,J),instant(J),evtype(E,In,ex),\n"
+                               "evtype(F,In,ex), E!=F,inst(In). \n"
+                               "obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).\n"
+                               "         :- not obs(In,I), not final(I), instant(I), inst(In).\n")
         elif self.mode == "default":
             self.instal_print("%%  mode DEFAULT is chosen:\n"
-                    "{observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
-                    ":- observed(E,In,J),observed(F,In,J),instant(J),evtype(E,In,ex),\n"
-                    "evtype(F,In,ex), E!=F,inst(In). \n"
-                    "obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).\n"
-                    "         :- not obs(In,I), not final(I), instant(I), inst(In).\n")
-
-
+                              "{observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
+                              ":- observed(E,In,J),observed(F,In,J),instant(J),evtype(E,In,ex),\n"
+                              "evtype(F,In,ex), E!=F,inst(In). \n"
+                              "obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).\n"
+                              "         :- not obs(In,I), not final(I), instant(I), inst(In).\n")
+        elif self.mode == "composite":
+            self.instal_print("%%  mode COMPOSITE is chosen:\n" 
+                              "{compObserved(E, J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
+                              ":- compObserved(E,J),compObserved(F,J),instant(J),evtype(E,InX,ex),\n"
+                              "   evtype(F,InY,ex), E!=F,inst(InX;InY). \n"
+                              "obs(I):- compObserved(E,I),evtype(E,In,ex),instant(I),inst(In).\n"
+                              "      :- not obs(I), not final(I), instant(I), inst(In).\n"
+                              "observed(E,In,I) :- compObserved(E,I), inst(In), instant(I).")
 
     def instal_print_types(self):
         # print types
@@ -1384,6 +1380,32 @@ true.\
             self.instal_print("   instant(I).")
 
 #------------------------------------------------------------------------
+
+    # function to print domain file 
+    def print_domain(self, domain_file):
+        typename = r"([A-Z][a-zA-Z0-9_]*)"
+        literal = r"([a-z|\d][a-zA-Z0-9_]*)"
+        f = open(domain_file,'r')
+        self.instal_print("%\n% Domain declarations for {institution}\n%".format(**self.names))
+        for l in f.readlines():
+            l = l.rstrip() # lose trailing \n
+            [t,r] = re.split(": ",l)
+            if not(re.search(typename,l)):
+                self.instal_error("ERROR: No type name in {x}".format(x=l))
+                exit(-1)
+            #check t is declared
+            if not(t in self.types):
+                self.instal_error("ERROR: type not declared in {x}".format(x=l))
+                exit(-1)
+            t = self.types[t]
+            r = re.split(" ",r)
+            for s in r:
+                if not(re.search(literal,s)):
+                    self.instal_error("ERROR: Unrecognized literal in {x}".format(x=l))
+                    exit(-1)
+                self.instal_print("{typename}({literalname}).".format(
+                        typename=t,literalname=s))
+            f.close() 
 
     def instal_print_all(self):
         self.instal_print("%\n% "

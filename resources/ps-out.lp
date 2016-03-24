@@ -88,7 +88,7 @@ true.
   fluent(live(starWars), starWars).
   inst(starWars).
 %
-% Constraints for obserable events depending on mode option
+% Constraints for observable events depending on mode option
 %
 %%  mode SINGLE is chosen:
 {observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).
