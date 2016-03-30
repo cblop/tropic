@@ -1,30 +1,46 @@
 (ns tropic.core
-  (:require [tropic.parser :refer [transform parse]])
+  (:require [me.raynes.conch :refer [programs with-programs let-programs] :as sh]
+            [tropic.instal :refer [instal-file]]
+            [tropic.text-parser :refer [observe]])
   (:gen-class))
 
-(defn tropc
-  [text]
-  (transform (parse text) text))
+(programs python clingo)
 
-(defn fix-crs [text]
-  (clojure.string/replace text "\r" ""))
+(def output-file (atom ""))
+(def inst (atom "starwars"))
 
-;; (defn -main
-;;   [input output]
-;;   (let [text (slurp input)
-;;         result (tropc (fix-crs text))]
-;;     (spit output result)))
+(defn show-message []
+  (do
+    (print "\nWelcome to the land of adventure!\n\n> ")
+    (flush)))
+
+(defn process-events [input evs]
+  (let [new-ev (observe input @inst (count evs))]
+    (spit "resources/query.lp" (str new-ev "\n") :append true)))
 
 (defn get-input []
-  (do (println "Welcome to the land of adventure!")
-      (print "> ")
-      (loop [input (read-line) acc []]
-        (if (= ":done" input)
-          (println (reduce str (interpose ": yes!\n" acc)))
-          (recur (read-line) (conj acc input))
-          ))
-    ))
+  (loop [input (read-line) acc []]
+    (if (= "quit" input) (println "\nGoodbye!\n")
+        (do
+          (process-events input acc)
+          (print "> ")
+          (flush)
+          (recur (read-line) (conj acc input)))
+      ))
+  )
+
+(defn output-file-name [name]
+  (-> name
+      (clojure.string/split #"\.")
+      (first)
+      (str ".ial")))
 
 (defn -main [& args]
-  (get-input))
+  (if-not (= (count args) 1) (println "Usage: tropical <STORY_FILE>.story")
+    (do
+      (spit "resources/query.lp" "")
+      (reset! output-file (output-file-name (first args)))
+      (instal-file (first args) @output-file)
+      (show-message)
+      (get-input))))
 

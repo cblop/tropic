@@ -50,24 +50,24 @@ start(0).
 % suppress clingo warnings in absence of inertials, non-inertials or obligations
 ifluent(0,0).
 nifluent(0,0).
-oblfluent(0,0). 
+oblfluent(0,0).
 % fluent rules
 holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I),
     next(I,J),ifluent(P, In),instant(I),instant(J), inst(In).
 holdsat(P,In,J):- initiated(P,In,I),next(I,J),
     ifluent(P, In),instant(I),instant(J), inst(In).
-holdsat(P,In,J):- initiated(P,In,I),next(I,J), 
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
     oblfluent(P, In),instant(I),instant(J), inst(In).
 % all observed events occur
 occurred(E,In,I):- evtype(E,In,ex),observed(E,In,I),instant(I), inst(In).
-% produces null for unknown events 
-occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I), 
-    instant(I), inst(In). 
-% produces gap warning for unknown events 
-unknown(E, In, I) :- not evtype(E,In,ex), observed(E,In,I), 
-    instant(I), inst(In). 
-warninggap(In, I) :- unknown(E,In,I), inst(In), instant(I). 
-% a violation occurs for each non-permitted action 
+% produces null for unknown events
+occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+% produces gap warning for unknown events
+unknown(E, In, I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+warninggap(In, I) :- unknown(E,In,I), inst(In), instant(I).
+% a violation occurs for each non-permitted action
 occurred(viol(E),In,I):-
     occurred(E,In,I),
     evtype(E,In,ex),
@@ -79,8 +79,22 @@ occurred(viol(E),In,I):-
     evtype(E,In,inst),
     not holdsat(perm(E),In,I),
     event(E),instant(I),event(viol(E)), inst(In).
-% needed until I tidy up some of the constraint generation 
+% needed until I tidy up some of the constraint generation
 true.
+start(0).
+instant(0..T) :- final(T).
+next(T,T+1) :- instant(T).
+final(horizon).
+% externals for individual institutions
+#external observed(E,I) : event(E), inst(I).
+observed(E,I,J) :- observed(E,I), start(J).
+#external holdsat(F,I) : fluent(F,I), inst(I).
+holdsat(F,I,J) :- holdsat(F,I), start(J).
+#external holdsat(perm(E),I) : event(E), inst(I).
+holdsat(perm(E),I,J) :- holdsat(perm(E),I), start(J).
+#external holdsat(pow(E),I) : event(E), inst(I).
+holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
+
 %
 % Rules for Institution starWars
 %
@@ -229,33 +243,33 @@ fluent(at(Agent0,Place1),starWars) :-
 %
 % obligation fluents
 %
-oblfluent(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),violHeroGoAway), starWars) :-
+oblfluent(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),noViolation), starWars) :-
    event(go(Agent0,PlaceName1)),
    event(go(Agent2,PlaceName3)),
-   event(violHeroGoAway), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
-ifluent(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),violHeroGoAway), starWars) :-
+   event(noViolation), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
+ifluent(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),noViolation), starWars) :-
    event(go(Agent0,PlaceName1)),
    event(go(Agent2,PlaceName3)),
-   event(violHeroGoAway), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
-fluent(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),violHeroGoAway), starWars) :-
+   event(noViolation), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
+fluent(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),noViolation), starWars) :-
    event(go(Agent0,PlaceName1)),
    event(go(Agent2,PlaceName3)),
-   event(violHeroGoAway), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
-terminated(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),violHeroGoAway),starWars,I) :-
+   event(noViolation), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
+terminated(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),noViolation),starWars,I) :-
    event(go(Agent0,PlaceName1)), occurred(go(Agent0,PlaceName1),starWars,I),
    event(go(Agent2,PlaceName3)),
-   holdsat(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),violHeroGoAway),starWars,I),
-   event(violHeroGoAway), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
-terminated(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),violHeroGoAway),starWars,I) :-
+   holdsat(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),noViolation),starWars,I),
+   event(noViolation), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
+terminated(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),noViolation),starWars,I) :-
    event(go(Agent0,PlaceName1)), 
    event(go(Agent2,PlaceName3)), occurred(go(Agent2,PlaceName3),starWars,I),
-   holdsat(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),violHeroGoAway),starWars,I),
-   event(violHeroGoAway), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
-occurred(violHeroGoAway,starWars,I) :-
+   holdsat(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),noViolation),starWars,I),
+   event(noViolation), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
+occurred(noViolation,starWars,I) :-
    event(go(Agent0,PlaceName1)), 
    event(go(Agent2,PlaceName3)), occurred(go(Agent2,PlaceName3),starWars,I),
-   holdsat(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),violHeroGoAway),starWars,I),
-   event(violHeroGoAway), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
+   holdsat(obl(go(Agent0,PlaceName1),go(Agent2,PlaceName3),noViolation),starWars,I),
+   event(noViolation), agent(Agent0),placename(PlaceName1),agent(Agent2),placename(PlaceName3),true,inst(starWars).
 %
 % -------------------------------PART 2-------------------------------
 %
@@ -298,17 +312,6 @@ occurred(intHerosJourney(R,S,T,U,V),starWars,I) :- occurred(go(R,V),starWars,I),
 %
 % initiate rules
 %
-%
-% Translation of violHeroGoAway initiates ['perm', ['kill', ['R', 'S']]] if ['and', ['role', ['R', 'hero']], ['role', ['S', 'villain']]]
-%
-initiated(perm(kill(R,S)),starWars,I) :-
-   occurred(violHeroGoAway,starWars,I),
-   holdsat(live(starWars),starWars,I), inst(starWars),
-   holdsat(role(R,hero),starWars,I),
-   holdsat(role(S,villain),starWars,I),
-   agent(S),
-   agent(R),
-   inst(starWars), instant(I).
 %
 % Translation of intHerosJourney(R,S,T,U,V) initiates ['phase', ['herosJourney', 'done']] if ['phase', ['herosJourney', 'phaseD']]
 %
@@ -400,9 +403,9 @@ initiated(phase(herosJourney,phaseB),starWars,I) :-
    placename(V),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T,U,V) initiates ['obl', [['go', ['R', 'U']], ['go', ['S', 'V']], ['violHeroGoAway', []]]] if ['and', ['and', ['and', ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['R', 'hero']]], ['place', ['U', 'away']]], ['role', ['S', 'villain']]], ['place', ['V', 'home']]]
+% Translation of intHerosJourney(R,S,T,U,V) initiates ['obl', [['go', ['R', 'U']], ['go', ['S', 'V']], ['noViolation', []]]] if ['and', ['and', ['and', ['and', ['phase', ['herosJourney', 'phaseA']], ['role', ['R', 'hero']]], ['place', ['U', 'away']]], ['role', ['S', 'villain']]], ['place', ['V', 'home']]]
 %
-initiated(obl(go(R,U),go(S,V),violHeroGoAway),starWars,I) :-
+initiated(obl(go(R,U),go(S,V),noViolation),starWars,I) :-
    occurred(intHerosJourney(R,S,T,U,V),starWars,I),
    holdsat(live(starWars),starWars,I), inst(starWars),
    holdsat(phase(herosJourney,phaseA),starWars,I),
@@ -450,9 +453,9 @@ initiated(perm(go(R,V)),starWars,I) :-
 % terminate rules
 %
 %
-% Translation of intGo(S,U) terminates ['obl', [['go', ['R', 'T']], ['go', ['S', 'U']], ['violHeroGoAway', []]]] if ['and', ['and', ['and', ['role', ['R', 'hero']], ['place', ['T', 'away']]], ['role', ['S', 'villain']]], ['place', ['U', 'home']]]
+% Translation of intGo(S,U) terminates ['obl', [['go', ['R', 'T']], ['go', ['S', 'U']], ['noViolation', []]]] if ['and', ['and', ['and', ['role', ['R', 'hero']], ['place', ['T', 'away']]], ['role', ['S', 'villain']]], ['place', ['U', 'home']]]
 %
-terminated(obl(go(R,T),go(S,U),violHeroGoAway),starWars,I) :-
+terminated(obl(go(R,T),go(S,U),noViolation),starWars,I) :-
    occurred(intGo(S,U),starWars,I),
    holdsat(live(starWars),starWars,I),inst(starWars),
    holdsat(role(R,hero),starWars,I),
@@ -543,9 +546,9 @@ terminated(phase(herosJourney,phaseB),starWars,I) :-
    placename(V),
    inst(starWars), instant(I).
 %
-% Translation of intHerosJourney(R,S,T,U,V) terminates ['obl', [['go', ['R', 'U']], ['go', ['S', 'V']], ['violHeroGoAway', []]]] if ['phase', ['herosJourney', 'phaseB']]
+% Translation of intHerosJourney(R,S,T,U,V) terminates ['obl', [['go', ['R', 'U']], ['go', ['S', 'V']], ['noViolation', []]]] if ['phase', ['herosJourney', 'phaseB']]
 %
-terminated(obl(go(R,U),go(S,V),violHeroGoAway),starWars,I) :-
+terminated(obl(go(R,U),go(S,V),noViolation),starWars,I) :-
    occurred(intHerosJourney(R,S,T,U,V),starWars,I),
    holdsat(live(starWars),starWars,I),inst(starWars),
    holdsat(phase(herosJourney,phaseB),starWars,I),

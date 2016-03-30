@@ -1,5 +1,6 @@
 #------------------------------------------------------------------------
 # VERSION TWO REVISION HISTORY:
+# 20160323 JAP: skip blank lines in print_domain
 # 20160314 JAP: moved print_domain from driver to here
 # 20160307 JAP: fixed printing of comparison conditions in initially
 # 20160203 JAP: added instal_print_all method
@@ -807,42 +808,55 @@ class makeInstalParser():
     # output formatting functions
 
     # JAP: 20121114
-    standard_prelude = "\
-% suppress clingo warnings in absence of inertials, non-inertials or obligations\n\
-ifluent(0,0).\n\
-nifluent(0,0).\n\
-oblfluent(0,0). \n\
-% fluent rules\n\
-holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I),\n\
-    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In).\n\
-holdsat(P,In,J):- initiated(P,In,I),next(I,J),\n\
-    ifluent(P, In),instant(I),instant(J), inst(In).\n\
-holdsat(P,In,J):- initiated(P,In,I),next(I,J), \n\
-    oblfluent(P, In),instant(I),instant(J), inst(In).\n\
-% all observed events occur\n\
-occurred(E,In,I):- evtype(E,In,ex),observed(E,In,I),instant(I), inst(In).\n\
-% produces null for unknown events \n\
-occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I), \n\
-    instant(I), inst(In). \n\
-% produces gap warning for unknown events \n\
-unknown(E, In, I) :- not evtype(E,In,ex), observed(E,In,I), \n\
-    instant(I), inst(In). \n\
-warninggap(In, I) :- unknown(E,In,I), inst(In), instant(I). \n\
-% a violation occurs for each non-permitted action \n\
-occurred(viol(E),In,I):-\n\
-    occurred(E,In,I),\n\
-    evtype(E,In,ex),\n\
-    not holdsat(perm(E),In,I),\n\
-    holdsat(live(In),In,I),evinst(E,In),\n\
-    event(E),instant(I),event(viol(E)),inst(In).\n\
-occurred(viol(E),In,I):-\n\
-    occurred(E,In,I),\n\
-    evtype(E,In,inst),\n\
-    not holdsat(perm(E),In,I),\n\
-    event(E),instant(I),event(viol(E)), inst(In).\n\
-% needed until I tidy up some of the constraint generation \n\
-true.\
-"
+    standard_prelude = """\
+% suppress clingo warnings in absence of inertials, non-inertials or obligations
+ifluent(0,0).
+nifluent(0,0).
+oblfluent(0,0).
+% fluent rules
+holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I),
+    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    ifluent(P, In),instant(I),instant(J), inst(In).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    oblfluent(P, In),instant(I),instant(J), inst(In).
+% all observed events occur
+occurred(E,In,I):- evtype(E,In,ex),observed(E,In,I),instant(I), inst(In).
+% produces null for unknown events
+occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+% produces gap warning for unknown events
+unknown(E, In, I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+warninggap(In, I) :- unknown(E,In,I), inst(In), instant(I).
+% a violation occurs for each non-permitted action
+occurred(viol(E),In,I):-
+    occurred(E,In,I),
+    evtype(E,In,ex),
+    not holdsat(perm(E),In,I),
+    holdsat(live(In),In,I),evinst(E,In),
+    event(E),instant(I),event(viol(E)),inst(In).
+occurred(viol(E),In,I):-
+    occurred(E,In,I),
+    evtype(E,In,inst),
+    not holdsat(perm(E),In,I),
+    event(E),instant(I),event(viol(E)), inst(In).
+% needed until I tidy up some of the constraint generation
+true.
+start(0).
+instant(0..T) :- final(T).
+next(T,T+1) :- instant(T).
+final(horizon).
+% externals for individual institutions
+#external observed(E,I) : event(E), inst(I).
+observed(E,I,J) :- observed(E,I), start(J).
+#external holdsat(F,I) : fluent(F,I), inst(I).
+holdsat(F,I,J) :- holdsat(F,I), start(J).
+#external holdsat(perm(E),I) : event(E), inst(I).
+holdsat(perm(E),I,J) :- holdsat(perm(E),I), start(J).
+#external holdsat(pow(E),I) : event(E), inst(I).
+holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
+"""
 
     def instal_print_standard_prelude(self):
         # JAP: 2012114
@@ -1389,6 +1403,7 @@ true.\
         self.instal_print("%\n% Domain declarations for {institution}\n%".format(**self.names))
         for l in f.readlines():
             l = l.rstrip() # lose trailing \n
+            if l=='': continue # 20160323 JAP: skip blank lines
             [t,r] = re.split(": ",l)
             if not(re.search(typename,l)):
                 self.instal_error("ERROR: No type name in {x}".format(x=l))
@@ -1405,7 +1420,7 @@ true.\
                     exit(-1)
                 self.instal_print("{typename}({literalname}).".format(
                         typename=t,literalname=s))
-            f.close() 
+        f.close() 
 
     def instal_print_all(self):
         self.instal_print("%\n% "

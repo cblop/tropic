@@ -793,24 +793,29 @@ class makeInstalParser():
 
     # JAP: 20121114
     # JAP 20160315: replaced inst(In;InS) with inst(In), inst(InS)... why so?
-    standard_prelude = "\
-% fluent rules\n\
-holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I), not xterminated(InS,P,In,I), \n\
-    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In), inst(InS).\n\
-holdsat(P,In,J):- initiated(P,In,I),next(I,J),\n\
-    ifluent(P, In),instant(I),instant(J), inst(In).\n\
-holdsat(P,In,J):- initiated(P,In,I),next(I,J), \n\
-    oblfluent(P, In),instant(I),instant(J), inst(In).\n\
-holdsat(P,In,J):- initiated(P,In,I),next(I,J), \n\
-    nifluent(P, In),instant(I),instant(J), inst(In).\n\
-holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),\n\
-    ifluent(P, In),instant(I),instant(J), inst(InS;In).\n\
-holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J), \n\
-    oblfluent(P, In),instant(I),instant(J), inst(InS;In).\n\
-holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J), \n\
-    nifluent(P, In),instant(I),instant(J), inst(InS;In).\n\
-true.\
-"
+    standard_prelude = """
+% fluent rules
+holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I), not xterminated(InS,P,In,I),
+    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In), inst(InS).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    ifluent(P, In),instant(I),instant(J), inst(In).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    oblfluent(P, In),instant(I),instant(J), inst(In).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    nifluent(P, In),instant(I),instant(J), inst(In).
+holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),
+    ifluent(P, In),instant(I),instant(J), inst(InS), inst(In).
+holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),
+    oblfluent(P, In),instant(I),instant(J), inst(InS), inst(In).
+holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),
+    nifluent(P, In),instant(I),instant(J), inst(InS), inst(In).
+true.
+% externals for bridge institutions
+#external holdsat(gpow(I1,E,I2),B) : inst(I1), inst(I2), inst(B), event(E).
+holdsat(gpow(I1,E,I2),B,J) :- holdsat(ipow(I1,E,I2),B), start(J).
+#external holdsat(ipow(I1,F,I2),B) : inst(I1), inst(I2), inst(B), fluent(F,I2).
+holdsat(ipow(I1,F,I2),B,J) :- holdsat(ipow(I1,F,I2),B), start(J).
+"""
 
     def instal_print_standard_prelude(self):
         # JAP: 2012114

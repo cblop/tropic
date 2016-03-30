@@ -151,10 +151,6 @@ or STRING to string"
 (defn obl [{:keys [obligation]} params]
   (let [deadline (:deadline obligation)
         violation (:violation obligation)
-        p (println "OBLS: ")
-        x (println params)
-        d (println "DEAD: ")
-        y (println (event-str deadline params))
         obl (if (nil? obligation) ""
                 (-> obligation
                     (event-str params)
@@ -166,8 +162,6 @@ or STRING to string"
                  (viol-name {:obligation obligation})
                      ;; (param-str params)
                      )
-        s (println "WHAT: ")
-        t (println (str "obl(" obl ", " dead ", " viol ")"))
         ]
             (str "obl(" obl ", " dead ", " viol ")")))
 
@@ -253,8 +247,6 @@ or STRING to string"
         deads (map :deadline (filter :deadline obls))
         viols (map :violation (filter :violation obls))
         os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
-        ;; o (println "deads: ")
-        ;; p (println obls)
         ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
         evs (concat os deads viols)
         roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
@@ -315,7 +307,6 @@ or STRING to string"
         params (get-params trope)
         evs (remove :obligation (:events trope))
         deads (remove nil? (map #(-> % :obligation :deadline) (:events trope)))
-        p (println (:events trope))
         events (concat evs deads)
         situations (map :when (:situations trope))
         sperms (mapcat #(map :permission (filter :permission %)) (map :norms (:situations trope)))
@@ -358,8 +349,6 @@ or STRING to string"
         pobls (map #(obl-p % oparams) (filter :obligation (:events trope)))
         ostrs (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " ot)) ")") deads)
         oifs (mapcat #(param-str % oparams) oevs)
-        o (println "oifs: ")
-        p (println oifs)
         ]
     {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
 
@@ -393,8 +382,6 @@ or STRING to string"
         ;; ostrs (into [] (set (map #(event-str % oparams) oevs)))
         ostrs (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") deads)
         oifs (mapcat #(param-str % oparams) oevs)
-        o (println "oifs: ")
-        p (println oifs)
         ]
     {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
 
@@ -427,8 +414,6 @@ or STRING to string"
                                  )))
         ss (map stypes sparams)
         os (map stypes oparams)
-        o (println "os: ")
-        p (println oparams)
         finstr (fn [x ys] (str "inst event " x "(" (reduce str (interpose ", " ys)) ")" ";"))
         instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")
         sinstrs (map finstr snms ss)
@@ -495,9 +480,6 @@ or STRING to string"
         header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
-        o (println "GENS: ")
-        p (println params)
-        ;; q (println oevs)
         ;; sit-conds (map :when (filter :when situations))
         wnames (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
         onames (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") oevs)
@@ -536,8 +518,6 @@ or STRING to string"
   (let [
         header "\n% INITIALLY: -----------"
         params (apply merge (map get-all-params (:tropes hmap)))
-        ;; qq (println "all-params: ")
-        ;; q (println params)
         obls (map get-obls (:tropes hmap))
         story (:story hmap)
         instances (:instances story)
@@ -565,8 +545,6 @@ or STRING to string"
         situations (mapcat :situations (:tropes hmap))
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
-        o (println "opnames: ")
-        p (println opnames)
         powers (map powfn (:tropes hmap))
         powstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") powers))]
     ;; (concat rolestrs placestrs)
@@ -605,15 +583,11 @@ or STRING to string"
         evs (map #(perm (event-str % params)) pevs)
         vnames (map viol-name (filter #(:violation (:obligation %)) obls))
         conds (map #(param-str % params) pevs)
-        x (println "EYY: ")
-        y (println evs)
         ]
     {:names vnames :events [evs] :conds conds}))
 
 (defn initiates [trope]
   (let [params (get-all-params trope)
-        p (println "PARAMS: ")
-        q (println params)
         inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         ename (event-name (:name trope))
         header (str "\n% INITIATES: " (namify (:name trope)) " ----------")
@@ -636,8 +610,6 @@ or STRING to string"
         sits (get-sits trope)
         obls (get-obls trope)
         viols (get-viols trope)
-        r (println "VIALS: ")
-        s (println viols)
         ;; tvec (conj phases [(last phases)])
         tvec (map vector phases)
         init-a (map imake (repeat inst) evec cvec)

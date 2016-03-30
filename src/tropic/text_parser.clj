@@ -1,7 +1,7 @@
 (ns tropic.text-parser
   (:require [instaparse.core :as insta]
             [damionjunk.nlp.cmu-ark :as ark]
-            [damionjunk.nlp.stanford :as stan]
+            ;; [damionjunk.nlp.stanford :as stan]
             [tropic.instal :refer [event-name]]
             [clojure.string :as str]))
 
@@ -32,17 +32,17 @@
    text
    (solver-parser text)))
 
-(solve-parse
- (str
-  "holdsat(in_fact(bar),basic,2)\n"
-  "holdsat(perm(in_red(bar)),basic,2)\n"
-  "holdsat(in_fact(foo),basic,1)\n"
-  "holdsat(perm(in_red(foo)),basic,1)\n"
-  "holdsat(obl(ex_red(foo),ex_green(foo),ex_blue(foo)),basic,1)\n"
-  "holdsat(pow(basic,in_blue(foo)),basic,1)\n"
-  "holdsat(live(basic),basic,1)\n"
-  "occurred(in_red(foo),basic,0)\n"
-  "occurred(ex_red(foo),basic,0)"))
+;; (solve-parse
+;;  (str
+;;   "holdsat(in_fact(bar),basic,2)\n"
+;;   "holdsat(perm(in_red(bar)),basic,2)\n"
+;;   "holdsat(in_fact(foo),basic,1)\n"
+;;   "holdsat(perm(in_red(foo)),basic,1)\n"
+;;   "holdsat(obl(ex_red(foo),ex_green(foo),ex_blue(foo)),basic,1)\n"
+;;   "holdsat(pow(basic,in_blue(foo)),basic,1)\n"
+;;   "holdsat(live(basic),basic,1)\n"
+;;   "occurred(in_red(foo),basic,0)\n"
+;;   "occurred(ex_red(foo),basic,0)"))
 
 (defn parse-int [s]
   (Integer/parseInt (re-find #"\A-?\d+" s)))
@@ -77,18 +77,18 @@
     }
    ptree))
 
-(-> (str
-     "holdsat(in_fact(bar),basic,2)\n"
-     "holdsat(perm(in_red(bar)),basic,2)\n"
-     "holdsat(in_fact(foo),basic,1)\n"
-     "holdsat(perm(in_red(foo)),basic,1)\n"
-     "holdsat(obl(ex_red(foo),ex_green(foo),ex_blue(foo)),basic,1)\n"
-     "holdsat(pow(basic,in_blue(foo)),basic,1)\n"
-     "holdsat(live(basic),basic,1)\n"
-     "occurred(in_red(foo),basic,0)\n"
-     "occurred(ex_red(foo),basic,0)")
-    (solve-parse)
-    (transform))
+;; (-> (str
+;;      "holdsat(in_fact(bar),basic,2)\n"
+;;      "holdsat(perm(in_red(bar)),basic,2)\n"
+;;      "holdsat(in_fact(foo),basic,1)\n"
+;;      "holdsat(perm(in_red(foo)),basic,1)\n"
+;;      "holdsat(obl(ex_red(foo),ex_green(foo),ex_blue(foo)),basic,1)\n"
+;;      "holdsat(pow(basic,in_blue(foo)),basic,1)\n"
+;;      "holdsat(live(basic),basic,1)\n"
+;;      "occurred(in_red(foo),basic,0)\n"
+;;      "occurred(ex_red(foo),basic,0)")
+;;     (solve-parse)
+;;     (transform))
 
 (defn snth [coll n]
   (if (< (count coll) (+ n 1)) nil
@@ -123,44 +123,21 @@
     ))
 
 
-(-> (str
-     "holdsat(obl(ex_red(bar),ex_green(bar),ex_blue(bar)),basic,2)\n"
-     "holdsat(in_fact(bar),basic,2)\n"
-     "holdsat(perm(in_red(bar)),basic,2)\n"
-     "holdsat(in_fact(foo),basic,1)\n"
-     "holdsat(perm(in_red(foo)),basic,1)\n"
-     "holdsat(obl(ex_red(foo),ex_green(foo),ex_blue(foo)),basic,1)\n"
-     "holdsat(pow(basic,in_blue(foo)),basic,1)\n"
-     "holdsat(live(basic),basic,1)\n"
-     "occurred(in_red(foo),basic,0)\n"
-     "occurred(ex_red(foo),basic,0)")
-    (solve-parse)
-    (transform)
-    (say-options))
+;; (-> (str
+;;      "holdsat(obl(ex_red(bar),ex_green(bar),ex_blue(bar)),basic,2)\n"
+;;      "holdsat(in_fact(bar),basic,2)\n"
+;;      "holdsat(perm(in_red(bar)),basic,2)\n"
+;;      "holdsat(in_fact(foo),basic,1)\n"
+;;      "holdsat(perm(in_red(foo)),basic,1)\n"
+;;      "holdsat(obl(ex_red(foo),ex_green(foo),ex_blue(foo)),basic,1)\n"
+;;      "holdsat(pow(basic,in_blue(foo)),basic,1)\n"
+;;      "holdsat(live(basic),basic,1)\n"
+;;      "occurred(in_red(foo),basic,0)\n"
+;;      "occurred(ex_red(foo),basic,0)")
+;;     (solve-parse)
+;;     (transform)
+;;     (say-options))
 
-(def text-parser
-  (insta/parser
-   "input = verb <' '> <'at '>? <'to '>? <'the '>? object
-    verb = 'look' | 'go' | 'take'
-    object = word
-    <word> = #'[0-9a-zA-Z\\-\\_\\']*'
-    <words> = word (<' '> word)*"))
-
-(def get-sentences (nlp/make-sentence-detector "models/en-sent.bin"))
-(def tokenize (nlp/make-tokenizer "models/en-token.bin"))
-(def pos-tag (nlp/make-pos-tagger "models/en-pos-maxent.bin"))
-;; (def chunker (nlp/make-))
-
-(defn parse
-  [text]
-  (insta/add-line-and-column-info-to-metadata
-   text
-   (text-parser text)))
-
-(parse "look left")
-(parse "look at the chair")
-(parse "go to the cinema")
-(parse "take the chair")
 
 (defn make-ark-tree [tags]
   (into [] (remove nil? (map (fn [{:keys [token pos]}]
@@ -186,16 +163,26 @@
       (make-ark-tree)
       (format-chars)))
 
-(nlp-parse "give luke skywalker the light saber")
-(ark/tag "talk to Luke Skywalker")
+(defn observe [text inst n]
+  (let [ptree (nlp-parse text)
+        hmap (apply hash-map (apply concat ptree))
+        event (interpose "," (remove nil? [(:character hmap) (:object hmap)]))
+        evf (if (empty? event) "" (reduce str (cons "," event)))
+        ]
+    (str "observed(" (:verb hmap) "(player" evf ")," inst "," n ").")
+    ))
+
+;; (nlp-parse "give luke skywalker the light saber")
+;; (observe (nlp-parse "give luke skywalker the light saber") "starWars" 1)
+;; (ark/tag "talk to Luke Skywalker")
 
 
-(ark/tag "look at the phone")
-(make-tree (pos-tag (tokenize "go to the zoo")))
-(make-tree (pos-tag (tokenize "throw the chair away")))
-(make-tree (pos-tag (tokenize "go up")))
-(make-tree (pos-tag (tokenize "look at the phone")))
-(pos-tag (tokenize "go to the zoo"))
-(pos-tag (tokenize "go north"))
-(pos-tag (tokenize "look at the phone"))
-(pos-tag (tokenize "examine the phone"))
+;; (ark/tag "look at the phone")
+;; (make-tree (pos-tag (tokenize "go to the zoo")))
+;; (make-tree (pos-tag (tokenize "throw the chair away")))
+;; (make-tree (pos-tag (tokenize "go up")))
+;; (make-tree (pos-tag (tokenize "look at the phone")))
+;; (pos-tag (tokenize "go to the zoo"))
+;; (pos-tag (tokenize "go north"))
+;; (pos-tag (tokenize "look at the phone"))
+;; (pos-tag (tokenize "examine the phone"))

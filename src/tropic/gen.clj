@@ -1,6 +1,6 @@
 (ns tropic.gen
   (:require [clojure.string :as str]
-            [com.rpl.specter :refer :all]
+            ;; [com.rpl.specter :refer :all]
             [instaparse.core :as insta]))
 
 (defn copy-meta

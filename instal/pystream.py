@@ -41,9 +41,9 @@ def getargs():
     argparser.add_argument(
         "-bd", "--bridge-domain-file", type=arb,
         help="specify domain file for bridge institution")
-    argparser.add_argument(
-        "-c", "--composite", action='store_true',
-        help="specify domain file")
+    # argparser.add_argument(
+    #     "-c", "--composite", action='store_true',
+    #     help="specify domain file")
     argparser.add_argument(
         "-d", "--domain-file", type=arb, 
         help="specify domain file")
@@ -51,18 +51,18 @@ def getargs():
         "-f", "--fact-file", type=arb,
         help="specify initial fact file")
     # this might be better as nargs='?'
+    # argparser.add_argument(
+    #     "-i", "--instal-file", type=arb,
+    #     help="specify single instal file")
     argparser.add_argument(
-        "-i", "--instal-file", type=arb,
-        help="specify single instal file")
-    argparser.add_argument(
-        "-il", "--instal-files-list", type=str, nargs='+', 
-        help="specify a list of instal files")
+        "-i", "--input-files", type=str, nargs='+', 
+        help="specify one or more instal files")
     argparser.add_argument(
         "-o", "--output-file", type=arb,
-        help="specify output file for single instal file, or output directory for a list of instal files")
-    argparser.add_argument(
-        "-q", "--query-file", type=arb,
-        help="specify query file")
+        help="specify output file for one input, or a directory for more inputs")
+    # argparser.add_argument(
+    #     "-q", "--query-file", type=arb,
+    #     help="specify query file")
     argparser.add_argument(
         "-v", "--verbose", action='count',
         help="turns on trace output, v for holdsat, vv for more")
@@ -70,17 +70,11 @@ def getargs():
     # which allows fileinput and argparse to co-exist, but might be better to use .REMAINDER
     args,unk = argparser.parse_known_args()
     # some self-check argument failure cases 
-    if args.instal_file and args.instal_files_list:
-        sys.stderr.write("Argument Error: either give a single instal file (-i) or a list of instal files (-il) \n")
-        exit(-1)
-    if not(args.composite) and args.instal_files_list:
-        sys.stderr.write("Argument Error: when processing a list of instal files, composite mode (-c) must be specified\n")
-        exit(-1)
     if  args.bridge_file and not args.bridge_domain_file:
-        sys.stderr.write("Argument Error: bridge domain file (-bd) is needed to process bridge file \n")
+        sys.stderr.write("Argument Error: bridge domain file (-bd) is needed to process a bridge file \n")
         exit(-1)
-    if  args.bridge_file and not args.instal_files_list:
-        sys.stderr.write("Argument Error: bridge instal needs the participating instal files (-il) \n")
+    if  args.bridge_file and (not(args.input_files) or len(args.input_files)<2):
+        sys.stderr.write("Argument Error: bridge instal needs at least two instal files (-i) \n")
         exit(-1)
     # or get on with the work
     return args,unk
@@ -88,20 +82,22 @@ def getargs():
 def initially(i,l):
     return map(lambda (f): Fun("holdsat",[parse_term(f),parse_term(i)]),l)
 
+def dummy(x,y):
+    return
+
 def pystream_single(args,unk):
     iparser = instalparser.makeInstalParser()
-    iparser.instal_input = open(args.instal_file,'r')
+    iparser.instal_input = open(args.input_files[0],'r')
     if args.output_file:
         iparser.instal_output = open(args.output_file,'w')
     iparser.mode = "default" 
     idocument = ""
     idocument = idocument + iparser.instal_input.read(-1)
     iparser.instal_parse(idocument) 
-    if args.domain_file and args.instal_file:
+    if args.domain_file:
         iparser.print_domain(args.domain_file) 
-    if args.instal_file:
-        iparser.instal_print_all()
-    if args.instal_file: iparser.instal_input.close()
+    iparser.instal_print_all()
+    iparser.instal_input.close()
     if args.output_file: iparser.instal_output.close()
     ##### start of multi-shot solving cycle
     if args.output_file and args.fact_file:
@@ -110,9 +106,9 @@ def pystream_single(args,unk):
             "time.lp",
             args.output_file
             ]
-        facts = open(args.fact_file,'r')
-        initial_state = initially(iparser.names["institution"],facts.readlines())
-        sensor = Sensor(initial_state,institution,args)
+        initial_state = open(args.fact_file,'r').readlines()
+        print(initial_state)
+        sensor = Sensor(iparser,dummy,initial_state,institution,args)
         # print("initially:")
         # for i in initial_state:
         #     print(i.name(),i.args())
@@ -120,17 +116,12 @@ def pystream_single(args,unk):
         # with open(args.event_file,'r') as events:
         #     for e in events:
         for event in fileinput.input(unk):
-            observation = parse_term(event)
-            if args.verbose>1: print(sensor.cycle,"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-            sensor.solve(observation)
-            if args.verbose>1: print(sensor.cycle,">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            sensor.cycle += 1
-            if args.verbose>0: print("")
+            sensor.solve(event)
         # print("*** end of stream")
 
 def pystream():
     args,unk=getargs()
-    if not(args.composite) and args.instal_file:
+    if len(args.input_files)==1:
         pystream_single(args,unk)
         return
     #####-----------process list of instal files ----------#################
@@ -215,7 +206,7 @@ def pystream():
         # print("files = ",institution)
         # facts = open(args.fact_file,'r')
         initial_state = [] # initially(iparser.names["institution"],facts.readlines())
-        sensor = Sensor(initial_state,institution,args)
+        sensor = Sensor(bparser,dummy,initial_state,institution,args)
         # print("initially:")
         # for i in initial_state:
         #     print(i.name(),i.args())
@@ -223,9 +214,9 @@ def pystream():
         # with open(args.event_file,'r') as events:
         #     for e in events:
         for event in fileinput.input(unk):
-            observation = parse_term(event)
+            # observation = parse_term(event)
             if args.verbose>1: print(sensor.cycle,"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-            sensor.solve(observation)
+            sensor.solve(event)
             if args.verbose>1: print(sensor.cycle,">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             sensor.cycle += 1
             if args.verbose>0: print("")
