@@ -1,22 +1,33 @@
 (ns tropic.core
   (:require [me.raynes.conch :refer [programs with-programs let-programs] :as sh]
             [tropic.instal :refer [instal-file]]
-            [tropic.text-parser :refer [observe]])
+            [tropic.text-parser :refer [observe trace-to-prose]])
   (:gen-class))
 
 (programs python clingo)
 
 (def output-file (atom ""))
-(def inst (atom "starwars"))
+(def inst (atom "starWars"))
 
 (defn show-message []
   (do
     (print "\nWelcome to the land of adventure!\n\n> ")
     (flush)))
 
+
+(defn solver [input]
+  (spit "resources/output.txt" (python "instal/instalsolve.py" "-v" "-i" input "-d" "resources/domain.idc" "-o" "resources/temp.lp" "resources/query.lp")))
+
+
 (defn process-events [input evs]
   (let [new-ev (observe input @inst (count evs))]
-    (spit "resources/query.lp" (str new-ev "\n") :append true)))
+    (do
+      (spit "resources/query.lp" (str new-ev "\n") :append true)
+      (solver @output-file)
+      (println "\n")
+      (println (trace-to-prose (slurp "resources/output.txt")))
+      (println "\n")
+      )))
 
 (defn get-input []
   (loop [input (read-line) acc []]

@@ -7,8 +7,10 @@
 
 (def solver-parser
   (insta/parser
-   "output = (observed <'\n'>)* observed
-    observed = (<'holdsat('> norm+ <')'>) | (<'occurred('> event+ <')'>)
+   "output = observation* final <end>?
+    final = observation
+    <observation> = (observed <'\n'>)+ <'\n'>
+    observed = (<'holdsat('> norm+ <')'>) | (<'occurred('> (event / v-event)+ <')'>)
     norm = (perm / obl / pow / live / fluent) <','> inst <','> instant
     perm = <'perm('> word [<'('> params <')'>] <')'>
     obl = <'obl('> obl-event <','> deadline <','> viol<')'>
@@ -19,7 +21,9 @@
     obl-event = word [<'('> params <')'>]
     deadline = word [<'('> params <')'>]
     viol = word [<'('> params <')'>]
+    <v-event> = <'viol(' <viol> '),' inst ',' instant>
     inst = word
+    end = <'\n'>* <'Passed(' number ')'> <'\n'>*
     params = word (<','> word)*
     instant = number
     <word> = #'[a-zA-Z\\-\\_\\']+'
@@ -31,6 +35,8 @@
   (insta/add-line-and-column-info-to-metadata
    text
    (solver-parser text)))
+
+;; (solve-parse (slurp "resources/output.txt"))
 
 ;; (solve-parse
 ;;  (str
@@ -56,7 +62,7 @@
   (insta/transform
    {:instant (fn [& args] {:instant (parse-int (first args))})
     :inst (fn [& args] {:inst (first args)})
-    :fluent (fn [& args] {:fluent (first args)})
+    :fluent (fn [& args] (apply merge (conj (rest args) {:fluent (first args)})))
     :perm (fn [& args] (apply merge (conj (rest args) {:perm (first args)})))
     :pow (fn [& args] {:pow (first args)})
     :viol (fn [& args] {:viol (first args)})
@@ -68,6 +74,7 @@
     :norm (partial merge)
     :obl (fn [& args] {:obl (apply merge args)})
     :observed (fn [& args] (first args))
+    :final (fn [& args] args)
     :output (fn [& args] (hash-map
                           :perms (into [] (sort-by :instant (get-if-key :perm args)))
                           :fluents (into [] (sort-by :instant (get-if-key :fluent args)))
@@ -94,33 +101,63 @@
   (if (< (count coll) (+ n 1)) nil
       (nth coll n)))
 
+(defn get-for-instant [hmap i]
+  (filter #(= (:instant %) i) hmap))
+
+(defn embellish [word]
+  (->> word
+       (split-with #(not (Character/isUpperCase %)))
+       (map #(clojure.string/capitalize (apply str %)))
+       (interpose " ")
+       (reduce str)
+       (clojure.string/trim))
+  )
+
 (defn say-options [hmap]
   (let [permfn (fn [p] (cond (nil? p) nil
-                             (= (count (:params p)) 1) (str (first (:params p)) " can " (:perm p) ".")
-                             :else (str (first (:params p)) " can " (:perm p) " the " (second (:params p)) ".")
+                             (= (:perm p) "null") nil
+                             (= (count (:params p)) 1) (str (embellish (first (:params p))) " can " (embellish (:perm p)) ".")
+                             :else (str (embellish (first (:params p))) " can " (embellish (:perm p)) " the " (embellish (second (:params p))) ".")
                              ))
         oblfn (fn [x] (let [o (:obl x)
                             ev (cond (nil? o) nil
-                                     (= (count (:params o)) 1) (str (first (:params o)) " must " (:event o))
-                                     :else (str (first (:params o)) " must " (:perm o) " the " (second (:params o)))
+                                     (= (count (:params o)) 1) (str (embellish (first (:params o))) " must " (embellish (:event o)))
+                                     :else (str (embellish (first (:params o))) " must " (embellish (:perm o)) " the " (embellish (second (:params o))))
                                      )]
-                        (cond (and (nil? (:viol o)) (nil? (:deadline o))) (str ev ".")
-                              (nil? (:viol o)) (str ev " before " (:deadline o))
-                              :else (str ev " before " (:deadline o) ", otherwise " (:viol o) ".")
-                              )))
+                        (cond
+                          (nil? ev) ev
+                          (and (nil? (:viol o)) (nil? (:deadline o))) (str (embellish ev) ".")
+                          (nil? (:viol o)) (str (embellish ev) " before " (embellish (:deadline o)))
+                          :else (str (embellish ev) " before " (embellish (:deadline o)) ", otherwise " (embellish (:viol o)) ".")
+                          )))
         fluentfn (fn [f] (cond (nil? f) nil
-                             (nil? (:params f)) (str (:fluent f) " is true.")
-                             (= (count (:params f)) 1) (str (first (:params f)) " is " (:fluent f))
-                             :else (str (first (:params f)) " can " (:fluent f) " the " (second (:params f)))
-                             ))
+                               (= (:fluent f) "null") nil
+                               (nil? (:params f)) (str (embellish (:fluent f)) " is true.")
+                               (= (count (:params f)) 1) (str (embellish (:fluent f)) " is " (embellish (first (:params f))))
+                               :else (str (embellish (first (:params f))) "'s " (:fluent f) " is " (embellish (second (:params f))))
+                               ))
 
+        ;; p (println hmap)
         now (last (sort (mapcat #(map :instant %) (vals hmap))))
-        perms (permfn (snth (:perms hmap) (- now 1)))
-        obls (oblfn (snth (:obls hmap) (- now 1)))
-        fluents (fluentfn (snth (:fluents hmap) (- now 1)))
+        perms (map permfn (get-for-instant (:perms hmap) now))
+        obls (map oblfn (get-for-instant (:obls hmap) now))
+        fluents (map fluentfn (get-for-instant (:fluents hmap) now))
         ]
-    (str fluents "\n" perms "\n" obls)
+    (reduce str (interpose "\n" (concat fluents perms obls)))
     ))
+
+(defn trace-to-prose [trace]
+  (-> trace
+      (solve-parse)
+      (transform)
+      (say-options)))
+
+
+(-> (slurp "resources/output.txt")
+    (solve-parse)
+    (transform)
+    ;; (say-options)
+    )
 
 
 ;; (-> (str
@@ -169,7 +206,8 @@
         event (interpose "," (remove nil? [(:character hmap) (:object hmap)]))
         evf (if (empty? event) "" (reduce str (cons "," event)))
         ]
-    (str "observed(" (:verb hmap) "(player" evf ")," inst "," n ").")
+    ;; (str "observed(" (:verb hmap) "(player" evf ")," inst "," n ")")
+    (str "observed(" (:verb hmap) "(lukeSkywalker" evf ")," inst")")
     ))
 
 ;; (nlp-parse "give luke skywalker the light saber")
