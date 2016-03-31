@@ -7,28 +7,29 @@
 
 (def solver-parser
   (insta/parser
-   "output = observation* final <end>?
+   "output = <observation>* final <end>?
     final = observation
     <observation> = (observed <'\n'>)+ <'\n'>
     observed = (<'holdsat('> norm+ <')'>) | (<'occurred('> (event / v-event)+ <')'>)
-    norm = (perm / obl / pow / live / fluent) <','> inst <','> instant
+    norm = (perm / obl / pow / live / fluent) <',' inst ',' instant>
     perm = <'perm('> word [<'('> params <')'>] <')'>
     obl = <'obl('> obl-event <','> deadline <','> viol<')'>
     pow = <'pow('> inst <','> word [<'('> params <')'>] <')'>
     live = <'live('> word [<'('> params <')'>] <')'>
     fluent = word [<'('> params <')'>]
-    event = word [<'('> params <')'>]<','> inst <','> instant
+    event = word [<'('> params <')'>]<',' inst ',' instant>
     obl-event = word [<'('> params <')'>]
     deadline = word [<'('> params <')'>]
     viol = word [<'('> params <')'>]
     <v-event> = <'viol(' <viol> '),' inst ',' instant>
-    inst = word
+    <inst> = word
     end = <'\n'>* <'Passed(' number ')'> <'\n'>*
     params = word (<','> word)*
-    instant = number
+    <instant> = number
     <word> = #'[a-zA-Z\\-\\_\\']+'
     <number> = #'[0-9]+'
     <words> = word (<' '> word)*"))
+
 
 
 (defn solve-parse [text]
@@ -57,6 +58,15 @@
 (defn get-if-key [key xs]
   (filter #(get % key) xs))
 
+
+(-> (slurp "resources/output.txt")
+    (solve-parse)
+    (transform)
+    (say-options)
+    )
+
+
+
 (defn transform
   [ptree]
   (insta/transform
@@ -66,7 +76,7 @@
     :perm (fn [& args] (apply merge (conj (rest args) {:perm (first args)})))
     :pow (fn [& args] {:pow (first args)})
     :viol (fn [& args] {:viol (first args)})
-    :deadline (fn [& args] {:deadline (first args)})
+    :deadline (fn [& args] {:deadline (apply merge (conj (rest args) {:event (first args)}))})
     :obl-event (fn [& args] (apply merge (conj (rest args) {:event (first args)})))
     :event (fn [& args] (apply merge (conj (rest args) {:event (first args)})))
     :live (fn [& args] {:live (first args)})
@@ -75,14 +85,16 @@
     :obl (fn [& args] {:obl (apply merge args)})
     :observed (fn [& args] (first args))
     :final (fn [& args] args)
-    :output (fn [& args] (hash-map
-                          :perms (into [] (sort-by :instant (get-if-key :perm args)))
-                          :fluents (into [] (sort-by :instant (get-if-key :fluent args)))
-                          :events (into [] (sort-by :instant (get-if-key :event args)))
-                          :pows (into [] (sort-by :instant (get-if-key :pow args)))
-                          :obls (into [] (sort-by :instant (get-if-key :obl args)))))
+    :output (fn [& args]
+              (let [stuff (first args)] (hash-map
+                            :perms (into [] (get-if-key :perm stuff))
+                            :fluents (into [] (get-if-key :fluent stuff))
+                            :events (into [] (get-if-key :event stuff))
+                            :pows (into [] (get-if-key :pow stuff))
+                            :obls (into [] (get-if-key :obl stuff)))))
     }
    ptree))
+
 
 ;; (-> (str
 ;;      "holdsat(in_fact(bar),basic,2)\n"
@@ -117,18 +129,18 @@
   (let [permfn (fn [p] (cond (nil? p) nil
                              (= (:perm p) "null") nil
                              (= (count (:params p)) 1) (str (embellish (first (:params p))) " can " (embellish (:perm p)) ".")
-                             :else (str (embellish (first (:params p))) " can " (embellish (:perm p)) " the " (embellish (second (:params p))) ".")
+                             :else (str (embellish (first (:params p))) " can " (:perm p) " " (embellish (second (:params p))) ".")
                              ))
         oblfn (fn [x] (let [o (:obl x)
                             ev (cond (nil? o) nil
                                      (= (count (:params o)) 1) (str (embellish (first (:params o))) " must " (embellish (:event o)))
-                                     :else (str (embellish (first (:params o))) " must " (embellish (:perm o)) " the " (embellish (second (:params o))))
+                                     :else (str (embellish (first (:params o))) " must " (embellish (:event o)) " " (embellish (second (:params o))))
                                      )]
                         (cond
                           (nil? ev) ev
                           (and (nil? (:viol o)) (nil? (:deadline o))) (str (embellish ev) ".")
-                          (nil? (:viol o)) (str (embellish ev) " before " (embellish (:deadline o)))
-                          :else (str (embellish ev) " before " (embellish (:deadline o)) ", otherwise " (embellish (:viol o)) ".")
+                          (nil? (:viol o)) (str (embellish ev) " before " (embellish (first (:params (:deadline o)))) " " (:event (:deadline o)) " " (embellish (second (:params (:deadline o)))))
+                          :else (str (embellish ev) " before " (embellish (first (:params (:deadline o)))) " " (:event (:deadline o)) " " (embellish (second (:params (:deadline o)))) ", otherwise " (embellish (:viol o)) ".")
                           )))
         fluentfn (fn [f] (cond (nil? f) nil
                                (= (:fluent f) "null") nil
@@ -138,10 +150,13 @@
                                ))
 
         ;; p (println hmap)
-        now (last (sort (mapcat #(map :instant %) (vals hmap))))
-        perms (map permfn (get-for-instant (:perms hmap) now))
-        obls (map oblfn (get-for-instant (:obls hmap) now))
-        fluents (map fluentfn (get-for-instant (:fluents hmap) now))
+        ;; now (last (sort (mapcat #(map :instant %) (vals hmap))))
+        perms (map permfn (:perms hmap))
+        ;; perms (map permfn (get-for-instant (:perms hmap) now))
+        obls (map oblfn (:obls hmap))
+        ;; obls (map oblfn (get-for-instant (:obls hmap) now))
+        fluents (map fluentfn (:fluents hmap))
+        ;; fluents (map fluentfn (get-for-instant (:fluents hmap) now))
         ]
     (reduce str (interpose "\n" (concat fluents perms obls)))
     ))
@@ -152,12 +167,6 @@
       (transform)
       (say-options)))
 
-
-(-> (slurp "resources/output.txt")
-    (solve-parse)
-    (transform)
-    ;; (say-options)
-    )
 
 
 ;; (-> (str

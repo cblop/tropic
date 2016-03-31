@@ -111,7 +111,6 @@ go(R, T) generates
         place(T, away);
 
 
-
 % INITIALLY: -----------
 initially
     pow(intHerosJourney(R, S, T, U, V)) if R != S, S != T, T != U, U != V;
