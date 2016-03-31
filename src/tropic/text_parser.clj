@@ -2,8 +2,11 @@
   (:require [instaparse.core :as insta]
             [damionjunk.nlp.cmu-ark :as ark]
             ;; [damionjunk.nlp.stanford :as stan]
+            [lingo.core :refer :all]
+            [lingo.features :refer :all]
             [tropic.instal :refer [event-name]]
             [clojure.string :as str]))
+
 
 (def solver-parser
   (insta/parser
@@ -59,11 +62,11 @@
   (filter #(get % key) xs))
 
 
-(-> (slurp "resources/output.txt")
-    (solve-parse)
-    (transform)
-    (say-options)
-    )
+;; (-> (slurp "resources/output.txt")
+;;     (solve-parse)
+;;     (transform)
+;;     (say-options)
+;;     )
 
 
 
@@ -134,13 +137,13 @@
         oblfn (fn [x] (let [o (:obl x)
                             ev (cond (nil? o) nil
                                      (= (count (:params o)) 1) (str (embellish (first (:params o))) " must " (embellish (:event o)))
-                                     :else (str (embellish (first (:params o))) " must " (embellish (:event o)) " " (embellish (second (:params o))))
+                                     :else (str (embellish (first (:params o))) " must " (:event o) " " (embellish (second (:params o))))
                                      )]
                         (cond
                           (nil? ev) ev
                           (and (nil? (:viol o)) (nil? (:deadline o))) (str (embellish ev) ".")
                           (nil? (:viol o)) (str (embellish ev) " before " (embellish (first (:params (:deadline o)))) " " (:event (:deadline o)) " " (embellish (second (:params (:deadline o)))))
-                          :else (str (embellish ev) " before " (embellish (first (:params (:deadline o)))) " " (:event (:deadline o)) " " (embellish (second (:params (:deadline o)))) ", otherwise " (embellish (:viol o)) ".")
+                          :else (str ev " before " (embellish (first (:params (:deadline o)))) " " (:event (:deadline o)) " " (embellish (second (:params (:deadline o)))) ", otherwise " (embellish (:viol o)) ".")
                           )))
         fluentfn (fn [f] (cond (nil? f) nil
                                (= (:fluent f) "null") nil
