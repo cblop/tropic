@@ -2,11 +2,8 @@
   (:require [instaparse.core :as insta]
             [damionjunk.nlp.cmu-ark :as ark]
             ;; [damionjunk.nlp.stanford :as stan]
-            [lingo.core :refer :all]
-            [lingo.features :refer :all]
             [tropic.instal :refer [event-name]]
             [clojure.string :as str]))
-
 
 (def solver-parser
   (insta/parser
