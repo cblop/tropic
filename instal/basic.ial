@@ -1,0 +1,24 @@
+institution basic;
+
+type Alpha;
+
+exogenous event ex_red(Alpha);
+inst event in_red(Alpha);
+exogenous event ex_blue(Alpha);
+inst event in_blue(Alpha);
+
+fluent in_fact(Alpha);
+
+ex_red(A) generates in_red(A);
+in_red(A) initiates in_fact(A), perm(in_blue(foo)), pow(in_blue(foo));
+in_red(A) terminates perm(in_red(A)), pow(in_red(A));
+
+ex_blue(A) generates in_blue(A);
+in_blue(A) terminates in_fact(A), perm(in_blue(A)), pow(in_blue(A));
+
+% initially
+%     perm(in_red(foo))
+% ,   pow(in_red(foo))
+% ,   perm(in_blue(foo))
+% ,   pow(in_blue(foo))
+% ;
