@@ -388,8 +388,12 @@ or STRING to string"
 (defn obl-events [trope]
   (let [header (str "\n% OBLIGATION FLUENTS: " (namify (:name trope)) " ----------")
         obls (get-param-obls trope)
+        p (println (reduce str (:evs obls)))
         strng (fn [x] (str "obligation fluent " (reduce str x)))]
-        (cons header (into [] (map strng (:evs obls))))))
+    (if-not (empty? (reduce str (:evs obls)))
+      (cons header (into [] (map strng (:evs obls))))
+      "\n"
+      )))
 
 
 (defn inst-events [trope]

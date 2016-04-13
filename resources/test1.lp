@@ -39,24 +39,24 @@ objectname(hanSolo).
 % suppress clingo warnings in absence of inertials, non-inertials or obligations
 ifluent(0,0).
 nifluent(0,0).
-oblfluent(0,0). 
+oblfluent(0,0).
 % fluent rules
 holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I),
     next(I,J),ifluent(P, In),instant(I),instant(J), inst(In).
 holdsat(P,In,J):- initiated(P,In,I),next(I,J),
     ifluent(P, In),instant(I),instant(J), inst(In).
-holdsat(P,In,J):- initiated(P,In,I),next(I,J), 
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
     oblfluent(P, In),instant(I),instant(J), inst(In).
 % all observed events occur
 occurred(E,In,I):- evtype(E,In,ex),observed(E,In,I),instant(I), inst(In).
-% produces null for unknown events 
-occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I), 
-    instant(I), inst(In). 
-% produces gap warning for unknown events 
-unknown(E, In, I) :- not evtype(E,In,ex), observed(E,In,I), 
-    instant(I), inst(In). 
-warninggap(In, I) :- unknown(E,In,I), inst(In), instant(I). 
-% a violation occurs for each non-permitted action 
+% produces null for unknown events
+occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+% produces gap warning for unknown events
+unknown(E, In, I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+warninggap(In, I) :- unknown(E,In,I), inst(In), instant(I).
+% a violation occurs for each non-permitted action
 occurred(viol(E),In,I):-
     occurred(E,In,I),
     evtype(E,In,ex),
@@ -68,8 +68,22 @@ occurred(viol(E),In,I):-
     evtype(E,In,inst),
     not holdsat(perm(E),In,I),
     event(E),instant(I),event(viol(E)), inst(In).
-% needed until I tidy up some of the constraint generation 
+% needed until I tidy up some of the constraint generation
 true.
+start(0).
+instant(0..T) :- final(T).
+next(T,T+1) :- instant(T).
+final(horizon).
+% externals for individual institutions
+#external observed(E,I) : event(E), inst(I).
+observed(E,I,J) :- observed(E,I), start(J).
+#external holdsat(F,I) : fluent(F,I), inst(I).
+holdsat(F,I,J) :- holdsat(F,I), start(J).
+#external holdsat(perm(E),I) : event(E), inst(I).
+holdsat(perm(E),I,J) :- holdsat(perm(E),I), start(J).
+#external holdsat(pow(E),I) : event(E), inst(I).
+holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
+
 %
 % Rules for Institution starWars
 %
@@ -77,7 +91,7 @@ true.
   fluent(live(starWars), starWars).
   inst(starWars).
 %
-% Constraints for obserable events depending on mode option
+% Constraints for observable events depending on mode option
 %
 %%  mode SINGLE is chosen:
 {observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).
@@ -118,6 +132,15 @@ obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).
   event(viol(meet(Agent0,Agent1))) :- agent(Agent0),agent(Agent1).
   evtype(viol(meet(Agent0,Agent1)), starWars, viol) :- agent(Agent0),agent(Agent1).
   evinst(viol(meet(Agent0,Agent1)),starWars) :- agent(Agent0),agent(Agent1).
+% Event: noDeadline (type: ex)
+  event(noDeadline) :- true.
+  evtype(noDeadline,starWars,ex) :- true.
+  evinst(noDeadline,starWars) :- true.
+  ifluent(perm(noDeadline), starWars) :- true.
+  fluent(perm(noDeadline), starWars) :- true.
+  event(viol(noDeadline)) :- true.
+  evtype(viol(noDeadline), starWars, viol) :- true.
+  evinst(viol(noDeadline),starWars) :- true.
 %
 % null event for unknown events
 % Event: null (type: ex)
@@ -144,18 +167,13 @@ obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).
 %
 % Violation events
 %
+% Event: noViolation (type: in)
+  event(noViolation) :- true.
+  evtype(noViolation,starWars,viol) :- true.
+  evinst(noViolation,starWars) :- true.
 %
 % Creation events
 %
-% Event: startShow (type: ex)
-  event(startShow) :- true.
-  evtype(startShow,starWars,ex) :- true.
-  evinst(startShow,starWars) :- true.
-  ifluent(perm(startShow),starWars) :- true.
-  fluent(perm(startShow),starWars) :- true.
-  event(viol(startShow)) :- true.
-  evtype(viol(startShow),starWars,viol) :- true.
-  evinst(viol(startShow),starWars) :- true.
 %
 % Dissolution events
 %
@@ -206,17 +224,6 @@ fluent(at(Agent0,Place1),starWars) :-
 % generate rules
 %
 %
-% Translation of go(R,T) generates intHerosJourney(R,S,T,U) if ['and', ['role', ['R', 'hero']], ['place', ['T', 'away']]] in 
-occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(go(R,T),starWars,I),
-   holdsat(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I),
-   holdsat(role(R,hero),starWars,I),
-   holdsat(place(T,away),starWars,I),
-   agent(R),
-   placename(T),
-   agent(S),
-   placename(U),
-   inst(starWars), instant(I).
-%
 % Translation of meet(R,S) generates intHerosJourney(R,S,T,U) if ['and', ['role', ['S', 'dispatcher']], ['role', ['R', 'hero']]] in 
 occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(meet(R,S),starWars,I),
    holdsat(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I),
@@ -237,6 +244,17 @@ occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(go(R,U),starWars,I),
    placename(U),
    agent(S),
    placename(T),
+   inst(starWars), instant(I).
+%
+% Translation of go(R,T) generates intHerosJourney(R,S,T,U) if ['and', ['role', ['R', 'hero']], ['place', ['T', 'away']]] in 
+occurred(intHerosJourney(R,S,T,U),starWars,I) :- occurred(go(R,T),starWars,I),
+   holdsat(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I),
+   holdsat(role(R,hero),starWars,I),
+   holdsat(place(T,away),starWars,I),
+   agent(R),
+   placename(T),
+   agent(S),
+   placename(U),
    inst(starWars), instant(I).
 %
 % initiate rules
@@ -497,60 +515,35 @@ terminated(phase(herosJourney,inactive),starWars,I) :-
 %
 % initially
 %
-% at least one create event
-%
-% clear state to allow for re-creation
-%
-terminated(F,starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I),
-   holdsat(F,starWars,I),
-   instant(I), inst(starWars).
-initiated(live(starWars),starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I),
-   instant(I),inst(starWars).
-initiated(perm(null),starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I),
-   instant(I),inst(starWars).
-%
-% set up initial state
-%
+% no creation event
+holdsat(live(starWars),starWars,I) :- start(I), inst(starWars).
+holdsat(perm(null),starWars,I) :- start(I), inst(starWars).
 % initially: pow(starWars,intHerosJourney(R,S,T,U))
-initiated(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I), inst(starWars),
+% condition: ['and', ['and', ['!=', ['R', 'S']], ['!=', ['S', 'T']]], ['!=', ['T', 'U']]]
+holdsat(pow(starWars,intHerosJourney(R,S,T,U)),starWars,I) :-
    agent(S),
    agent(R),
    placename(U),
    placename(T),
-   instant(I).
+   R!=S,
+   S!=T,
+   T!=U,
+   inst(starWars), start(I).
 % initially: phase(herosJourney,inactive)
-initiated(phase(herosJourney,inactive),starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+holdsat(phase(herosJourney,inactive),starWars,I) :-
+   inst(starWars), start(I).
 % initially: role(lukeSkywalker,hero)
-initiated(role(lukeSkywalker,hero),starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+holdsat(role(lukeSkywalker,hero),starWars,I) :-
+   inst(starWars), start(I).
 % initially: role(obiWan,dispatcher)
-initiated(role(obiWan,dispatcher),starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+holdsat(role(obiWan,dispatcher),starWars,I) :-
+   inst(starWars), start(I).
 % initially: place(tatooine,home)
-initiated(place(tatooine,home),starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+holdsat(place(tatooine,home),starWars,I) :-
+   inst(starWars), start(I).
 % initially: place(space,away)
-initiated(place(space,away),starWars,I) :-
-   occurred(startShow,starWars,I),
-   not holdsat(live(starWars),starWars,I), inst(starWars),
-   instant(I).
+holdsat(place(space,away),starWars,I) :-
+   inst(starWars), start(I).
 %
 % End of file
 %

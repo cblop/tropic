@@ -28,8 +28,7 @@ violation event noViolation;
 % INST EVENTS: The Hero's Journey ----------
 inst event intHerosJourney(Agent, Agent, PlaceName, PlaceName);
 
-% OBLIGATION FLUENTS: The Hero's Journey ----------
-obligation fluent 
+
 
 % INITIATES: The Hero's Journey ----------
 intHerosJourney(R, S, T, U) initiates

@@ -1,5 +1,7 @@
 (ns tropic.tester
-  (:require [tropic.query :refer :all]))
+  (:require [tropic.query :refer :all]
+            [tropic.instal :refer [instal-file]]
+            ))
 
 (def test1 [
             "go(lukeSkywalker, tatooine)"
@@ -53,7 +55,10 @@
     (spit "swout.edn" "")
     (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
 
+
+
 (do
+  (instal-file "resources/test1.story" "resources/test1.ial")
   (run-query test1 "test1")
   (let [all-states (doall (map norms-at-state (range (+ (count test1) 1))))]
     (spit "swout.edn" "")
@@ -71,6 +76,8 @@
 (norms-at-state 5)
 
 (run-query test1)
+
+(run-instal "test1")
 
 (run-instal "test5")
 (run-clingo "test5")
