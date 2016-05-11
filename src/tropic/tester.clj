@@ -56,7 +56,6 @@
     (doall (map #(spit "swout.edn" (prn-str %) :append true) all-states))))
 
 
-
 (do
   (instal-file "resources/test1.story" "resources/test1.ial")
   (run-query test1 "test1")
