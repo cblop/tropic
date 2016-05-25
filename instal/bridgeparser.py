@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # REVISION HISTORY
 #------------------------------------------------------------------------
+# 20160412 JAP: removed print_domain function.  Now staged to sensor instantiation.
 # Pending: wrong print for ifluent(ipow(obl
 # Pending: xinitiate obligation is not working
 # 20150807 TL: fix the error on the termination rules from fluent to ifluent.
@@ -22,7 +23,7 @@ import ply.yacc as yacc
 #------------------------------------------------------------------------
 # LEXER for instal
 
-class myLexer():
+class myLexer(object):
 
     # Build the lexer
     # def build(self,**kwargs):
@@ -108,7 +109,7 @@ class myLexer():
 #------------------------------------------------------------------------
 # PARSER for instal
 
-class makeInstalParser():
+class makeInstalParser(object):
 
     def __init__(self):
         self.lexer = myLexer()
@@ -809,12 +810,14 @@ holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),
     oblfluent(P, In),instant(I),instant(J), inst(InS), inst(In).
 holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),
     nifluent(P, In),instant(I),instant(J), inst(InS), inst(In).
-true.
+% true.
 % externals for bridge institutions
 #external holdsat(gpow(I1,E,I2),B) : inst(I1), inst(I2), inst(B), event(E).
 holdsat(gpow(I1,E,I2),B,J) :- holdsat(ipow(I1,E,I2),B), start(J).
 #external holdsat(ipow(I1,F,I2),B) : inst(I1), inst(I2), inst(B), fluent(F,I2).
 holdsat(ipow(I1,F,I2),B,J) :- holdsat(ipow(I1,F,I2),B), start(J).
+#external holdsat(tpow(I1,F,I2),B) : inst(I1), inst(I2), inst(B), fluent(F,I2).
+holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
 """
 
     def instal_print_standard_prelude(self):
@@ -1407,30 +1410,30 @@ holdsat(ipow(I1,F,I2),B,J) :- holdsat(ipow(I1,F,I2),B), start(J).
 #------------------------------------------------------------------------
 
     # function to print domain file 
-    def print_domain(self, domain_file):
-        typename = r"([A-Z][a-zA-Z0-9_]*)"
-        literal = r"([a-z|\d][a-zA-Z0-9_]*)"
-        f = open(domain_file,'r')
-        self.instal_print("%\n% Domain declarations for {institution}\n%".format(**self.names))
-        for l in f.readlines():
-            l = l.rstrip() # lose trailing \n
-            [t,r] = re.split(": ",l)
-            if not(re.search(typename,l)):
-                self.instal_error("ERROR: No type name in {x}".format(x=l))
-                exit(-1)
-            #check t is declared
-            if not(t in self.types):
-                self.instal_error("ERROR: type not declared in {x}".format(x=l))
-                exit(-1)
-            t = self.types[t]
-            r = re.split(" ",r)
-            for s in r:
-                if not(re.search(literal,s)):
-                    self.instal_error("ERROR: Unrecognized literal in {x}".format(x=l))
-                    exit(-1)
-                self.instal_print("{typename}({literalname}).".format(
-                        typename=t,literalname=s))
-            f.close() 
+    # def print_domain(self, domain_file):
+    #     typename = r"([A-Z][a-zA-Z0-9_]*)"
+    #     literal = r"([a-z|\d][a-zA-Z0-9_]*)"
+    #     f = open(domain_file,'r')
+    #     self.instal_print("%\n% Domain declarations for {institution}\n%".format(**self.names))
+    #     for l in f.readlines():
+    #         l = l.rstrip() # lose trailing \n
+    #         [t,r] = re.split(": ",l)
+    #         if not(re.search(typename,l)):
+    #             self.instal_error("ERROR: No type name in {x}".format(x=l))
+    #             exit(-1)
+    #         #check t is declared
+    #         if not(t in self.types):
+    #             self.instal_error("ERROR: type not declared in {x}".format(x=l))
+    #             exit(-1)
+    #         t = self.types[t]
+    #         r = re.split(" ",r)
+    #         for s in r:
+    #             if not(re.search(literal,s)):
+    #                 self.instal_error("ERROR: Unrecognized literal in {x}".format(x=l))
+    #                 exit(-1)
+    #             self.instal_print("{typename}({literalname}).".format(
+    #                     typename=t,literalname=s))
+    #         f.close() 
 
     def instal_print_all(self):
         self.instal_print("%\n% "

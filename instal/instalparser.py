@@ -1,5 +1,11 @@
 #------------------------------------------------------------------------
 # VERSION TWO REVISION HISTORY:
+
+# 20160422 JAP: term2string extended to handle more complicated conditions
+# 20160415 JAP: dropped distinction between observed and compObserved
+# 20160412 JAP: removed print_domain function.  See updates to instalcompile.py.
+# 20160331 JAP: added comparison tokens from instalparser_v2 in TAAS tree
+#               small change to condition printing (labelled with this date)
 # 20160323 JAP: skip blank lines in print_domain
 # 20160314 JAP: moved print_domain from driver to here
 # 20160307 JAP: fixed printing of comparison conditions in initially
@@ -73,7 +79,7 @@ import ply.yacc as yacc
 #------------------------------------------------------------------------
 # LEXER for instal
 
-class myLexer():
+class myLexer(object):
 
     # Build the lexer
     # def build(self,**kwargs):
@@ -120,6 +126,10 @@ class myLexer():
     t_RPAR  = r'\)'
     t_EQUALS = r'=='
     t_NOTEQUAL = r'!='
+    t_LESS = r'<'
+    t_LESSEQ = r'<='
+    t_GREATER = r'>'
+    t_GREATEREQ = r'>='
 
     def t_NAME(self,t):
         r'[a-z_][a-zA-Z_0-9]*' # changed to allow _ to start a variable name
@@ -157,7 +167,7 @@ class myLexer():
 #------------------------------------------------------------------------
 # PARSER for instal
 
-class makeInstalParser():
+class makeInstalParser(object):
 
     def __init__(self):
         self.lexer = myLexer()
@@ -659,14 +669,21 @@ class makeInstalParser():
             self.instal_error("Syntax error at EOF")
 
     def term2string(self,p):
-        # print "term2string: p = ",p
+        # print("term2string: p = ",p)
         args = p[1]
         r=''
         if len(args)==0:
             r=p[0]
         elif len(args)==1:
             r=p[0]+'('+args[0]+')'
+        elif p[0] in ['==','!=','<','>','<=','>=']:
+            # assumes arguments are literals :(
+            r=p[1][0]+p[0]+p[1][1]
+        elif p[0] == 'and':
+            # print("p=",p)
+            r=self.term2string(p[1])+' '+p[0]+' '+self.term2string(p[2])
         else:
+            # print("args:",args)
             r='('+args[0]
             for x in args[1:]: r=r+','+x
             r=p[0]+r+')'
@@ -683,6 +700,7 @@ class makeInstalParser():
             r=p[0]+'('+self.term2string(p[1][0])+','+self.term2string(p[1][1])+','+self.term2string(p[1][2])+')'
         else:
             r=self.term2string(p)
+        # print("extendedterm2string=",r)
         return r
 
     # Global state variable used by typecheck and args2string
@@ -842,20 +860,23 @@ occurred(viol(E),In,I):-
     not holdsat(perm(E),In,I),
     event(E),instant(I),event(viol(E)), inst(In).
 % needed until I tidy up some of the constraint generation
-true.
+% true.
 start(0).
 instant(0..T) :- final(T).
 next(T,T+1) :- instant(T).
 final(horizon).
 % externals for individual institutions
-#external observed(E,I) : event(E), inst(I).
-observed(E,I,J) :- observed(E,I), start(J).
+% #external observed(E,I) : event(E), inst(I). removed 20160415 JAP
+% observed(E,I,J) :- observed(E,I), start(J). removed 20160415 JAP
 #external holdsat(F,I) : fluent(F,I), inst(I).
 holdsat(F,I,J) :- holdsat(F,I), start(J).
 #external holdsat(perm(E),I) : event(E), inst(I).
 holdsat(perm(E),I,J) :- holdsat(perm(E),I), start(J).
 #external holdsat(pow(E),I) : event(E), inst(I).
 holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
+% and for coordinated institutions
+#external observed(E) : event(E).
+compObserved(E,J) :- observed(E), start(J).
 """
 
     def instal_print_standard_prelude(self):
@@ -873,34 +894,42 @@ holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
                           .format(**self.names))
 
     def instal_print_constraints(self):
-        self.instal_print("%\n% Constraints for observable events depending on mode option\n%".format(**self.names))
-        if self.mode == "single":
-            self.instal_print( "%%  mode SINGLE is chosen:\n"  
-                               "{observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
-                               ":- observed(E,In,J),observed(F,In,J),instant(J),evtype(E,In,ex),\n"
-                               "evtype(F,In,ex), E!=F,inst(In). \n"
-                               "obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).\n"
-                               "         :- not obs(In,I), not final(I), instant(I), inst(In).\n")
-        elif self.mode == "default":
-            self.instal_print("%%  mode DEFAULT is chosen:\n"
-                              "{observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
-                              ":- observed(E,In,J),observed(F,In,J),instant(J),evtype(E,In,ex),\n"
-                              "evtype(F,In,ex), E!=F,inst(In). \n"
-                              "obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).\n"
-                              "         :- not obs(In,I), not final(I), instant(I), inst(In).\n")
-        elif self.mode == "composite":
-            self.instal_print("%%  mode COMPOSITE is chosen:\n" 
-                              "{compObserved(E, J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
-                              ":- compObserved(E,J),compObserved(F,J),instant(J),evtype(E,InX,ex),\n"
-                              "   evtype(F,InY,ex), E!=F,inst(InX;InY). \n"
-                              "obs(I):- compObserved(E,I),evtype(E,In,ex),instant(I),inst(In).\n"
-                              "      :- not obs(I), not final(I), instant(I), inst(In).\n"
-                              "observed(E,In,I) :- compObserved(E,I), inst(In), instant(I).")
+        self.instal_print("%\n% Constraints for observable events\n%".format(**self.names))
+        # self.instal_print("%\n% Constraints for observable events depending on mode option\n%".format(**self.names))
+        # if self.mode == "single":
+        #     self.instal_print( "%%  mode SINGLE is chosen:\n"  
+        #                        "{observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
+        #                        ":- observed(E,In,J),observed(F,In,J),instant(J),evtype(E,In,ex),\n"
+        #                        "evtype(F,In,ex), E!=F,inst(In). \n"
+        #                        "obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).\n"
+        #                        "         :- not obs(In,I), not final(I), instant(I), inst(In).\n")
+        # elif self.mode == "default":
+        #     self.instal_print("%%  mode DEFAULT is chosen:\n"
+        #                       "{observed(E,In,J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
+        #                       ":- observed(E,In,J),observed(F,In,J),instant(J),evtype(E,In,ex),\n"
+        #                       "evtype(F,In,ex), E!=F,inst(In). \n"
+        #                       "obs(In,I):- observed(E,In,I),evtype(E,In,ex),instant(I),inst(In).\n"
+        #                       "         :- not obs(In,I), not final(I), instant(I), inst(In).\n")
+        # elif self.mode == "composite":
+        self.instal_print("%%  mode COMPOSITE is chosen:\n" 
+                          "{compObserved(E, J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).\n"
+                          ":- compObserved(E,J),compObserved(F,J),instant(J),evtype(E,InX,ex),\n"
+                          "   evtype(F,InY,ex), E!=F,inst(InX;InY). \n"
+                          "obs(I):- compObserved(E,I),evtype(E,In,ex),instant(I),inst(In).\n"
+                          "      :- not obs(I), not final(I), instant(I), inst(In).\n"
+                          "observed(E,In,I) :- compObserved(E,I), inst(In), instant(I).")
 
     def instal_print_types(self):
         # print types
-        self.instal_print("%\n% The following types were declared:\n%")
-        for t in self.types: self.instal_print("% {x}".format(x=t))
+        self.instal_print("%\n% "
+                          "-------------------------------"
+                          "GROUNDING"
+                          "-------------------------------"
+                          "\n%")
+        for t in self.types: 
+            self.instal_print("% {x}".format(x=t))
+            self.instal_print("#program {x}(l).".format(x=t.lower()))
+	    self.instal_print("{x}(l).\n".format(x=t.lower()))
 
     def instal_print_exevents(self):
         # print exevents
@@ -1301,8 +1330,10 @@ holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
                 fvars = {}
                 self.instal_print("% initially: {x}"
                                   .format(x=self.extendedterm2string(i)))
-                if not(cond==[]):
-                    self.instal_print("% condition: {x}".format(x=cond))
+                if not(cond==[]): # JAP 20160331 change to use extendedterm2string
+                    self.instal_print(
+                        "% condition: {x}"
+                        .format(x=self.extendedterm2string(cond)))
                 self.instal_print("holdsat({inf},{inst},I) :-"
                              .format(inst=self.names["institution"], inf=self.extendedterm2string(i)))
                 self.collectVars(i,fvars)
@@ -1396,31 +1427,31 @@ holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
 #------------------------------------------------------------------------
 
     # function to print domain file 
-    def print_domain(self, domain_file):
-        typename = r"([A-Z][a-zA-Z0-9_]*)"
-        literal = r"([a-z|\d][a-zA-Z0-9_]*)"
-        f = open(domain_file,'r')
-        self.instal_print("%\n% Domain declarations for {institution}\n%".format(**self.names))
-        for l in f.readlines():
-            l = l.rstrip() # lose trailing \n
-            if l=='': continue # 20160323 JAP: skip blank lines
-            [t,r] = re.split(": ",l)
-            if not(re.search(typename,l)):
-                self.instal_error("ERROR: No type name in {x}".format(x=l))
-                exit(-1)
-            #check t is declared
-            if not(t in self.types):
-                self.instal_error("ERROR: type not declared in {x}".format(x=l))
-                exit(-1)
-            t = self.types[t]
-            r = re.split(" ",r)
-            for s in r:
-                if not(re.search(literal,s)):
-                    self.instal_error("ERROR: Unrecognized literal in {x}".format(x=l))
-                    exit(-1)
-                self.instal_print("{typename}({literalname}).".format(
-                        typename=t,literalname=s))
-        f.close() 
+    # def print_domain(self, domain_file):
+    #     typename = r"([A-Z][a-zA-Z0-9_]*)"
+    #     literal = r"([a-z|\d][a-zA-Z0-9_]*)"
+    #     f = open(domain_file,'r')
+    #     # self.instal_print("%\n% Domain declarations for {institution}\n%".format(**self.names))
+    #     for l in f.readlines():
+    #         l = l.rstrip() # lose trailing \n
+    #         if l=='': continue # 20160323 JAP: skip blank lines
+    #         [t,r] = re.split(": ",l)
+    #         if not(re.search(typename,l)):
+    #             self.instal_error("ERROR: No type name in {x}".format(x=l))
+    #             exit(-1)
+    #         #check t is declared
+    #         if not(t in self.types):
+    #             self.instal_error("ERROR: type not declared in {x}".format(x=l))
+    #             exit(-1)
+    #         t = self.types[t]
+    #         r = re.split(" ",r)
+    #         for s in r:
+    #             if not(re.search(literal,s)):
+    #                 self.instal_error("ERROR: Unrecognized literal in {x}".format(x=l))
+    #                 exit(-1)
+    #             self.instal_print("{typename}({literalname}).".format(
+    #                     typename=t,literalname=s))
+    #     f.close() 
 
     def instal_print_all(self):
         self.instal_print("%\n% "
@@ -1430,7 +1461,6 @@ holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
                           "\n%")
         self.instal_print_standard_prelude()
         self.instal_print_constraints()
-        self.instal_print_types()
         self.instal_print_exevents()
         self.instal_print_nullevent()
         self.instal_print_inevents()
@@ -1457,6 +1487,7 @@ holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
                           "-------------------------------"
                           "\n%")
         self.instal_print_initially()
+        self.instal_print_types()
         self.instal_print("%\n% End of file\n%")
         
     # def instal_parse(d):

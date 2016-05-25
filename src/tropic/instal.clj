@@ -1,8 +1,5 @@
 (ns tropic.instal
-  (:require [clojure.string :as str]
-            [tropic.gen :refer [make-map]]
-            [clojure.math.combinatorics :as combo]
-            [tropic.parser :refer [parse]]))
+  (:require [clojure.string :as str]))
 
 (def INACTIVE "inactive")
 (def DONE "done")
@@ -111,7 +108,8 @@ or STRING to string"
                         (take (count roles) (repeat "Agent"))
                         (take (count objects) (repeat "ObjectName"))
                         (take (count places) (repeat "PlaceName"))
-                        (take (count quests) (repeat "Quest")))
+                        ;; (take (count quests) (repeat "Quest"))
+                        )
                        )]
     types
     ))
@@ -137,16 +135,16 @@ or STRING to string"
                     (reduce str)
                     ;; (reduce str (param-str params))
                     ))
-        dead (if (nil? deadline) "noDeadline"
-                 (->> deadline
-                     (ev-types)
-                     (interpose ", ")
-                     (reduce str)
-                     ;; (reduce str (param-str params))
-                     ))
-        viol (if (nil? violation) "noViolation"
+        dead (if (nil? deadline) "noDeadline(Identity)"
+                 (str (:verb deadline) "(" (->> deadline
+                                                (ev-types)
+                                                (interpose ", ")
+                                                (reduce str)
+                                                ;; (reduce str (param-str params))
+                                                ) ")"))
+        viol (if (nil? violation) "noViolation(Identity)"
                  (viol-name {:obligation obligation}))]
-    (str "obl(" (:verb obligation) "(" obl "), " (:verb deadline) "(" dead ")" ", " viol ");")))
+    (str "obl(" (:verb obligation) "(" obl "), " dead ", " viol ");")))
 
 (defn obl [{:keys [obligation]} params]
   (let [deadline (:deadline obligation)
@@ -156,9 +154,9 @@ or STRING to string"
                     (event-str params)
                     ;; (param-str params)
                     ))
-        dead (if (nil? deadline) "noDeadline"
+        dead (if (nil? deadline) "noDeadline(Identity)"
                  (event-str deadline params))
-        viol (if (nil? violation) "noViolation"
+        viol (if (nil? violation) "noViolation(Identity)"
                  (viol-name {:obligation obligation})
                      ;; (param-str params)
                      )
@@ -185,13 +183,13 @@ or STRING to string"
 
 (def types
   ["% TYPES ----------"
+   "type Identity;"
    "type Agent;"
    "type Role;"
    "type Trope;"
    "type Phase;"
    "type Place;"
    "type PlaceName;"
-   "type Quest;"
    "type Object;"
    "type ObjectName;\n"])
 
@@ -303,26 +301,27 @@ or STRING to string"
 
 
 (defn external-events [trope]
-  (let [header (str "% EXTERNAL EVENTS: " (namify (:name trope)) " ----------")
+  (let [header (str "% EXTERNAL EVENTS: " (namify (:label trope)) " ----------")
         params (get-params trope)
         evs (remove :obligation (:events trope))
         deads (remove nil? (map #(-> % :obligation :deadline) (:events trope)))
-        events (concat evs deads)
+        obls (remove nil? (map :obligation (:events trope)))
+        events (concat evs obls deads)
         situations (map :when (:situations trope))
         sperms (mapcat #(map :permission (filter :permission %)) (map :norms (:situations trope)))
         all (concat events situations sperms)
         types (map ev-types all)
         strng (fn [x y] (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";"))]
-    (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["exogenous event noDeadline;"])))
+    (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["exogenous event noDeadline(Identity);"])))
     ;; (prn-str types)
   ;; ))
 
 
 (defn viol-events [trope]
-  (let [header (str "\n% VIOLATION EVENTS: " (namify (:name trope)) " ----------")
+  (let [header (str "\n% VIOLATION EVENTS: " (namify (:label trope)) " ----------")
         viols (filter :obligation (:events trope))
         strng (fn [x] (str "violation event " (viol-name x)";"))]
-    (concat (cons header (into [] (set (map strng viols)))) ["violation event noViolation;"])))
+    (concat (cons header (into [] (set (map strng viols)))) ["violation event noViolation(Identity);"])))
 
 (defn get-param-obls [trope]
   (let [
@@ -364,7 +363,6 @@ or STRING to string"
         ls (map second (filter #(in? vs (first %)) ps))]
     ls))
 
-
 (defn get-obls [trope]
   (let [
         obls (map :obligation (filter :obligation (:events trope)))
@@ -386,9 +384,9 @@ or STRING to string"
     {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
 
 (defn obl-events [trope]
-  (let [header (str "\n% OBLIGATION FLUENTS: " (namify (:name trope)) " ----------")
+  (let [header (str "\n% OBLIGATION FLUENTS: " (namify (:label trope)) " ----------")
         obls (get-param-obls trope)
-        p (println (reduce str (:evs obls)))
+        ;; p (println (reduce str (:evs obls)))
         strng (fn [x] (str "obligation fluent " (reduce str x)))]
     (if-not (empty? (reduce str (:evs obls)))
       (cons header (into [] (map strng (:evs obls))))
@@ -397,8 +395,8 @@ or STRING to string"
 
 
 (defn inst-events [trope]
-  (let [header (str "\n% INST EVENTS: " (reduce str (:name trope)) " ----------")
-        nm (inst-name (:name trope))
+  (let [header (str "\n% INST EVENTS: " (reduce str (:label trope)) " ----------")
+        nm (inst-name (:label trope))
         snms (map inst-name (map :verb (map :when (:situations trope))))
         onms (map inst-name (map :verb (map :obligation (filter :obligation (:events trope)))))
         params (get-all-params trope)
@@ -426,7 +424,7 @@ or STRING to string"
     (cons header (conj (concat sinstrs oinstrs) instr))))
 
 (defn terminates [trope roles objects]
-  (let [inst (str (inst-name (:name trope)))]))
+  (let [inst (str (inst-name (:label trope)))]))
 
 (defn param-str [event params]
   (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
@@ -481,13 +479,13 @@ or STRING to string"
         oevs (concat os deads viols)
         wparams (flatten (map get-when-params (:situations trope)))
         ;; wparams (get-params trope)
-        header (str "% GENERATES: " (reduce str (:name trope)) " ----------")
-        inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
+        header (str "% GENERATES: " (reduce str (:label trope)) " ----------")
+        inst (str (inst-name (:label trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
         ;; sit-conds (map :when (filter :when situations))
         wnames (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
         onames (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") oevs)
-        ename (event-name (:name trope))
+        ename (event-name (:label trope))
         events (remove :obligation (:events trope))
         wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
         ostrs (into [] (set (map #(event-str % oparams) oevs)))
@@ -518,16 +516,27 @@ or STRING to string"
           {}
           maps))
 
+(defn norm-str [event params]
+  (if (:obligation event) (obl event params)
+      (perm (event-str event params))))
+
 (defn initially [hmap]
   (let [
         header "\n% INITIALLY: -----------"
         params (apply merge (map get-all-params (:tropes hmap)))
+        param-map (map get-all-params (:tropes hmap))
         obls (map get-obls (:tropes hmap))
         story (:story hmap)
         instances (:instances story)
-        role-list (map first (:roles params))
-        place-list (map first (:places params))
-        obj-list (map first (:objects params))
+        role-list (mapcat #(map first (:roles %)) param-map)
+        place-list (mapcat #(map first (:places %)) param-map)
+        obj-list (mapcat #(map first (:objects %)) param-map)
+        first-events (map first (map :events (:tropes hmap)))
+        ;; first-perms (map :perm (filter :perm first-events))
+        ;; fperm-strs (map #(perm (event-str % params)) first-perms)
+        fperm-strs (map #(str (norm-str %1 %2) " if " (reduce str (interpose ", " (param-str %1 %2)))) first-events param-map)
+        ;; fperm-cnds (map #(param-str % params) first-events)
+        fperms fperm-strs
         ;event-name?
         roles (filter #(in? role-list (event-name (:class %))) instances)
         places (filter #(in? place-list (event-name (:class %))) instances)
@@ -536,26 +545,38 @@ or STRING to string"
         rolestrs (map #(fluentfn % "role") roles)
         placestrs (map #(fluentfn % "place") places)
         objstrs (map #(fluentfn % "object") objects)
-        phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
-        phases (map #(event-name (:name %)) (:tropes hmap))
+        ;; phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
+        phasefn (fn [x] (str "phase(" x ", " (str "phase" (first PHASES))  ")"))
+        phases (map #(event-name (:label %)) (:tropes hmap))
         phasestrs (map phasefn phases)
         powifs (fn [letters] (reduce str (flatten (interpose ", " (map (partial interpose " != ") (partition 2 1 letters))))))
         powfn (fn [x] (let [letters (inst-letters x)
                             cnds (reduce str (flatten (interpose ", " (map #(interpose "!=" %) (partition 2 letters)))))]
-                        (str "pow(" (inst-name (:name x))
+                        (str "pow(" (inst-name (:label x))
                              "(" (reduce str (interpose ", " letters))
                              ;; ")) if " cnds)))
+                             ;; "))"
+                             ;; )))
+                             ;; this one -->
                              ")) if " (powifs letters))))
+        ;; test ["perm(go(lukeSkywalker,tatooine))"]
         situations (mapcat :situations (:tropes hmap))
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
         powers (map powfn (:tropes hmap))
-        powstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") powers))]
+
+        first-perms (reduce str (map #(str "initially\n    " (reduce str %) ";\n") fperms))
+        ;; first-perms ""
+
+        powstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") powers))
+        ;; powstrs ""
+        ]
+
     ;; (concat rolestrs placestrs)
     ;; (concat role-list place-list)
     ;; roles
     ;; (map #(event-name (:class %)) instances)
-    [header (str powstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
+    [header (str first-perms powstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
     ;; (map :class instances)
     ))
 
@@ -570,9 +591,6 @@ or STRING to string"
         ]
     {:names wstrs :events wpvec :conds wpparams}))
 
-(defn norm-str [event params]
-  (if (:obligation event) (obl event params)
-    (perm (event-str event params))))
 
 (defn norm-params [ev params]
   (if (:obligation ev)  (mapcat #(param-str % params) [(:obligation ev) (:deadline (:obligation ev)) (:violation (:obligation ev))])
@@ -592,10 +610,10 @@ or STRING to string"
 
 (defn initiates [trope]
   (let [params (get-all-params trope)
-        inst (str (inst-name (:name trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
-        ename (event-name (:name trope))
-        header (str "\n% INITIATES: " (namify (:name trope)) " ----------")
-        term-header (str "% TERMINATES: " (namify (:name trope)) " ----------")
+        inst (str (inst-name (:label trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
+        ename (event-name (:label trope))
+        header (str "\n% INITIATES: " (namify (:label trope)) " ----------")
+        term-header (str "% TERMINATES: " (namify (:label trope)) " ----------")
         ;; events (remove :obligation (:events trope))
         events (:events trope)
         imake (fn [iname evs cnds] (str iname " initiates\n" WS (reduce str (interpose (str ",\n" WS) evs)) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";"))
@@ -623,15 +641,20 @@ or STRING to string"
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
         ]
     (concat [header] init-a init-s init-v ["\n"] [term-header] term-a term-o ["\n"])
+    ;; (concat [header] init-a init-s init-v ["\n"])
     ))
 
 
 (defn instal [hmap]
   (let [;; initiallys [(str "initially\n    " (reduce str (interpose ",\n    " (mapcat #(initially % story) (:tropes hmap)))) ";")]
+        p (println "initially")
         initiallys (initially hmap)
-        inst-name [(str "institution " (event-name (:storyname (:story hmap))) ";")]
+        ;; inst-name [(str "institution " (event-name (:storyname (:story hmap))) ";")]
+        inst-name [(str "institution " "story" ";")]
         create ["% CREATION EVENT -----------" "create event startShow;\n"]
+        p (println "exts")
         exts (mapcat external-events (:tropes hmap))
+        p (println "insts")
         insts (mapcat inst-events (:tropes hmap))
         obls (mapcat obl-events (:tropes hmap))
         inits (mapcat #(initiates %) (:tropes hmap))
@@ -643,14 +666,15 @@ or STRING to string"
     (reduce str (interpose "\n" (concat inst-name types fluents exts viols insts obls inits gens initiallys))))
   )
 
-(defn instal-gen [text]
-  (instal (make-map (parse text) text)))
-
 (defn fix-crs [text]
   (clojure.string/replace text "\r" ""))
 
-(defn instal-file [input output]
-  (let [text (slurp input)
-        result (instal-gen (fix-crs text))]
-    (spit output result)))
+(defn instal-file [hmap output]
+  (do
+    (spit output (instal hmap))
+    "true"))
 
+;; (defn instal-file [input output]
+;;   (let [text (slurp input)
+;;         result (instal-gen (fix-crs text))]
+;;     (spit output result)))
