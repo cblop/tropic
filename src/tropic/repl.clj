@@ -69,8 +69,8 @@
 ;; TEST:
 (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")
 (make-story (st-map "test1" [heros-journey evil-empire] charlist objlist placelist "Luke Skywalker") "test1")
-(solve-story "test1" (ev "go" "Luke Skywalker" "tatooine"))
-(solve-story "test1" (ev "go" "Luke Skywalker" "space"))
+(solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "tatooine"))
+(solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "space"))
 
 ;; REMEMBER: initially takes hmap values from wrong place
 

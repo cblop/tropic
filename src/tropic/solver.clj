@@ -2,6 +2,7 @@
   (:require
    [tropic.instal :refer [event-name instal-file]]
    [clojure.java.io :as io]
+   [clojure.java.shell :refer [sh]]
    [me.raynes.conch :refer [programs with-programs let-programs] :as sh]))
 
 (programs python clingo)
@@ -65,7 +66,7 @@
      (make-domain hmap id)
      (make-instal hmap id)
      (make-query [] id)
-     (let [output (python "instal/instalsolve.py" "-v" "-i" (reduce str (interpose " " ials)) "-d" (str "resources/domain-" id ".idc") "-o" (str "resources/temp-" id ".lp") (str "resources/query-" id ".iaq"))]
+     (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
        (do
          (spit (str "resources/output-" id ".lp") output)
          ;; (clean-up id)
@@ -76,15 +77,16 @@
 (defn event-to-text [{:keys [player verb object-a object-b]}]
   (str "observed(" verb "(" (event-name player) (if object-a (str "," object-a (if object-b (str "," object-b)) ")")) ")\n"))
 
-(defn solve-story [id event]
-  (let [story (str "resources/story-" id ".ial")
+(defn solve-story [id tropes event]
+  (let [trps (map :label tropes)
+        ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
         domain (str "resources/domain-" id ".idc")
         temp (str "resources/temp-" id ".lp")
         query (str "resources/query-" id ".iaq")
         outfile (str "resources/output-" id ".lp")]
     (do
       (spit query (event-to-text event) :append true)
-      (let [output (python "instal/instalsolve.py" "-v" "-i" story "-d" domain "-o" temp query)]
+      (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
         (spit outfile output)
         {:text output}))))
 
