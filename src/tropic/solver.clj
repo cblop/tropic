@@ -42,10 +42,10 @@
     ))
 
 (defn make-instal [hmap id]
-  (instal-file hmap (str "resources/story-" id ".ial")))
+  (dorun (map #(instal-file (assoc hmap :tropes [%]) (str "resources/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
 
 (defn make-query [events id]
-  (spit (str "resources/query-" id ".lp") ""))
+  (spit (str "resources/query-" id ".iaq") ""))
 
 (defn clean-up [id]
   (do
@@ -58,17 +58,20 @@
     ))
 
 (defn make-story [hmap id]
-  (do
-    (make-domain hmap id)
-    (make-instal hmap id)
-    (make-query [] id)
-    (let [output (python "instal/instalsolve.py" "-v" "-i" (str "resources/story-" id ".ial") "-d" (str "resources/domain-" id ".idc") "-o" (str "resources/temp-" id ".lp") (str "resources/query-" id ".lp"))]
-      (do
-        (spit (str "resources/output-" id ".lp") output)
-        ;; (clean-up id)
-        {:id id
-         :text "Welcome to the world of adventure!"}))
-    ))
+  (let [trps (map :label (:tropes hmap))
+        ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
+        p (println (apply str (interpose " " ials)))]
+   (do
+     (make-domain hmap id)
+     (make-instal hmap id)
+     (make-query [] id)
+     (let [output (python "instal/instalsolve.py" "-v" "-i" (reduce str (interpose " " ials)) "-d" (str "resources/domain-" id ".idc") "-o" (str "resources/temp-" id ".lp") (str "resources/query-" id ".iaq"))]
+       (do
+         (spit (str "resources/output-" id ".lp") output)
+         ;; (clean-up id)
+         {:id id
+          :text "Welcome to the world of adventure!"}))
+     )))
 
 (defn event-to-text [{:keys [player verb object-a object-b]}]
   (str "observed(" verb "(" (event-name player) (if object-a (str "," object-a (if object-b (str "," object-b)) ")")) ")\n"))
@@ -77,7 +80,7 @@
   (let [story (str "resources/story-" id ".ial")
         domain (str "resources/domain-" id ".idc")
         temp (str "resources/temp-" id ".lp")
-        query (str "resources/query-" id ".lp")
+        query (str "resources/query-" id ".iaq")
         outfile (str "resources/output-" id ".lp")]
     (do
       (spit query (event-to-text event) :append true)

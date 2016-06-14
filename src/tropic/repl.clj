@@ -16,6 +16,13 @@
      "Then the Hero goes Away"
      "Then the Hero returns Home"])})
 
+(def evil-empire
+  {:label "The Evil Empire"
+   :string
+   (join-strings
+    ["The Villain has a Weapon"
+     "The Villain may kill the Hero"])})
+
 (def charlist
   [{:label "Luke Skywalker" :role "Hero"}
    {:label "Darth Vader" :role "Villain"}
@@ -33,7 +40,9 @@
 
 (defn trope-map [trope]
   {:label (:label trope)
-   :events (:events (:trope (make-map (parse-trope (:string trope)))))}
+   :events (:events (:trope (make-map (parse-trope (:string trope)))))
+   :situations []}
+  ;; also need: chars, obj, places?
   )
 
 (defn st-map [name tropes chars objs places player]
@@ -59,8 +68,11 @@
 
 ;; TEST:
 (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")
+(make-story (st-map "test1" [heros-journey evil-empire] charlist objlist placelist "Luke Skywalker") "test1")
 (solve-story "test1" (ev "go" "Luke Skywalker" "tatooine"))
 (solve-story "test1" (ev "go" "Luke Skywalker" "space"))
+
+;; REMEMBER: initially takes hmap values from wrong place
 
 ;; (instal (st-map [heros-journey] charlist objlist placelist "Luke Skywalker"))
 ;; (make-instal (st-map [heros-journey] charlist objlist placelist "Luke Skywalker") "abc")

@@ -528,9 +528,12 @@ or STRING to string"
         obls (map get-obls (:tropes hmap))
         story (:story hmap)
         instances (:instances story)
-        role-list (mapcat #(map first (:roles %)) param-map)
-        place-list (mapcat #(map first (:places %)) param-map)
-        obj-list (mapcat #(map first (:objects %)) param-map)
+        ;; role-list (mapcat #(map first (:roles %)) param-map)
+        role-list (:characters hmap)
+        ;; place-list (mapcat #(map first (:places %)) param-map)
+        place-list (:places hmap)
+        ;; obj-list (mapcat #(map first (:objects %)) param-map)
+        obj-list (:objects hmap)
         first-events (map first (map :events (:tropes hmap)))
         ;; first-perms (map :perm (filter :perm first-events))
         ;; fperm-strs (map #(perm (event-str % params)) first-perms)
@@ -649,13 +652,15 @@ or STRING to string"
   (let [;; initiallys [(str "initially\n    " (reduce str (interpose ",\n    " (mapcat #(initially % story) (:tropes hmap)))) ";")]
         p (println "initially")
         initiallys (initially hmap)
+        ;; initiallys []
         ;; inst-name [(str "institution " (event-name (:storyname (:story hmap))) ";")]
-        inst-name [(str "institution " "story" ";")]
+        inst-name [(str "institution " (event-name (:label (first (:tropes hmap)))) ";")]
         create ["% CREATION EVENT -----------" "create event startShow;\n"]
         p (println "exts")
         exts (mapcat external-events (:tropes hmap))
         p (println "insts")
         insts (mapcat inst-events (:tropes hmap))
+        ;; insts []
         obls (mapcat obl-events (:tropes hmap))
         inits (mapcat #(initiates %) (:tropes hmap))
         gens (mapcat generates (:tropes hmap))
