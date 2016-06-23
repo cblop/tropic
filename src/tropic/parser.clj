@@ -3,15 +3,18 @@
 
 (def trope-parser
   (insta/parser
-   "trope = (situationdef / alias / norms / sequence / situationdef)+ <'\\n'?>
+   "trope = (situationdef / alias / happens / norms / sequence / situationdef)+ <'\\n'?>
     alias =
         <whitespace> character <' is also '> character <'\\n'?>
 
     situation =
         <'When '> event <':'>
 
+    happens =
+       <'The ' | 'the '>? subtrope <' happens' '.'?>
+
     sequence =
-        (<'Then '>? (event | obligation) or? <'\\n'?>)+
+        (<'Then '>? (event | obligation | happens) or? <'\\n'?>)+
 
     situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace whitespace> consequence)+ <'\\n'?>
 
@@ -35,6 +38,8 @@
     violation = norms
 
     character = name
+
+    subtrope = name
 
     conditional =
         <' if '> <'they '?> event

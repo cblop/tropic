@@ -13,7 +13,13 @@
    :string
    (join-strings
     ["The Hero is at Home"
-     "Then the Hero goes Away"
+     "Then the Quest happens"])})
+
+(def quest
+  {:label "The Quest"
+   :string
+   (join-strings
+    ["The Hero goes Away"
      "Then the Hero returns Home"])})
 
 (def evil-empire
@@ -69,8 +75,13 @@
 ;; TEST:
 (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")
 (make-story (st-map "test1" [heros-journey evil-empire] charlist objlist placelist "Luke Skywalker") "test1")
+(make-story (st-map "test2" [heros-journey quest] charlist objlist placelist "Luke Skywalker") "test1")
 (solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "tatooine"))
 (solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "space"))
+
+(parse-trope (:string heros-journey))
+(make-map (parse-trope (:string heros-journey)))
+(parse-trope (:string quest))
 
 ;; REMEMBER: initially takes hmap values from wrong place
 

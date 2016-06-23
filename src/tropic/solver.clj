@@ -42,6 +42,9 @@
         {:text final})
     ))
 
+;; (defn make-bridge [hmap id]
+;;   (dorun (map #(bridge-file (assoc hmap :tropes [%]) (str "resources/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
+
 (defn make-instal [hmap id]
   (dorun (map #(instal-file (assoc hmap :tropes [%]) (str "resources/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
 
