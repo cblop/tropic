@@ -44,6 +44,10 @@ or STRING to string"
   [iname]
   (str "int" (cap-first (event-name iname))))
 
+(defn inst-start-name
+  [iname]
+  (str "intStart" (cap-first (event-name iname))))
+
 (defn get-letter [s params]
   (second (first (filter #(= s (first %)) params))))
 
@@ -507,44 +511,37 @@ or STRING to string"
     (concat [header] gen-a gen-s gen-d ["\n"])
     ))
 
-(defn bridge [trope tropes]
-  (let [header "institution trope_bridge;"
-        ;; only works for one trope at the mo
-        params (get-all-params trope)
-        events (:events trope)
-        bmake (fn [iev xev cnds] (str iev " xinitiates\n" WS (reduce str (interpose (str ",\n" WS WS) xev)) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n"))
-        ievents (map-indexed (fn [i t] (if-let [s (:subtrope t)]
-                                         (let [subtrope (first (filter #(= (:label %) s) tropes))]
-                                             (if (> i 0)
-                                               {:subtrope subtrope
-                                                :trigger (nth events (dec i))}
-                                               {:subtrope subtrope}))
-                                         nil)) events)
-        bevents (remove nil? ievents)
-        complete-trope (assoc trope :events (concat (:events trope) (mapcat #(:events (:subtrope %)) bevents)))
-        params (get-all-params complete-trope)
-        sparams (map #(get-all-params (:subtrope %)) bevents)
-        sfirsts (map #(first (:events (:subtrope %))) bevents)
-        sfstrs (map #(event-str % params) sfirsts)
-        inst (str (inst-name (:label trope)) "(" (reduce str (interpose ", " (inst-letters complete-trope))) ")")
-        cnds (set (mapcat #(param-str % params) (concat events sfirsts)))
-        ;; cnds (set (concat pcnds scnds))
-        ;; bs (map bmake bevents sfstrs cnds)
-        bs (bmake inst sfstrs cnds)
-        ]
-    bs
-    ))
+;; cross fluent ipow(Inst, perm(go(X, Y)), Inst)
+;; initially ipow(herosJourney, perm(go(X, Y)), quest)
 
-(defn make-bridges [tropes]
+(defn get-subtropes [trope tropes]
+  (let [stropes (map #(if-let [s (:subtrope %)]
+                        (first (filter (fn [x] (= (:label x) s)) tropes))
+                        nil) (:events trope))]
+    (remove nil? stropes)))
+
+(defn bridge [tropes]
   (let [header "institution trope_bridge;\n\n"
-        tstrs (apply str (map #(bridge % tropes) tropes))]
-    (apply str [header tstrs]))
-  )
+        subtropes (into [] (set (mapcat #(get-subtropes % tropes) tropes)))
+        bmake (fn [strope]
+                (let [inst (str (inst-start-name (:label strope)) "("
+                                (apply str (interpose ", " (inst-letters strope))) ")")
+                      fevent (first (:events strope))
+                      params (get-all-params strope)
+                      ex (event-str fevent params)
+                      cnds (param-str fevent params)]
+                  (str inst " xinitiates\n" WS "perm(" ex ")" " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")))
+        cmake (fn [strope]
+                (let [ex (event-str (first (:events strope)) (get-all-params strope))]
+                  (str "cross fluent ipow(Inst, perm(" ex "), Inst);")))
+        ;; imake (fn [strope])
+        bridges (apply str (map bmake subtropes))
+        crosses (apply str (map cmake subtropes))
+        ]
+    (apply str (concat [header] crosses ["\n\n"] bridges))))
 
+;; (spit "resources/bridge-test.ial" (bridge [{:label "Quest" :events [{:verb "go" :role "hero" :place "away"}]} {:label "Hero's Journey" :events [{:verb "go" :role "hero" :place "home"} {:subtrope "Quest"}]}]))
 
-;; (make-bridges [{:label "Quest" :events [{:verb "go" :role "hero" :place "away"}]} {:label "Test" :events [{:verb "go" :role "hero" :place "home"}]} {:subtrope "Quest"}])
-(spit "resources/bridge-test.ial" (make-bridges [{:label "Quest" :events [{:verb "go" :role "hero" :place "away"}]} {:label "Start Quest" :events [{:verb "go" :role "hero" :place "home"} {:subtrope "Quest"}]}]))
-;; (make-bridges [{:label "Quest" :events [{:verb "go" :role "hero" :place "away"}]} {:label "Test" :events [{:subtrope "Quest"}]}])
 
 (defn merge-lists [& maps]
   (reduce (fn [m1 m2]
