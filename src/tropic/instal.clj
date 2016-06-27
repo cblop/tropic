@@ -522,6 +522,12 @@ or STRING to string"
 
 (defn bridge [tropes]
   (let [header "institution trope_bridge;\n\n"
+        ievents (map-indexed (fn [i t] (if-let [s (:subtrope t)]
+                                         (let [subtrope (first (filter #(= (:label %) s) tropes))]
+                                           (if (> i 0)
+                                             {:subtrope subtrope
+                                              :trigger (nth events (dec i))}
+                                             {:subtrope subtrope})))))
         subtropes (into [] (set (mapcat #(get-subtropes % tropes) tropes)))
         bmake (fn [strope]
                 (let [inst (str (inst-start-name (:label strope)) "("
