@@ -1,6 +1,6 @@
 (ns tropic.solver
   (:require
-   [tropic.instal :refer [event-name instal-file]]
+   [tropic.instal :refer [event-name instal-file bridge-file]]
    [clojure.java.io :as io]
    [clojure.java.shell :refer [sh]]
    [me.raynes.conch :refer [programs with-programs let-programs] :as sh]))
@@ -46,7 +46,10 @@
 ;;   (dorun (map #(bridge-file (assoc hmap :tropes [%]) (str "resources/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
 
 (defn make-instal [hmap id]
-  (dorun (map #(instal-file (assoc hmap :tropes [%]) (str "resources/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
+  (dorun (map #(instal-file (assoc hmap :tropes [%]) (:tropes hmap) (str "resources/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
+
+(defn make-bridge [hmap id]
+  (bridge-file (:tropes hmap) (str "resources/" id "-bridge.ial")))
 
 (defn make-query [events id]
   (spit (str "resources/query-" id ".iaq") ""))
@@ -64,12 +67,14 @@
 (defn make-story [hmap id]
   (let [trps (map :label (:tropes hmap))
         ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
-        p (println (apply str (interpose " " ials)))]
+        ]
    (do
      (make-domain hmap id)
      (make-instal hmap id)
+     (make-bridge hmap id)
      (make-query [] id)
-     (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
+     ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
+     (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
        (do
          (spit (str "resources/output-" id ".lp") output)
          ;; (clean-up id)
@@ -89,7 +94,8 @@
         outfile (str "resources/output-" id ".lp")]
     (do
       (spit query (event-to-text event) :append true)
-      (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
+      ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
+      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
         (spit outfile output)
         {:text output}))))
 
