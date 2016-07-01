@@ -874,9 +874,12 @@ holdsat(F,I,J) :- holdsat(F,I), start(J).
 holdsat(perm(E),I,J) :- holdsat(perm(E),I), start(J).
 #external holdsat(pow(E),I) : event(E), inst(I).
 holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
-% and for coordinated institutions
+% for incremental observations
 #external observed(E) : event(E).
 compObserved(E,J) :- observed(E), start(J).
+% for observation sequences
+#external observed(E,I) : event(E), instant(I).
+compObserved(E,I) :- observed(E,I).
 """
 
     def instal_print_standard_prelude(self):

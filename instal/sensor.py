@@ -22,25 +22,28 @@ class Sensor(object):
         self.callback = callback
         self.last_solution = None
         self.cycle = 0
+        self.horizon = 1
         self.args = args
         self.observation = None
         self.undo_external = []
-        self.horizon = 1
         self.ctl = Control(['-c', 'horizon={0}'.format(self.horizon)])
         for x in model_files:
-            # print("loading ",x)
+            if args.verbose>2: print("loading: ",x)
             self.ctl.load(x)
 	parts = []
         for typename,literals in domain_facts.iteritems():
             for l in literals:
                 parts += [(typename, [parse_term(l)])]
+        if args.verbose>2: print("grounding: ", parts+[("base",[])])
         self.ctl.ground(parts+[("base", [])])
+        if args.verbose>2: print("grounded")
 	signature_types = [s[0] for s in self.ctl.domains.signatures()]
 	from_domain_types = [d for d in domain_facts]
 	#Testing for type names in domain file not in grounded file
 	for d in from_domain_types:
             if d not in signature_types:
                 print("WARNING: Type {} in domain file is not in grounded model.".format(d),file=sys.stderr)
+        if args.verbose>2: print("initialized")
 
     def print_universe(self):
         print("universe:", len(self.ctl.domains))

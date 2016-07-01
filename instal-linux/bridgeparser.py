@@ -835,11 +835,23 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
                           "  inst({institution})."
                           .format(**self.names))
 
+    # def instal_print_types(self):
+    #     # print types
+    #     self.instal_print("%\n% The following types were declared:\n%")
+    #     for t in self.types: self.instal_print("% {x}".format(x=t))
 
     def instal_print_types(self):
         # print types
-        self.instal_print("%\n% The following types were declared:\n%")
-        for t in self.types: self.instal_print("% {x}".format(x=t))
+        self.instal_print("%\n% "
+                          "-------------------------------"
+                          "GROUNDING"
+                          "-------------------------------"
+                          "\n%")
+        for t in self.types: 
+            self.instal_print("% {x}".format(x=t))
+            self.instal_print("#program {x}(l).".format(x=t.lower()))
+	    self.instal_print("{x}(l).\n".format(x=t.lower()))
+
 
     def instal_print_exevents(self):
         # print exevents
@@ -1443,7 +1455,6 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
                           "\n%")
         self.instal_print_standard_prelude()
         # self.instal_print_constraints()
-        self.instal_print_types()
         self.instal_print_exevents()
         self.instal_print_nullevent()
         self.instal_print_inevents()
@@ -1471,6 +1482,7 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
                           "-------------------------------"
                           "\n%")
         self.instal_print_initially()
+        self.instal_print_types()
         self.instal_print("%\n% End of file\n%")
 
     # def instal_parse(d):
