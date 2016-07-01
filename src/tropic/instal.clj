@@ -413,8 +413,16 @@ or STRING to string"
       "\n"
       )))
 
+;; cross fluent ipow(Inst, perm(go(X, Y)), Inst)
+;; initially ipow(herosJourney, perm(go(X, Y)), quest)
 
-(defn inst-events [trope]
+(defn get-subtropes [trope tropes]
+  (let [stropes (map #(if-let [s (:subtrope %)]
+                        (first (filter (fn [x] (= (:label x) (or (str "The " s) s))) tropes))
+                        nil) (:events trope))]
+    (remove nil? stropes)))
+
+(defn inst-events [trope tropes]
   (let [header (str "\n% INST EVENTS: " (reduce str (:label trope)) " ----------")
         nm (inst-name (:label trope))
         snms (map inst-name (map :verb (map :when (:situations trope))))
@@ -422,6 +430,9 @@ or STRING to string"
         params (get-all-params trope)
         sparams (map get-when-params (:situations trope))
         oparams (map get-dead-params (map :obligation (filter :obligation (:events trope))))
+        subs (get-subtropes trope tropes)
+        subparams (map get-all-params (map #(assoc % :events [(first (:events %))]) subs))
+        ;; subparams (map get-all-params subs)
         types (flatten (vector
                         (take (count (:roles params)) (repeat "Agent"))
                         (take (count (:objects params)) (repeat "ObjectName"))
@@ -436,12 +447,14 @@ or STRING to string"
                                  )))
         ss (map stypes sparams)
         os (map stypes oparams)
+        subss (map stypes subparams)
         finstr (fn [x ys] (str "inst event " x "(" (reduce str (interpose ", " ys)) ")" ";"))
         instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")
         sinstrs (map finstr snms ss)
         oinstrs (map (fn [xs ys] (if (empty? ys) "" (finstr xs ys))) onms os)
+        subinstrs (map #(finstr (inst-start-name (:label %1)) %2) subs subss)
         ]
-    (cons header (conj (concat sinstrs oinstrs) instr))))
+    (cons header (conj (concat sinstrs oinstrs subinstrs) instr))))
 
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:label trope)))]))
@@ -510,30 +523,20 @@ or STRING to string"
         p (println "GTROPES:")
         p (println tropes)
         subs (subs-triggers trope tropes)
-        ;; wparams (get-params trope)
         header (str "% GENERATES: " (reduce str (:label trope)) " ----------")
         inst (str (inst-name (:label trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
-        ;; sit-conds (map :when (filter :when situations))
         wnames (map #(str (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) ")") situations)
         onames (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") oevs)
         ename (event-name (:label trope))
         events (remove :obligation (:events trope))
         wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
         ostrs (into [] (set (map #(event-str % oparams) oevs)))
-        ;; wparams (map #(unify-params (:when %) roles objects) situations)
         gmake (fn [iname ev cnds] (if-not (= "()" ev) (str ev " generates\n" WS iname " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";")))
         estrs (map #(event-str % params) events)
         pstrs (map #(param-str % params) events)
         wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
-        ;; oifs (map (fn [x ys] (param-str x ys)) oevs oparams)
         oifs (map #(param-str % oparams) oevs)
-        ;; perms (map perm estrs)
-        ;; phases (make-phases ename (count events))
-        ;; evec (conj (into [] (map vector (rest phases) perms)) [(last phases)])
-        ;; cvec (conj (into [] (map conj pstrs phases)) [(last (butlast (rest phases)))])
-        ;; p (println "SUBS:")
-        ;; p (println subs)
         smake (fn [sub]
                 (if sub
                   (let [pms (get-all-params (assoc trope :events (concat (:events trope) (:events (:subtrope sub)))))
@@ -541,8 +544,6 @@ or STRING to string"
                         p (println pms)]
                     (gmake (str (inst-start-name (:label (:subtrope sub))) (param-brackets (first (:events (:subtrope sub))) pms)) (event-str (:trigger sub) pms) (concat (param-str (first (:events (:subtrope sub))) pms) (param-str (:trigger sub) pms) [(str "phase(" int ", " "phase" (:phase sub) ")")])))))
         gen-subs (remove nil? (map smake subs))
-        ;; p (println "GENSUBS:")
-        ;; p (println gen-subs)
         gen-a (into [] (set (map gmake (repeat inst) estrs pstrs)))
         gen-s (map gmake wnames wstrs wifs)
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
@@ -550,32 +551,21 @@ or STRING to string"
     (concat [header] gen-subs gen-a gen-s gen-d ["\n"])
     ))
 
-;; cross fluent ipow(Inst, perm(go(X, Y)), Inst)
-;; initially ipow(herosJourney, perm(go(X, Y)), quest)
-
-(defn get-subtropes [trope tropes]
-  (let [stropes (map #(if-let [s (:subtrope %)]
-                        (first (filter (fn [x] (= (:label x) (or (str "The " s) s))) tropes))
-                        nil) (:events trope))]
-    (remove nil? stropes)))
 
 (defn bridge [tropes]
-  (let [header "institution trope_bridge;\n\n"
-        ;; ievents (subs-triggers tropes)
-        p (println "BRIDGE-TROPES:")
+  (let [;; ievents (subs-triggers tropes)
         subtropes (into [] (set (mapcat #(get-subtropes % tropes) tropes)))
-        p (println subtropes)
         bmake (fn [strope]
-                (let [inst (str (inst-start-name (:label strope)) "("
-                                (apply str (interpose ", " (inst-letters strope))) ")")
+                (let [params (get-all-params strope)
+                      inst (str (inst-start-name (:label strope))
+                                (param-brackets (first (:events strope)) params))
                       fevent (first (:events strope))
-                      params (get-all-params strope)
                       ex (event-str fevent params)
                       cnds (param-str fevent params)]
                   (str inst " xinitiates\n" WS "perm(" ex ")" " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")))
         cmake (fn [strope]
                 (let [ex (event-str (first (:events strope)) (get-all-params strope))]
-                  (str "cross fluent ipow(Inst, perm(" ex "), Inst);")))
+                  (str "cross fluent ipow(Trope, perm(" ex "), Trope);")))
         imake (fn [trope]
                 (let [subs (get-subtropes trope tropes)
                       p (println "SUBTROPEEEES:")
@@ -592,7 +582,7 @@ or STRING to string"
         crosses (apply str (map cmake subtropes))
         inits (apply str (map imake tropes))
         ]
-    (apply str (concat [header] crosses ["\n\n"] bridges ["\n\n"] inits))))
+    (apply str (concat crosses ["\n\n"] bridges ["\n\n"] inits))))
 
 ;; (spit "resources/bridge-test.ial" (bridge [{:label "Quest" :events [{:verb "go" :role "hero" :place "away"}]} {:label "Hero's Journey" :events [{:verb "go" :role "hero" :place "home"} {:subtrope "Quest"}]}]))
 
@@ -751,7 +741,7 @@ or STRING to string"
         p (println "exts")
         exts (mapcat external-events (:tropes hmap))
         p (println "insts")
-        insts (mapcat inst-events (:tropes hmap))
+        insts (mapcat #(inst-events % tropes) (:tropes hmap))
         ;; insts []
         obls (mapcat obl-events (:tropes hmap))
         inits (mapcat #(initiates %) (:tropes hmap))
@@ -771,10 +761,17 @@ or STRING to string"
     (spit output (instal hmap tropes))
     "true"))
 
+(defn make-bridge [tropes]
+  (let [bridge-name ["institution tropeBridge;\n"]
+        bridge-text (bridge tropes)
+        insts (mapcat #(inst-events % tropes) tropes)
+        exts (mapcat external-events tropes)]
+    (apply str (interpose "\n" (concat bridge-name types fluents ["\n"] insts ["\n"] exts ["\n"] [bridge-text])))))
+
 (defn bridge-file [tropes output]
-  (do
-    (spit output (bridge tropes))
-    "true"))
+    (do
+      (spit output (make-bridge tropes))
+      "true"))
 
 ;; (defn instal-file [input output]
 ;;   (let [text (slurp input)

@@ -76,9 +76,10 @@
 (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")
 (make-story (st-map "test1" [heros-journey evil-empire] charlist objlist placelist "Luke Skywalker") "test1")
 (make-story (st-map "test2" [heros-journey quest] charlist objlist placelist "Luke Skywalker") "test2")
-(:tropes (st-map "test2" [heros-journey quest] charlist objlist placelist "Luke Skywalker"))
+;; (:tropes (st-map "test2" [heros-journey quest] charlist objlist placelist "Luke Skywalker"))
 (solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "tatooine"))
 (solve-story "test2" [heros-journey quest] (ev "go" "Luke Skywalker" "tatooine"))
+(spit "resources/answer-set.lp" (solve-story "test2" [heros-journey quest] (ev "go" "Luke Skywalker" "tatooine")))
 (solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "space"))
 
 (parse-trope (:string heros-journey))

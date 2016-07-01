@@ -21,10 +21,7 @@
 
 (defn make-domain [hmap id]
   (let [tropes (:tropes hmap)
-        p (println "TROPES:")
-        p (println hmap)
-        p (println (:characters hmap))
-        tropenames (stringer (vec (set (map :label tropes))))
+        tropenames (str "tropeBridge " (stringer (vec (set (map :label tropes)))))
         characters (:characters hmap)
         charnames (stringer (map :label characters))
         roles (stringer (vec (set (map :role characters))))
@@ -91,11 +88,12 @@
         domain (str "resources/domain-" id ".idc")
         temp (str "resources/temp-" id ".lp")
         query (str "resources/query-" id ".iaq")
+        bridge (str "resources/" id "-bridge.ial")
         outfile (str "resources/output-" id ".lp")]
     (do
       (spit query (event-to-text event) :append true)
       ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
+      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query]))]
         (spit outfile output)
         {:text output}))))
 
