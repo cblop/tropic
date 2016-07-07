@@ -2,6 +2,7 @@
   (:require [tropic.solver :refer [make-story make-domain make-instal solve-story]]
             [tropic.gen :refer [make-map]]
             [tropic.parser :refer [parse-trope]]
+            [tropic.text-parser :refer [trace-to-prose trace-to-map]]
             [tropic.instal :refer [instal instal-file]]
             ))
 
@@ -78,7 +79,11 @@
 (make-story (st-map "test2" [heros-journey quest] charlist objlist placelist "Luke Skywalker") "test2")
 ;; (:tropes (st-map "test2" [heros-journey quest] charlist objlist placelist "Luke Skywalker"))
 (solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "tatooine"))
-(solve-story "test2" [heros-journey quest] (ev "go" "Luke Skywalker" "tatooine"))
+(:text (solve-story "test2" [heros-journey quest] (ev "go" "Luke Skywalker" "tatooine")))
+(trace-to-map (:text (solve-story "test2" [heros-journey quest] (ev "go" "Luke Skywalker" "tatooine"))))
+(spit "resources/result.txt" (trace-to-prose (:text (solve-story "test2" [heros-journey quest] (ev "go" "Luke Skywalker" "tatooine")))))
+(spit "resources/result.txt" (trace-to-prose (:text (solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "tatooine")))))
+(spit "resources/result.txt" (trace-to-prose (:text (solve-story "test1" [heros-journey evil-empire] (ev "has" "Darth Vader" "Sword")))))
 (spit "resources/answer-set.lp" (solve-story "test2" [heros-journey quest] (ev "go" "Luke Skywalker" "tatooine")))
 (solve-story "test1" [heros-journey evil-empire] (ev "go" "Luke Skywalker" "space"))
 

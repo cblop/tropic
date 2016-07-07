@@ -89,11 +89,15 @@
         temp (str "resources/temp-" id ".lp")
         query (str "resources/query-" id ".iaq")
         bridge (str "resources/" id "-bridge.ial")
-        outfile (str "resources/output-" id ".lp")]
+        outfile (str "resources/output-" id ".json")
+        debug (str "resources/debug-" id ".lp")
+        ]
     (do
       (spit query (event-to-text event) :append true)
       ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query]))]
-        (spit outfile output)
-        {:text output}))))
+      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query "-j" outfile "-o" "resources/output"]))]
+        (spit debug (:out output))
+        (if (:out output)
+          {:text (:out output)}
+          {:text output})))))
 

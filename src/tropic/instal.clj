@@ -520,8 +520,6 @@ or STRING to string"
         os (map #(-> % (dissoc :deadline) (dissoc :violation)) obls)
         oevs (concat os deads viols)
         wparams (flatten (map get-when-params (:situations trope)))
-        p (println "GTROPES:")
-        p (println tropes)
         subs (subs-triggers trope tropes)
         header (str "% GENERATES: " (reduce str (:label trope)) " ----------")
         inst (str (inst-name (:label trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
@@ -538,11 +536,13 @@ or STRING to string"
         wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
         oifs (map #(param-str % oparams) oevs)
         smake (fn [sub]
-                (if sub
+                (if (:subtrope sub)
                   (let [pms (get-all-params (assoc trope :events (concat (:events trope) (:events (:subtrope sub)))))
                         int (event-name (:label trope))
                         p (println pms)]
                     (gmake (str (inst-start-name (:label (:subtrope sub))) (param-brackets (first (:events (:subtrope sub))) pms)) (event-str (:trigger sub) pms) (concat (param-str (first (:events (:subtrope sub))) pms) (param-str (:trigger sub) pms) [(str "phase(" int ", " "phase" (:phase sub) ")")])))))
+        p (println "THASUBS:")
+        p (println subs)
         gen-subs (remove nil? (map smake subs))
         gen-a (into [] (set (map gmake (repeat inst) estrs pstrs)))
         gen-s (map gmake wnames wstrs wifs)
@@ -570,9 +570,9 @@ or STRING to string"
                 (let [subs (get-subtropes trope tropes)
                       p (println "SUBTROPEEEES:")
                       p (println subs)
-                      iname (inst-name (:label trope))
+                      iname (event-name (:label trope))
                       enames (map #(perm (event-str (first (:events %)) (get-all-params %))) subs)
-                      snames (map #(inst-name (:label %)) subs)
+                      snames (map #(event-name (:label %)) subs)
                       ess (map vector enames snames)
                       is (map #(str "initially ipow (" iname ", " (first %) ", " (second %) ");") ess)
                       ]
@@ -608,11 +608,11 @@ or STRING to string"
         story (:story hmap)
         instances (:instances story)
         ;; role-list (mapcat #(map first (:roles %)) param-map)
-        role-list (:characters hmap)
+        role-list (map :role (:characters hmap))
         ;; place-list (mapcat #(map first (:places %)) param-map)
-        place-list (:places hmap)
+        place-list (map :location (:places hmap))
         ;; obj-list (mapcat #(map first (:objects %)) param-map)
-        obj-list (:objects hmap)
+        obj-list (map :type (:objects hmap))
         first-events (map first (map :events (:tropes hmap)))
         ;; first-perms (map :perm (filter :perm first-events))
         ;; fperm-strs (map #(perm (event-str % params)) first-perms)
@@ -620,9 +620,9 @@ or STRING to string"
         ;; fperm-cnds (map #(param-str % params) first-events)
         fperms fperm-strs
         ;event-name?
-        roles (filter #(in? role-list (event-name (:class %))) instances)
-        places (filter #(in? place-list (event-name (:class %))) instances)
-        objects (filter #(in? obj-list (event-name (:class %))) instances)
+        roles (filter #(in? role-list (:class %)) instances)
+        places (filter #(in? place-list (:class %)) instances)
+        objects (filter #(in? obj-list (:class %)) instances)
         fluentfn (fn [x t] (str t "(" (event-name (:iname x)) ", " (event-name (:class x)) ")"))
         rolestrs (map #(fluentfn % "role") roles)
         placestrs (map #(fluentfn % "place") places)
@@ -646,6 +646,9 @@ or STRING to string"
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
         powers (map powfn (:tropes hmap))
+        p (println "ROLESTRS")
+        p (println instances)
+        p (println (:characters hmap))
 
         first-perms (reduce str (map #(str "initially\n    " (reduce str %) ";\n") fperms))
         ;; first-perms ""

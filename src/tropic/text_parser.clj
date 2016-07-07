@@ -11,17 +11,18 @@
     final = observation
     <observation> = (observed <'\n'>)+ <'\n'>
     observed = (<'holdsat('> norm+ <')'>) | (<'occurred('> (event / v-event)+ <')'>)
-    norm = (perm / obl / pow / live / fluent) <',' inst ',' instant>
+    norm = (perm / obl / pow / ipow / live / fluent) <',' inst>
     perm = <'perm('> word [<'('> params <')'>] <')'>
     obl = <'obl('> obl-event <','> deadline <','> viol<')'>
     pow = <'pow('> inst <','> word [<'('> params <')'>] <')'>
+    ipow = <'ipow('> inst <','> (perm / obl / (word [<'('> params <')'>])) <','> inst <')'>
     live = <'live('> word [<'('> params <')'>] <')'>
     fluent = word [<'('> params <')'>]
-    event = word [<'('> params <')'>]<',' inst ',' instant>
+    event = word [<'('> params <')'>]<',' inst>
     obl-event = word [<'('> params <')'>]
     deadline = word [<'('> params <')'>]
     viol = word [<'('> params <')'>]
-    <v-event> = <'viol(' <viol> '),' inst ',' instant>
+    <v-event> = <'viol(' <viol> '),' inst>
     <inst> = word
     end = <'\n'>* <'Passed(' number ')'> <'\n'>*
     params = word (<','> word)*
@@ -167,6 +168,10 @@
       (transform)
       (say-options)))
 
+(defn trace-to-map [trace]
+  (-> trace
+      (solve-parse)
+      (transform)))
 
 
 ;; (-> (str
