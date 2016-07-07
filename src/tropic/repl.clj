@@ -9,6 +9,12 @@
 (defn join-strings [strs]
   (apply str (interpose "\n" strs)))
 
+(def heros-journey-alt
+  (join-strings
+   ["The Hero's Journey is a trope where:"
+    "  The Hero is at Home"
+    "  Then the Quest happens"]))
+
 (def heros-journey
   {:label "The Hero's Journey"
    :string
@@ -90,6 +96,9 @@
 (parse-trope (:string heros-journey))
 (make-map (parse-trope (:string heros-journey)))
 (parse-trope (:string quest))
+
+(parse-trope heros-journey-alt)
+(make-map (parse-trope heros-journey-alt))
 
 ;; REMEMBER: initially takes hmap values from wrong place
 

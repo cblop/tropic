@@ -1,57 +1,50 @@
 (ns tropic.core
   (:require [me.raynes.conch :refer [programs with-programs let-programs] :as sh]
             [tropic.instal :refer [instal-file]]
+            [clojure.tools.cli :refer [parse-opts]]
+            [clojure.string :as string]
             [tropic.text-parser :refer [observe trace-to-prose]])
   (:gen-class))
 
-(programs python clingo)
+(def cli-options
+  [["-d" "--domain" "Generate domain.idc"
+    :id :domain
+    ]
+   ["-o" "--output FOLDER" "Name of folder to output .ial files to"
+    :id :output
+    :default "output"
+    ]
+   ["-i" "--instal" "Run instal to compile ASP .lp files"
+    :id :instal
+    ]
+   ;; A boolean option defaulting to nil
+   ["-h" "--help"]])
 
-(def output-file (atom ""))
-(def inst (atom "starWars"))
+(defn usage [options-summary]
+  (->> ["Compiles trope descriptions to .ial instution files."
+        ""
+        "Usage: tropical [options] trope_file ..."
+        ""
+        "Options:"
+        options-summary
+        ]
+       (string/join \newline)))
 
-(defn show-message []
-  (do
-    (print "\nWelcome to the land of adventure!\n\n> ")
-    (flush)))
+(defn error-msg [errors]
+  (str "The following errors occurred while parsing your command:\n\n"
+       (string/join \newline errors)))
 
-
-(defn solver [input]
-  (spit "resources/output.txt" (python "instal/instalsolve.py" "-v" "-i" input "-d" "resources/domain.idc" "-o" "resources/temp.lp" "resources/query.lp")))
-
-
-(defn process-events [input evs]
-  (let [new-ev (observe input @inst (count evs))]
-    (do
-      (spit "resources/query.lp" (str new-ev "\n") :append true)
-      (solver @output-file)
-      (println "\n")
-      (println (trace-to-prose (slurp "resources/output.txt")))
-      (println "\n")
-      )))
-
-(defn get-input []
-  (loop [input (read-line) acc []]
-    (if (= "quit" input) (println "\nGoodbye!\n")
-        (do
-          (process-events input acc)
-          (print "> ")
-          (flush)
-          (recur (read-line) (conj acc input)))
-      ))
-  )
-
-(defn output-file-name [name]
-  (-> name
-      (clojure.string/split #"\.")
-      (first)
-      (str ".ial")))
+(defn exit [status msg]
+  (println msg)
+  (System/exit status))
 
 (defn -main [& args]
-  (if-not (= (count args) 1) (println "Usage: tropical <STORY_FILE>.story")
-    (do
-      (spit "resources/query.lp" "")
-      (reset! output-file (output-file-name (first args)))
-      (instal-file (first args) @output-file)
-      (show-message)
-      (get-input))))
+  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
+    ;; Handle help and error conditions
+    (cond
+      (:help options) (exit 0 (usage summary))
+      (not= (count arguments) 1) (exit 1 (usage summary))
+      errors (exit 1 (error-msg errors)))
+    ;; Execute program with options
+    (println "hooray")))
 
