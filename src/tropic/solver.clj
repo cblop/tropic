@@ -105,9 +105,8 @@
 
 (defn trope-map [trope]
   (let [parsed (make-map (parse-trope trope))]
-    (println parsed)
-    {:label (:label parsed)
-     :events (:events parsed)
+    {:label (:label (:trope parsed))
+     :events (:events (:trope parsed))
      :situations []})
   ;; also need: chars, obj, places?
   )
@@ -131,12 +130,12 @@
 
 (defn make-cmd [t-files c-file o-file p-file domain? oname player]
   (let [strs (map slurp t-files)
-        chars (make-inst-map (parse-char (slurp c-file)))
-        p (println chars)
-        objs (make-inst-map (parse-object (slurp o-file)))
-        p (println objs)
-        places (make-inst-map (parse-place (slurp p-file)))
-        p (println places)
+        c-strs (clojure.string/split-lines (slurp c-file))
+        o-strs (clojure.string/split-lines (slurp o-file))
+        p-strs (clojure.string/split-lines (slurp p-file))
+        chars (map #(make-inst-map (parse-char %)) c-strs)
+        objs (map #(make-inst-map (parse-object %)) o-strs)
+        places (map #(make-inst-map (parse-place %)) p-strs)
         story-map (st-map oname strs chars objs places player)]
     (println story-map)
     (make-story story-map oname)))
