@@ -1,7 +1,7 @@
 (ns tropic.repl
-  (:require [tropic.solver :refer [make-story make-domain make-instal solve-story]]
-            [tropic.gen :refer [make-map]]
-            [tropic.parser :refer [parse-trope]]
+  (:require [tropic.solver :refer [make-story make-domain make-instal solve-story make-cmd]]
+            [tropic.gen :refer [make-map make-inst-map]]
+            [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
             [tropic.text-parser :refer [trace-to-prose trace-to-map]]
             [tropic.instal :refer [instal instal-file]]
             ))
@@ -52,7 +52,7 @@
    ])
 
 (defn trope-map [trope]
-  {:label (:label trope)
+  {:label (:label (:trope trope))
    :events (:events (:trope (make-map (parse-trope (:string trope)))))
    :situations []}
   ;; also need: chars, obj, places?
@@ -99,6 +99,13 @@
 
 (parse-trope heros-journey-alt)
 (make-map (parse-trope heros-journey-alt))
+
+(parse-char "Luke Skywalker is a Hero")
+(make-inst-map (parse-char "Luke Skywalker is a Hero"))
+(parse-object "The Lightsaber is a Weapon")
+(make-inst-map (parse-object "The Lightsaber is a Weapon"))
+(parse-place "The beach is a resting place")
+(make-inst-map (parse-place "The beach is a resting place"))
 
 ;; REMEMBER: initially takes hmap values from wrong place
 

@@ -1,6 +1,30 @@
 (ns tropic.parser
   (:require [instaparse.core :as insta]))
 
+(def char-parser
+  (insta/parser
+   "character = (<'The ' / 'the '>? label <' is a '> role <'.'>? <'\\n'?>)+ <'\\n'?>
+    label = words
+    role = words
+    <words> = word (<' '> word)*
+    <word> = #'[0-9a-zA-Z\\-\\_\\']*'"))
+
+(def object-parser
+  (insta/parser
+   "object = (label <' is a '> type <'.'>? <'\\n'?>)+ <'\\n'?>
+    label = words
+    type = words
+    <words> = word (<' '> word)*
+    <word> = #'[0-9a-zA-Z\\-\\_\\']*'"))
+
+(def place-parser
+  (insta/parser
+   "place = (<'The ' / 'the '>? label <' is ' 'a '?> location <'.'>? <'\\n'?>)+ <'\\n'?>
+    label = words
+    location = words
+    <words> = word (<' '> word)*
+    <word> = #'[0-9a-zA-Z\\-\\_\\']*'"))
+
 (def trope-parser
   (insta/parser
    "trope = (tropedef (<whitespace> (situationdef / alias / happens / norms / sequence / situationdef))+ <'\\n'?>) | ((situationdef / alias / happens / norms / sequence / situationdef)+ <'\\n'?>)
@@ -84,3 +108,21 @@
   (insta/add-line-and-column-info-to-metadata
    text
    (trope-parser text)))
+
+(defn parse-char
+  [text]
+  (insta/add-line-and-column-info-to-metadata
+   text
+   (char-parser text)))
+
+(defn parse-object
+  [text]
+  (insta/add-line-and-column-info-to-metadata
+   text
+   (object-parser text)))
+
+(defn parse-place
+  [text]
+  (insta/add-line-and-column-info-to-metadata
+   text
+   (place-parser text)))

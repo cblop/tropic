@@ -3,6 +3,7 @@
             [tropic.instal :refer [instal-file]]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.string :as string]
+            [tropic.solver :refer [make-cmd]]
             [tropic.text-parser :refer [observe trace-to-prose]])
   (:gen-class))
 
@@ -16,6 +17,18 @@
     ]
    ["-i" "--instal" "Run instal to compile ASP .lp files"
     :id :instal
+    ]
+   ["-c" "--chars CHARS" "File with character definitions"
+    :id :chars
+    ]
+   ["-t" "--types OBJECTS" "File with object definitions"
+    :id :objs
+    ]
+   ["-l" "--locations PLACES" "File with place definitions"
+    :id :places
+    ]
+   ["-p" "--player PLAYER" "Name of the player character"
+    :id :player
     ]
    ;; A boolean option defaulting to nil
    ["-h" "--help"]])
@@ -43,8 +56,8 @@
     ;; Handle help and error conditions
     (cond
       (:help options) (exit 0 (usage summary))
-      (not= (count arguments) 1) (exit 1 (usage summary))
+      (not (> (count arguments) 0)) (exit 1 (usage summary))
       errors (exit 1 (error-msg errors)))
     ;; Execute program with options
-    (println "hooray")))
+    (make-cmd arguments (:chars options) (:objs options) (:places options) (:domain options) (:output options) (:player options))))
 

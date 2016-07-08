@@ -2,6 +2,8 @@
   (:require
    [tropic.instal :refer [event-name instal-file bridge-file]]
    [clojure.java.io :as io]
+   [tropic.gen :refer [make-map make-inst-map]]
+   [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
    [clojure.java.shell :refer [sh]]
    [me.raynes.conch :refer [programs with-programs let-programs] :as sh]))
 
@@ -100,4 +102,42 @@
         (if (:out output)
           {:text (:out output)}
           {:text output})))))
+
+(defn trope-map [trope]
+  (let [parsed (make-map (parse-trope trope))]
+    (println parsed)
+    {:label (:label parsed)
+     :events (:events parsed)
+     :situations []})
+  ;; also need: chars, obj, places?
+  )
+
+(defn st-map [name tropes chars objs places player]
+  (let [trps (map trope-map tropes)
+        role-pairs (map #(hash-map :class (:role %) :iname (:label %)) chars)
+        obj-pairs (map #(hash-map :class (:type %) :iname (:label %)) objs)
+        place-pairs (map #(hash-map :class (:location %) :iname (:label %)) places)
+        story {:storyname name
+               :tropes (map :label trps)
+               :instances (concat role-pairs obj-pairs place-pairs)}
+        ]
+    {:story story
+     :tropes trps
+     :characters chars
+     :objects objs
+     :places places
+     :player player
+     }))
+
+(defn make-cmd [t-files c-file o-file p-file domain? oname player]
+  (let [strs (map slurp t-files)
+        chars (make-inst-map (parse-char (slurp c-file)))
+        p (println chars)
+        objs (make-inst-map (parse-object (slurp o-file)))
+        p (println objs)
+        places (make-inst-map (parse-place (slurp p-file)))
+        p (println places)
+        story-map (st-map oname strs chars objs places player)]
+    (println story-map)
+    (make-story story-map oname)))
 

@@ -62,3 +62,18 @@
     }
    ptree))
 
+(defn make-inst-map [ptree]
+  (insta/transform
+   {:role (fn [& args] {:role (make-string args)})
+    :type (fn [& args] {:type (make-string args)})
+    :location (fn [& args] {:location (make-string args)})
+    :label (fn [& args] {:label (make-string args)})
+    :character (fn [& args] {:label (first (filter some? (map :label args)))
+                          :role (first (filter some? (map :role args)))})
+    :object (fn [& args] {:label (first (filter some? (map :label args)))
+                          :type (first (filter some? (map :type args)))})
+    :place (fn [& args] {:label (first (filter some? (map :label args)))
+                          :location (first (filter some? (map :location args)))})
+    }
+   ptree))
+
