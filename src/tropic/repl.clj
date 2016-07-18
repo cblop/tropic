@@ -9,18 +9,11 @@
 (defn join-strings [strs]
   (apply str (interpose "\n" strs)))
 
-(def heros-journey-alt
-  (join-strings
-   ["The Hero's Journey is a trope where:"
-    "  The Hero is at Home"
-    "  Then the Quest happens"]))
-
 (def heros-journey
-  {:label "The Hero's Journey"
-   :string
-   (join-strings
-    ["The Hero is at Home"
-     "Then the Quest happens"])})
+  (join-strings
+   ["The Hero is at Home"
+    "Then the Quest happens"]))
+
 
 (def quest
   {:label "The Quest"
