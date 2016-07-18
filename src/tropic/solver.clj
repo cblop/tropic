@@ -68,12 +68,13 @@
         ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
         ]
    (do
+     (println hmap)
      (make-domain hmap id)
      (make-instal hmap id)
      (make-bridge hmap id)
      (make-query [] id)
-     (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
-     ;; (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
+     ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
+     (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
        (do
          (spit (str "resources/output-" id ".lp") output)
          ;; (clean-up id)
@@ -96,8 +97,8 @@
         ]
     (do
       (spit query (event-to-text event) :append true)
-      (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      ;; (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query "-j" outfile "-o" "resources/output"]))]
+      ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
+      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query "-j" outfile "-o" "resources/output"]))]
         (spit debug (:out output))
         (if (:out output)
           {:text (:out output)}
@@ -105,6 +106,7 @@
 
 (defn trope-map [trope]
   (let [parsed (make-map (parse-trope trope))]
+    (println parsed)
     {:label (:label (:trope parsed))
      :events (:events (:trope parsed))
      :situations []})
