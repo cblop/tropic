@@ -9,6 +9,54 @@
 (defn join-strings [strs]
   (apply str (interpose "\n" strs)))
 
+(def warranty
+  (join-strings
+   ["Warranty is a policy where:"
+    "  The Buyer returns the Object"
+    "  Then if the Object is defective:"
+    "  The Seller must refund the Buyer"]))
+
+(parse-trope warranty)
+
+(def warranty-release
+  (join-strings
+   ["Warranty Release is a policy where:"
+    "  The Warranty policy does not apply"]))
+
+(parse-trope warranty-release)
+
+(def est-rights
+  (join-strings
+   ["Establishment of Rights is a policy where:"
+    "  The Seller gives Rights to a Third Party"
+    "  Then the Warranty Release policy does not apply"]))
+
+(parse-trope est-rights)
+
+(def sales-contract
+  (join-strings
+   ["Sales Contract is a policy where:"
+    "  The Seller sells an Object to the Buyer"
+    "  Then the Warranty policy applies"]))
+
+(parse-trope sales-contract)
+
+
+(def charlist-policy
+  [{:label "Itsuki Hiroshi" :role "Seller"}
+   {:label "Ishikawa Sayuri" :role "Buyer"}
+   {:label "Kitajima Saburo" :role "Third party"}
+   ])
+
+(def placelist-policy
+  [])
+
+(def objlist-policy
+  [{:label "Sales Rights" :type "Rights"}
+   {:label "Ukai-bune" :type "Object"}
+   ])
+
+
 (def heros-journey
   (join-strings
    ["The Hero's Journey is a trope where:"

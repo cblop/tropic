@@ -27,9 +27,9 @@
 
 (def trope-parser
   (insta/parser
-   "trope = (tropedef (<whitespace> (situationdef / alias / happens / norms / sequence / situationdef))+ <'\\n'?>) | ((situationdef / alias / happens / norms / sequence / situationdef)+ <'\\n'?>)
+   "trope = (tropedef (<whitespace> (situationdef / alias / happens / block / norms / sequence / situationdef))+ <'\\n'?>) | ((situationdef / alias / happens / block / norms / sequence / situationdef)+ <'\\n'?>)
 
-    <tropedef> = label <' is a trope where:\\n'>
+    <tropedef> = label <' is a ' ('trope' / 'policy') ' where:\\n'>
     alias =
         <whitespace> character <' is also '> character <'\\n'?>
 
@@ -37,7 +37,11 @@
         <'When '> event <':'>
 
     happens =
-       <'The ' | 'the '>? subtrope <' happens' '.'?>
+       <'The ' | 'the '>? subtrope <(' happens' / ' policy applies') '.'?>
+
+
+    block =
+       <'The ' | 'the '>? subtrope <(' does not happen' / ' policy does not apply') '.'?>
 
     sequence =
         (<whitespace>? <'Then '>? (event | obligation | happens) or? <'\\n'?>)+
