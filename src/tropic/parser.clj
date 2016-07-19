@@ -27,7 +27,7 @@
 
 (def trope-parser
   (insta/parser
-   "trope = (tropedef (<whitespace> (situationdef / alias / happens / block / norms / sequence / situationdef))+ <'\\n'?>) | ((situationdef / alias / happens / block / norms / sequence / situationdef)+ <'\\n'?>)
+   "trope = (tropedef (<whitespace> (situationdef / alias / conditional / norms / sequence / situationdef))+ <'\\n'?>) | ((situationdef / alias / conditional / norms / sequence / situationdef)+ <'\\n'?>)
 
     <tropedef> = label <' is a ' ('trope' / 'policy') ' where:\\n'>
     alias =
@@ -36,15 +36,29 @@
     situation =
         <'When '> event <':'>
 
+    conditional =
+        <'If ' | 'if '> fluent <':'> outcome
+
+    fluent =
+        object <' is '> adjective
+
+    adjective = word
+
+    object = <'The ' | 'the '> word
+
+    outcome =
+        (<'\\n' whitespace whitespace> (event | obligation | happens) or? <'\\n'?>)+
+
     happens =
-       <'The ' | 'the '>? subtrope <(' happens' / ' policy applies') '.'?>
+       <the?> subtrope <(' happens' / ' policy applies') '.'?>
 
 
     block =
-       <'The ' | 'the '>? subtrope <(' does not happen' / ' policy does not apply') '.'?>
+       <the?> subtrope <' policy does not apply' / ' does not happen'> <'.'?>
+
 
     sequence =
-        (<whitespace>? <'Then '>? (event | obligation | happens) or? <'\\n'?>)+
+        (conditional | event | obligation | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / event / obligation / happens) or?)*
 
     situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace whitespace> consequence)+ <'\\n'?>
 
@@ -53,11 +67,15 @@
 
 
     event =
-        (character <' is'>? <' '> (move / task)) | give | meet | kill
+        (character <' is'>? <' '> (move / task)) | give | sell | meet | kill
 
 
     give =
-        character <' gives '> character <' a ' / ' an '?> item
+        character <' gives ' ('the ' / 'a ' / 'an ')?> item <' to '>? <'a ' / 'an '>? character
+
+    sell =
+        character <' sells ' ('the ' / 'a ' / 'an ')?> item <' to '>? <'a ' / 'an '>? character
+
     meet =
         character <' meets '> character
     kill =
@@ -69,15 +87,12 @@
 
     character = name
 
-    subtrope = name
+    subtrope = <'\"'> words <'\"'>
 
-    label = words
-
-    conditional =
-        <' if '> <'they '?> event
+    label = <'\"'> words <'\"'>
 
     move = mverb <' '> <'to '?> place
-    mverb = 'go' / 'goes' / 'leave' / 'leaves' / 'return' / 'returns' / 'at' / 'come' / 'comes'
+    mverb = 'go' / 'goes' / 'leave' / 'leaves' / ('return' <!' the'>) / 'returns' <!' the'> / 'at' / 'come' / 'comes'
     verb = word
     place = name
 
@@ -90,7 +105,7 @@
     task = pverb <' '> role-b / verb / (verb <(' the ' / ' a ' / ' an ')> item) / (verb <' '> item)
     role-b = name
 
-    pverb = 'kill' / 'kills'
+    pverb = 'kill' / 'kills' / 'refunds' / 'refund'
 
     consequence =
         [<'The ' / 'the '>] character <' will '>? <' '> (move / item)
@@ -104,6 +119,7 @@
     <words> = word (<' '> word)*
     <cwords> = cword (<' '> cword)*
     <cword> = #'[A-Z][0-9a-zA-Z\\-\\_\\']*'
+    <the> = <'The ' | 'the '>
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"
    ))
 

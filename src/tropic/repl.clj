@@ -11,35 +11,43 @@
 
 (def warranty
   (join-strings
-   ["Warranty is a policy where:"
+   ["\"Warranty\" is a policy where:"
     "  The Buyer returns the Object"
     "  Then if the Object is defective:"
-    "  The Seller must refund the Buyer"]))
+    "    The Seller must refund the Buyer"
+    ]))
 
 (parse-trope warranty)
+(make-map (parse-trope warranty))
 
 (def warranty-release
   (join-strings
-   ["Warranty Release is a policy where:"
-    "  The Warranty policy does not apply"]))
+   ["\"Warranty Release\" is a policy where:"
+    "  The \"Warranty\" policy does not apply"
+    ]))
 
+;; not doing anything with "block" yet
 (parse-trope warranty-release)
+(make-map (parse-trope warranty-release))
 
 (def est-rights
   (join-strings
-   ["Establishment of Rights is a policy where:"
-    "  The Seller gives Rights to a Third Party"
-    "  Then the Warranty Release policy does not apply"]))
+   ["\"Establishment of Rights\" is a policy where:"
+    "  The Seller gives Rights to a Third-Party"
+    "  Then the \"Warranty Release\" policy does not apply"]))
 
 (parse-trope est-rights)
+;; not picking up roles for some reason
+(make-map (parse-trope est-rights))
 
 (def sales-contract
   (join-strings
-   ["Sales Contract is a policy where:"
+   ["\"Sales Contract\" is a policy where:"
     "  The Seller sells an Object to the Buyer"
-    "  Then the Warranty policy applies"]))
+    "  Then the \"Warranty\" policy applies"]))
 
 (parse-trope sales-contract)
+(make-map (parse-trope sales-contract))
 
 
 (def charlist-policy
@@ -101,6 +109,8 @@
 
 ;; TEST:
 (test-story [heros-journey quest] charlist objlist placelist "Luke Skywalker" "ex1")
+
+(test-story [warranty warranty-release est-rights sales-contract] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "pol1")
 
 ;; TEST:
 ;; (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")
