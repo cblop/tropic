@@ -48,6 +48,10 @@ or STRING to string"
   [iname]
   (str "intStart" (cap-first (event-name iname))))
 
+(defn inst-stop-name
+  [iname]
+  (str "intStop" (cap-first (event-name iname))))
+
 (defn get-letter [s params]
   (second (first (filter #(= s (first %)) params))))
 
@@ -418,7 +422,14 @@ or STRING to string"
 
 (defn get-subtropes [trope tropes]
   (let [stropes (map #(if-let [s (:subtrope %)]
-                        (first (filter (fn [x] (= (:label x) (or (str "The " s) s))) tropes))
+                        (first (filter (fn [x] (or (= (:label x) (str "The " s)) (= (:label x) s))) tropes))
+                        nil) (:events trope))]
+    (remove nil? stropes)))
+
+
+(defn get-blocked-tropes [trope tropes]
+  (let [stropes (map #(if-let [s (:block %)]
+                        (first (filter (fn [x] (or (= (:label x) (str "The " s)) (= (:label x) s))) tropes))
                         nil) (:events trope))]
     (remove nil? stropes)))
 
@@ -555,6 +566,7 @@ or STRING to string"
 (defn bridge [tropes]
   (let [;; ievents (subs-triggers tropes)
         subtropes (into [] (set (mapcat #(get-subtropes % tropes) tropes)))
+        blocked-tropes (into [] (set (mapcat #(get-blocked-tropes % tropes) tropes)))
         bmake (fn [strope]
                 (let [params (get-all-params strope)
                       inst (str (inst-start-name (:label strope))
@@ -563,6 +575,15 @@ or STRING to string"
                       ex (event-str fevent params)
                       cnds (param-str fevent params)]
                   (str inst " xinitiates\n" WS "perm(" ex ")" " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")))
+
+        tmake (fn [strope]
+                (let [params (get-all-params strope)
+                      inst (str (inst-stop-name (:label strope))
+                                (param-brackets (first (:events strope)) params))
+                      fevent (first (:events strope))
+                      ex (event-str fevent params)
+                      cnds (param-str fevent params)]
+                  (str inst " xterminates\n" WS "perm(" ex ")" " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")))
         cmake (fn [strope]
                 (let [ex (event-str (first (:events strope)) (get-all-params strope))]
                   (str "cross fluent ipow(Trope, perm(" ex "), Trope);")))
@@ -579,10 +600,11 @@ or STRING to string"
                   (apply str (interpose "\n" is))))
         ;; imake (fn [strope])
         bridges (apply str (map bmake subtropes))
+        blocked (apply str (map tmake blocked-tropes))
         crosses (apply str (map cmake subtropes))
         inits (apply str (map imake tropes))
         ]
-    (apply str (concat crosses ["\n\n"] bridges ["\n\n"] inits))))
+    (apply str (concat crosses ["\n\n"] bridges ["\n\n"] blocked ["\n\n"] inits))))
 
 ;; (spit "resources/bridge-test.ial" (bridge [{:label "Quest" :events [{:verb "go" :role "hero" :place "away"}]} {:label "Hero's Journey" :events [{:verb "go" :role "hero" :place "home"} {:subtrope "Quest"}]}]))
 

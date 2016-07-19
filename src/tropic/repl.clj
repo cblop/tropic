@@ -37,7 +37,6 @@
     "  Then the \"Warranty Release\" policy does not apply"]))
 
 (parse-trope est-rights)
-;; not picking up roles for some reason
 (make-map (parse-trope est-rights))
 
 (def sales-contract
