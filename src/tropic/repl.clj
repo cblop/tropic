@@ -14,7 +14,6 @@
    ["The Hero is at Home"
     "Then the Quest happens"]))
 
-
 (def quest
   {:label "The Quest"
    :string

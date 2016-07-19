@@ -1,6 +1,6 @@
 (ns tropic.text-parser
   (:require [instaparse.core :as insta]
-            [damionjunk.nlp.cmu-ark :as ark]
+            ;; [damionjunk.nlp.cmu-ark :as ark]
             ;; [damionjunk.nlp.stanford :as stan]
             [tropic.instal :refer [event-name]]
             [clojure.string :as str]))
@@ -208,21 +208,21 @@
                 (first words)))]
     (map combine (partition-by first text))))
 
-(defn nlp-parse [text]
-  (-> text
-      (ark/tag)
-      (make-ark-tree)
-      (format-chars)))
+;; (defn nlp-parse [text]
+;;   (-> text
+;;       (ark/tag)
+;;       (make-ark-tree)
+;;       (format-chars)))
 
-(defn observe [text inst n]
-  (let [ptree (nlp-parse text)
-        hmap (apply hash-map (apply concat ptree))
-        event (interpose "," (remove nil? [(:character hmap) (:object hmap)]))
-        evf (if (empty? event) "" (reduce str (cons "," event)))
-        ]
-    ;; (str "observed(" (:verb hmap) "(player" evf ")," inst "," n ")")
-    (str "observed(" (:verb hmap) "(lukeSkywalker" evf ")," inst")")
-    ))
+;; (defn observe [text inst n]
+;;   (let [ptree (nlp-parse text)
+;;         hmap (apply hash-map (apply concat ptree))
+;;         event (interpose "," (remove nil? [(:character hmap) (:object hmap)]))
+;;         evf (if (empty? event) "" (reduce str (cons "," event)))
+;;         ]
+;;     ;; (str "observed(" (:verb hmap) "(player" evf ")," inst "," n ")")
+;;     (str "observed(" (:verb hmap) "(lukeSkywalker" evf ")," inst")")
+;;     ))
 
 ;; (nlp-parse "give luke skywalker the light saber")
 ;; (observe (nlp-parse "give luke skywalker the light saber") "starWars" 1)

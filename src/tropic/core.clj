@@ -4,7 +4,8 @@
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.string :as string]
             [tropic.solver :refer [make-cmd]]
-            [tropic.text-parser :refer [observe trace-to-prose]])
+            ;; [tropic.text-parser :refer [observe trace-to-prose]]
+            )
   (:gen-class))
 
 (def cli-options
