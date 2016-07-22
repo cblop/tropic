@@ -33,7 +33,7 @@
     :mverb (partial param-map :mverb)
     :pverb (partial param-map :verb)
     :place (partial param-map :place)
-    :conditional (fn [& args] (merge {:if (first args)} (second args)))
+    :conditional (fn [& args] {:if (apply merge args)})
     :outcome (fn [& args] {:then (first args)})
     :adjective (partial param-map :adjective)
     :object (partial param-map :object)

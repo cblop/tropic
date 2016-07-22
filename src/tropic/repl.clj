@@ -50,19 +50,20 @@
     ]))
 
 (parse-trope maintenance-confidence)
+(make-map (parse-trope maintenance-confidence))
 
 (def tenancy-agreement
   (join-strings
    ["\"Tenancy Agreement\" is a policy where:"
-    "  The Thing is Property"
     "  The \"Maintenance of Confidence\" policy applies"
-    "  The Lessee must not make noise"
+    "  The Lessee must be quiet"
     "    Otherwise, the Lessor may cancel the contract"
-    "  The Lessee must keep the Property clean"
+    "  The Lessee must clean the Thing"
     "    Otherwise, the Lessor may cancel the contract"
     ]))
 
 (parse-trope tenancy-agreement)
+(make-map (parse-trope tenancy-agreement))
 
 ;; WARRANTY ------------------------------------------------------
 

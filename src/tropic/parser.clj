@@ -27,11 +27,12 @@
 
 (def trope-parser
   (insta/parser
-   "trope = (tropedef (<whitespace> (situationdef / alias / conditional / sequence))+ <'\\n'?>) | ((situationdef / alias / conditional / sequence)+ <'\\n'?>)
+   "trope = (tropedef (<whitespace> (situationdef / alias / sequence))+ <'\\n'?>) | ((situationdef / alias / sequence)+ <'\\n'?>)
 
     <tropedef> = label <' is a ' ('trope' / 'policy') ' where:\\n'>
+
     alias =
-        <whitespace> character <' is also '> character <'\\n'?>
+        (character <' is also '> character <'\\n'?>) | (object <' is '> object <'\\n'?>)
 
     situation =
         <'When '> event <':'>
@@ -44,7 +45,7 @@
 
     adjective = word
 
-    object = <'The ' | 'the '> word
+    object = name
 
     outcome =
         (<'\\n' whitespace whitespace> (event | obligation | happens) or? <'\\n'?>)+
@@ -105,9 +106,10 @@
     verb = word
     place = name
 
+    <pverb> = verb (<' '> verb)*
 
     permission = character <' may '> (move / bverb / cverb / task) conditional? <'\\n'?>
-    obligation = character <' must '> (move / bverb / cverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
+    obligation = character <' must '> (move / bverb / cverb / pverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
 
     deadline = consequence
 
