@@ -9,6 +9,63 @@
 (defn join-strings [strs]
   (apply str (interpose "\n" strs)))
 
+;; SUBLEASE ------------------------------------------------------
+(def lease
+  (join-strings
+   ["\"Lease\" is a policy where:"
+    "  The Lessor leases the Thing to the Lessee"
+    "  The \"Maintenance of Confidence\" policy applies"
+    ]))
+
+(parse-trope lease)
+(make-map (parse-trope lease))
+
+(def sublease
+  (join-strings
+   ["\"Sublease\" is a policy where:"
+    "  The Lessor may sublease the Thing to a Third Party"
+    ]))
+
+(parse-trope sublease)
+(make-map (parse-trope sublease))
+
+(def sublease-permission
+  (join-strings
+   ["\"Sublease Permission\" is a policy where:"
+    "  The Lessee may ask permission to sublease the Property"
+    "  If the Lessor gives permission to the Lessee:"
+    "    The \"Sublease\" policy applies"
+    ]))
+
+(parse-trope sublease-permission)
+(make-map (parse-trope sublease-permission))
+
+(def maintenance-confidence
+  (join-strings
+   ["\"Maintenance of Confidence\" is a policy where:"
+    "  The Lessee must pay the Lessor before the due date"
+    "    Otherwise, the Lessor may cancel the contract"
+    "  The Lessor must maintain the Thing"
+    "    Otherwise, the Lessee may cancel the contract"
+    ]))
+
+(parse-trope maintenance-confidence)
+
+(def tenancy-agreement
+  (join-strings
+   ["\"Tenancy Agreement\" is a policy where:"
+    "  The Thing is Property"
+    "  The \"Maintenance of Confidence\" policy applies"
+    "  The Lessee must not make noise"
+    "    Otherwise, the Lessor may cancel the contract"
+    "  The Lessee must keep the Property clean"
+    "    Otherwise, the Lessor may cancel the contract"
+    ]))
+
+(parse-trope tenancy-agreement)
+
+;; WARRANTY ------------------------------------------------------
+
 (def warranty
   (join-strings
    ["\"Warranty\" is a policy where:"

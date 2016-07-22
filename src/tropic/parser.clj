@@ -27,7 +27,7 @@
 
 (def trope-parser
   (insta/parser
-   "trope = (tropedef (<whitespace> (situationdef / alias / conditional / norms / sequence / situationdef))+ <'\\n'?>) | ((situationdef / alias / conditional / norms / sequence / situationdef)+ <'\\n'?>)
+   "trope = (tropedef (<whitespace> (situationdef / alias / conditional / sequence))+ <'\\n'?>) | ((situationdef / alias / conditional / sequence)+ <'\\n'?>)
 
     <tropedef> = label <' is a ' ('trope' / 'policy') ' where:\\n'>
     alias =
@@ -37,7 +37,7 @@
         <'When '> event <':'>
 
     conditional =
-        <'If ' | 'if '> fluent <':'> outcome
+        <'If ' | 'if '> (fluent / tverb / character <' '> (bverb / cverb)) <':'> outcome
 
     fluent =
         object <' is '> adjective
@@ -58,7 +58,7 @@
 
 
     sequence =
-        (conditional | event | obligation | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / event / obligation / happens) or?)*
+        ((conditional | event | norms | happens | block)  <'\\n'?>) | ((conditional | event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / event / obligation / happens) or?))*
 
     situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace whitespace> consequence)+ <'\\n'?>
 
@@ -67,7 +67,7 @@
 
 
     event =
-        (character <' is'>? <' '> (move / task)) | give | sell | meet | kill
+        (character <' is'>? <' '> (move / task)) | give | sell | tverb | meet | kill
 
 
     give =
@@ -75,6 +75,15 @@
 
     sell =
         character <' sells ' ('the ' / 'a ' / 'an ')?> item <' to '>? <'a ' / 'an '>? character
+
+    tverb =
+        character <' '> verb <(' the ' / ' a ' / ' an ')?> item <' to '>? <'a ' / 'an '>? character
+
+    bverb =
+        verb <(' the ' / ' a ' / ' an ')?> item <' to '>? <'a ' / 'an '>? character
+
+    cverb =
+        words <' the ' / ' a ' / ' an '> (object / character)
 
     meet =
         character <' meets '> character
@@ -97,8 +106,8 @@
     place = name
 
 
-    permission = character <' may '> (move / task) conditional? <'\\n'?>
-    obligation = character <' must '> (move / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
+    permission = character <' may '> (move / bverb / cverb / task) conditional? <'\\n'?>
+    obligation = character <' must '> (move / bverb / cverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
 
     deadline = consequence
 
@@ -115,7 +124,7 @@
 
     <whitespace> = #'\\s\\s'
 
-    <name> = (<'The ' | 'the '>)? cword
+    <name> = (<'The ' | 'the '>)? cwords
     <words> = word (<' '> word)*
     <cwords> = cword (<' '> cword)*
     <cword> = #'[A-Z][0-9a-zA-Z\\-\\_\\']*'
