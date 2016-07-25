@@ -169,6 +169,8 @@
 
 (test-story [warranty warranty-release est-rights sales-contract] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "pol1")
 
+(test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
+
 ;; TEST:
 ;; (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")
 ;; (make-story (st-map "test1" [heros-journey evil-empire] charlist objlist placelist "Luke Skywalker") "test1")
