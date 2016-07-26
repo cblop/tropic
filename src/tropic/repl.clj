@@ -118,7 +118,7 @@
 
 (def objlist-policy
   [{:label "Sales Rights" :type "Rights"}
-   {:label "Ukai-bune" :type "Object"}
+   {:label "Ukai bune" :type "Object"}
    ])
 
 
@@ -158,7 +158,9 @@
 
 (defn ev
   ([verb player obj-a] {:verb verb :player player :object-a obj-a})
-  ([verb player obj-a obj-b] {:verb verb :player player :object-a obj-a :object-b obj-b}))
+  ;; ([verb player obj-a obj-b] {:verb verb :player player :object-a obj-a :object-b obj-b})
+  ([verb player obj-a obj-b] {:verb verb :player player :object-a obj-a :object-b obj-b})
+  )
 
 (defn test-story [ts chars objs places player out]
   (let [story-map (st-map out ts chars objs places player)]
@@ -169,7 +171,9 @@
 
 (test-story [warranty warranty-release est-rights sales-contract] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "pol1")
 
+;; (test-story [lease sublease] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
 (test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
+(solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "ride" "Ituski Hiroshi" "Ukai bune"))
 
 ;; TEST:
 ;; (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")

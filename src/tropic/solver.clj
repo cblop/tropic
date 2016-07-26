@@ -87,6 +87,8 @@
 
 (defn solve-story [id tropes event]
   (let [trps (map :label tropes)
+        p (println "TRPS:")
+        p (println tropes)
         ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
         domain (str "resources/domain-" id ".idc")
         temp (str "resources/temp-" id ".lp")
