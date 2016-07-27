@@ -335,8 +335,6 @@ or STRING to string"
         situations (map :when (:situations trope))
         sperms (mapcat #(map :permission (filter :permission %)) (map :norms (:situations trope)))
         all (concat events situations sperms)
-        p (println "ALL:")
-        p (println events)
         types (map ev-types all)
         strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))]
     (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["exogenous event noDeadline(Identity);"])))
@@ -413,9 +411,6 @@ or STRING to string"
 (defn obl-events [trope]
   (let [header (str "\n% OBLIGATION FLUENTS: " (namify (:label trope)) " ----------")
         obls (get-param-obls trope)
-        ;; p (println (reduce str (:evs obls)))
-        p (println "EVOBLS")
-        p (println obls)
         strng (fn [x] (str "obligation fluent " (reduce str x)))]
     (if-not (empty? (reduce str (:evs obls)))
       (cons header (into [] (map strng (:evs obls))))
@@ -555,10 +550,8 @@ or STRING to string"
                 (if (:subtrope sub)
                   (let [pms (get-all-params (assoc trope :events (concat (:events trope) (:events (:subtrope sub)))))
                         int (event-name (:label trope))
-                        p (println pms)]
+                        ]
                     (gmake (str (inst-start-name (:label (:subtrope sub))) (param-brackets (first (:events (:subtrope sub))) pms)) (event-str (:trigger sub) pms) (concat (param-str (first (:events (:subtrope sub))) pms) (param-str (:trigger sub) pms) [(str "phase(" int ", " "phase" (:phase sub) ")")])))))
-        p (println "THASUBS:")
-        p (println subs)
         gen-subs (remove nil? (map smake subs))
         gen-a (into [] (set (map gmake (repeat inst) estrs pstrs)))
         gen-s (map gmake wnames wstrs wifs)
@@ -594,8 +587,6 @@ or STRING to string"
                   (str "cross fluent ipow(Trope, perm(" ex "), Trope);")))
         imake (fn [trope]
                 (let [subs (get-subtropes trope tropes)
-                      p (println "SUBTROPEEEES:")
-                      p (println subs)
                       iname (event-name (:label trope))
                       enames (map #(perm (event-str (first (:events %)) (get-all-params %))) subs)
                       snames (map #(event-name (:label %)) subs)
@@ -642,15 +633,11 @@ or STRING to string"
         ;; obj-list (mapcat #(map first (:objects %)) param-map)
         obj-list (map :type (:objects hmap))
         first-events (map first (map :events (:tropes hmap)))
-        p (println "PARAM-MAP")
-        p (println param-map)
-        p (println first-events)
         ;; first-perms (map :perm (filter :perm first-events))
         ;; fperm-strs (map #(perm (event-str % params)) first-perms)
         fperm-strs (map #(str (norm-str %1 %2) " if " (reduce str (interpose ", " (param-str %1 %2)))) first-events param-map)
         ;; fperm-cnds (map #(param-str % params) first-events)
 
-        p (println fperm-strs)
         fperms fperm-strs
         ;event-name?
         roles (filter #(in? role-list (:class %)) instances)
@@ -679,9 +666,6 @@ or STRING to string"
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
         powers (map powfn (:tropes hmap))
-        p (println "ROLESTRS")
-        p (println instances)
-        p (println (:characters hmap))
 
         first-perms (reduce str (map #(str "initially\n    " (reduce str %) ";\n") fperms))
         ;; first-perms ""
@@ -739,8 +723,6 @@ or STRING to string"
         ;; estrs (map #(event-str % params) events)
         estrs (map #(norm-str % params) events)
         pstrs (map #(norm-params % params) events)
-        p (println "EVENTS:")
-        p (println estrs)
         ;; perms (map perm estrs)
         ;; oblis (map #(obl % params) (filter :obligation (:events trope)))
         ;; norms (concat perms oblis)
@@ -767,16 +749,12 @@ or STRING to string"
 
 (defn instal [hmap tropes]
   (let [;; initiallys [(str "initially\n    " (reduce str (interpose ",\n    " (mapcat #(initially % story) (:tropes hmap)))) ";")]
-        p (println "INSTAL")
-        p (println (:tropes hmap))
         initiallys (initially hmap)
         ;; initiallys []
         ;; inst-name [(str "institution " (event-name (:storyname (:story hmap))) ";")]
         inst-name [(str "institution " (event-name (:label (first (:tropes hmap)))) ";")]
         create ["% CREATION EVENT -----------" "create event startShow;\n"]
-        p (println "exts")
         exts (mapcat external-events (:tropes hmap))
-        p (println "insts")
         insts (mapcat #(inst-events % tropes) (:tropes hmap))
         ;; insts []
         obls (mapcat obl-events (:tropes hmap))

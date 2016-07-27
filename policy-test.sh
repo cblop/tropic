@@ -1,0 +1,1 @@
+java -jar target/tropic-0.1.0-SNAPSHOT-standalone.jar -o poltest -c things/sublease-agents.def -t things/sublease-objects.def -l things/sublease-places.def -p "Itsuki Hiroshi" policies/lease.pol policies/sublease.pol policies/maintainance-of-confidence.pol policies/tenancy-agreement.pol policies/sublease-permission.pol

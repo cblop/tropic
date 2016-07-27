@@ -15,6 +15,7 @@
                  [com.rpl/specter "0.9.0"]]
   :resource-paths ["lib/simplenlg-v4.4.3.jar"]
   ;; :aot [tropic.core]
+  ;; :aot :all
   :repl-options {
                  ;; If nREPL takes too long to load it may timeout,
                  ;; increase this to wait longer before timing out.

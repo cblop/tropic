@@ -37,7 +37,7 @@
         strings ["Identity: id" (if (seq tropes) (str "\nTrope: " tropenames)) "\nPhase: " phases (if (seq characters) (str "\nAgent: " charnames)) (if (seq characters) (str "\nRole: " roles)) (if (seq places) (str "\nPlace: " locations)) (if (seq places) (str "\nPlaceName: " placenames)) (if (seq objects) (str "\nObject: " types)) (if (seq objects) (str "\nObjectName: " objectnames))]
         final (reduce str strings)
         ]
-    (do (spit (str "resources/domain-" id ".idc") final)
+    (do (spit (str "resources/" id "/domain-" id ".idc") final)
         {:text final})
     ))
 
@@ -45,13 +45,13 @@
 ;;   (dorun (map #(bridge-file (assoc hmap :tropes [%]) (str "resources/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
 
 (defn make-instal [hmap id]
-  (dorun (map #(instal-file (assoc hmap :tropes [%]) (:tropes hmap) (str "resources/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
+  (dorun (map #(instal-file (assoc hmap :tropes [%]) (:tropes hmap) (str "resources/" id "/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
 
 (defn make-bridge [hmap id]
-  (bridge-file (:tropes hmap) (str "resources/" id "-bridge.ial")))
+  (bridge-file (:tropes hmap) (str "resources/" id "/" id "-bridge.ial")))
 
 (defn make-query [events id]
-  (spit (str "resources/query-" id ".iaq") ""))
+  (spit (str "resources/" id "/query-" id ".iaq") ""))
 
 (defn clean-up [id]
   (do
@@ -63,12 +63,13 @@
     true
     ))
 
+
 (defn make-story [hmap id]
   (let [trps (map :label (:tropes hmap))
         ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
         ]
    (do
-     (println hmap)
+     (.mkdir (java.io.File. (str "resources/" id)))
      (make-domain hmap id)
      (make-instal hmap id)
      (make-bridge hmap id)
@@ -87,8 +88,6 @@
 
 (defn solve-story [id tropes event]
   (let [trps (map :label tropes)
-        p (println "TRPS:")
-        p (println tropes)
         ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
         domain (str "resources/domain-" id ".idc")
         temp (str "resources/temp-" id ".lp")
@@ -108,7 +107,6 @@
 
 (defn trope-map [trope]
   (let [parsed (make-map (parse-trope trope))]
-    (println parsed)
     {:label (:label (:trope parsed))
      :events (:events (:trope parsed))
      :situations []})
@@ -132,7 +130,7 @@
      :player player
      }))
 
-(defn make-cmd [t-files c-file o-file p-file domain? oname player]
+(defn make-cmd [t-files c-file o-file p-file oname player]
   (let [strs (map slurp t-files)
         c-strs (clojure.string/split-lines (slurp c-file))
         o-strs (clojure.string/split-lines (slurp o-file))
@@ -141,6 +139,11 @@
         objs (map #(make-inst-map (parse-object %)) o-strs)
         places (map #(make-inst-map (parse-place %)) p-strs)
         story-map (st-map oname strs chars objs places player)]
-    (println story-map)
-    (make-story story-map oname)))
+    (do
+      (println "STORY:")
+      (println story-map)
+      (make-story story-map oname)
+      (println "SUCCESS!")
+      (println (str "Instal files are in the \"resources/" oname "\" directory.")))
+    ))
 

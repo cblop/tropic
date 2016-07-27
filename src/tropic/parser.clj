@@ -11,7 +11,7 @@
 
 (def object-parser
   (insta/parser
-   "object = (label <' is a '> type <'.'>? <'\\n'?>)+ <'\\n'?>
+   "object = (label <' is a ' / ' is an '> type <'.'>? <'\\n'?>)+ <'\\n'?>
     label = words
     type = words
     <words> = word (<' '> word)*

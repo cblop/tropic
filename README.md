@@ -6,7 +6,31 @@ The parser is based on the BNF syntax listed [here](http://inform7.com/learn/man
 
 ## Usage
 
-As of now, just play around with [core.clj](src/tropic/core.clj). Call the _inform_ function with the string you want to parse, so long as that string is one Inform 7 would recognise.
+java -jar target/tropic-0.1.0-SNAPSHOT-standalone.jar [options] trope-file1 trope-file2 ...
+
+Options:
+  -o, --output FOLDER     output  Name of folder to output .ial files to
+  -c, --chars CHARS               File with character definitions
+  -t, --types OBJECTS             File with object definitions
+  -l, --locations PLACES          File with place definitions
+  -p, --player PLAYER             Name of the player character
+  -h, --help
+  
+_poltest.sh_ is an example script that compiles policy files. Look at how it's called, run it, and examine the output in the "resources/poltest" directory. It uses the policies in the "policies" directory and agents/objects/places in the "things" directory.
+
+## Compiling
+
+Precompiled jars are in the _target_ folder, but to compile for yourself run:
+
+```
+lein uberjar
+```
+
+Or to run without compilation:
+
+```
+lein run [options] trope-file1 trope-file2 ...
+```
 
 ## License
 

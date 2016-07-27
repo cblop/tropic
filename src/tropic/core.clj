@@ -9,16 +9,13 @@
   (:gen-class))
 
 (def cli-options
-  [["-d" "--domain" "Generate domain.idc"
-    :id :domain
-    ]
-   ["-o" "--output FOLDER" "Name of folder to output .ial files to"
+  [["-o" "--output FOLDER" "Name of folder to output .ial files to"
     :id :output
     :default "output"
     ]
-   ["-i" "--instal" "Run instal to compile ASP .lp files"
-    :id :instal
-    ]
+   ;; ["-i" "--instal" "Run instal to compile ASP .lp files"
+   ;;  :id :instal
+   ;;  ]
    ["-c" "--chars CHARS" "File with character definitions"
     :id :chars
     ]
@@ -55,10 +52,13 @@
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     ;; Handle help and error conditions
-    (cond
-      (:help options) (exit 0 (usage summary))
-      (not (> (count arguments) 0)) (exit 1 (usage summary))
-      errors (exit 1 (error-msg errors)))
-    ;; Execute program with options
-    (make-cmd arguments (:chars options) (:objs options) (:places options) (:domain options) (:output options) (:player options))))
+    (do
+      (cond
+        (:help options) (exit 0 (usage summary))
+        (not (> (count arguments) 0)) (exit 1 (usage summary))
+        errors (exit 1 (error-msg errors)))
+      ;; Execute program with options
+      (make-cmd arguments (:chars options) (:objs options) (:places options) (:output options) (:player options))
+      (exit 0 "")
+      )))
 
