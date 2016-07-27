@@ -6,7 +6,7 @@ The parser is based on the BNF syntax listed [here](http://inform7.com/learn/man
 
 ## Usage
 
-java -jar target/tropic-0.1.0-SNAPSHOT-standalone.jar [options] trope-file1 trope-file2 ...
+java -jar tropical.jar [options] trope-file1 trope-file2 ...
 
 Options:
   -o, --output FOLDER     output  Name of folder to output .ial files to
