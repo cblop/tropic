@@ -56,8 +56,9 @@ or STRING to string"
   (second (first (filter #(= s (first %)) params))))
 
 
-(defn param-str [event params]
-  (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
+(defn param-str [ev params]
+  (let [event (or (:permission ev) ev)
+        format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
         ;; get roles, objects, places, quests for just this event
         roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
         objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
@@ -90,7 +91,7 @@ or STRING to string"
 
 (defn event-str
   [event params]
-  (let [format (fn [xs]  (str (:verb event) "(" (reduce str (interpose ", " xs)) ")"))
+  (let [format (fn [xs]  (str (if (:verb event) (event-name (:verb event)) "") "(" (reduce str (interpose ", " xs)) ")"))
         roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
         objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
         places (map event-name (vals (select-keys event [:place])))
@@ -248,10 +249,12 @@ or STRING to string"
   (let [
         sits (map :when (filter :when (:situations trope)))
         perms (flatten (map #(map :permission (filter :permission %)) (map :norms (:situations trope))))
+        eperms (map :permission (filter :permission (:events trope)))
+        aperms (concat perms eperms)
         obls (map :obligation (filter :obligation (:events trope)))
         deads (map :deadline (map :obligation (filter :obligation (:events trope))))
         ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
-        evs (concat sits perms obls deads (:events trope))
+        evs (concat sits aperms obls deads (:events trope))
         roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
         objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
         places (make-unique (map #(select-keys % [:place]) evs))
@@ -373,7 +376,7 @@ or STRING to string"
         ostrs (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " ot)) ")") deads)
         oifs (mapcat #(param-str % oparams) oevs)
         ]
-    {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
+    {:names ostrs :evs (into [] pobls) :deads deads :viols viols :conds [oifs]}))
 
 (defn in? 
   "true if seq contains elm"
@@ -405,12 +408,14 @@ or STRING to string"
         ostrs (map #(str (inst-name (:verb %)) "(" (reduce str (interpose ", " (lookup-obl-letters trope %))) ")") deads)
         oifs (mapcat #(param-str % oparams) oevs)
         ]
-    {:names ostrs :evs [pobls] :deads deads :viols viols :conds [oifs]}))
+    {:names ostrs :evs (into [] pobls) :deads deads :viols viols :conds [oifs]}))
 
 (defn obl-events [trope]
   (let [header (str "\n% OBLIGATION FLUENTS: " (namify (:label trope)) " ----------")
         obls (get-param-obls trope)
         ;; p (println (reduce str (:evs obls)))
+        p (println "EVOBLS")
+        p (println obls)
         strng (fn [x] (str "obligation fluent " (reduce str x)))]
     (if-not (empty? (reduce str (:evs obls)))
       (cons header (into [] (map strng (:evs obls))))
@@ -618,8 +623,9 @@ or STRING to string"
           maps))
 
 (defn norm-str [event params]
-  (if (:obligation event) (obl event params)
-      (perm (event-str event params))))
+  (cond (:obligation event) (obl event params)
+        (:permission event) (perm (event-str (:permission event) params))
+      :else (perm (event-str event params))))
 
 (defn initially [hmap]
   (let [
@@ -636,10 +642,15 @@ or STRING to string"
         ;; obj-list (mapcat #(map first (:objects %)) param-map)
         obj-list (map :type (:objects hmap))
         first-events (map first (map :events (:tropes hmap)))
+        p (println "PARAM-MAP")
+        p (println param-map)
+        p (println first-events)
         ;; first-perms (map :perm (filter :perm first-events))
         ;; fperm-strs (map #(perm (event-str % params)) first-perms)
         fperm-strs (map #(str (norm-str %1 %2) " if " (reduce str (interpose ", " (param-str %1 %2)))) first-events param-map)
         ;; fperm-cnds (map #(param-str % params) first-events)
+
+        p (println fperm-strs)
         fperms fperm-strs
         ;event-name?
         roles (filter #(in? role-list (:class %)) instances)
@@ -746,7 +757,7 @@ or STRING to string"
         init-a (map imake (repeat inst) evec cvec)
         init-s (map imake (:names sits) (:events sits) (:conds sits))
         init-v (map imake (:names viols) (:events viols) (:conds viols))
-        term-o (map tmake (:names obls) (:evs obls) (:conds obls))
+        term-o (map tmake (:names obls) [(:evs obls)] (:conds obls))
         term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
         ]
     (concat [header] init-a init-s init-v ["\n"] [term-header] term-a term-o ["\n"])
