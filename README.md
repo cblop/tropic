@@ -6,6 +6,7 @@ The parser is based on the BNF syntax listed [here](http://inform7.com/learn/man
 
 ## Usage
 
+```
 java -jar tropical.jar [options] trope-file1 trope-file2 ...
 
 Options:
@@ -15,6 +16,7 @@ Options:
   -l, --locations PLACES          File with place definitions
   -p, --player PLAYER             Name of the player character
   -h, --help
+```
   
 _poltest.sh_ is an example script that compiles policy files. Look at how it's called, run it, and examine the output in the "resources/poltest" directory. It uses the policies in the "policies" directory and agents/objects/places in the "things" directory.
 
