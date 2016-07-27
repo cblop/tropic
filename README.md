@@ -18,7 +18,7 @@ Options:
   -h, --help
 ```
   
-_poltest.sh_ is an example script that compiles policy files. Look at how it's called, run it, and examine the output in the "resources/poltest" directory. It uses the policies in the "policies" directory and agents/objects/places in the "things" directory.
+_policy-test.sh_ is an example script that compiles policy files. Look at how it's called, run it, and examine the output in the "resources/poltest" directory. It uses the policies in the "policies" directory and agents/objects/places in the "things" directory.
 
 ## Compiling
 
