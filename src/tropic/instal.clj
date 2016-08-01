@@ -561,7 +561,8 @@ or STRING to string"
         gen-s (map gmake wnames wstrs wifs)
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
         ]
-    (concat [header] gen-subs gen-a gen-s gen-d ["\n"])
+    ;; not sure why I had gen-d (obligations) in there
+    (concat [header] gen-subs gen-a gen-s ["\n"])
     ))
 
 
@@ -618,7 +619,9 @@ or STRING to string"
           maps))
 
 (defn norm-str [event params]
-  (cond (:obligation event) (obl event params)
+  (cond
+    ;; (:subtrope event) (str "pow(" (inst-start-name (:subtrope event)))
+    (:obligation event) (obl event params)
         (:permission event) (perm (event-str (:permission event) params))
       :else (perm (event-str event params))))
 
