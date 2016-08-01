@@ -66,7 +66,7 @@
 
 (defn make-story [hmap id]
   (let [trps (map :label (:tropes hmap))
-        ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
+        ials (map #(str "resources/" id "/" id "-" (event-name %) ".ial") trps)
         ]
    (do
      (.mkdir (java.io.File. (str "resources/" id)))
@@ -99,7 +99,7 @@
     (do
       (spit query (event-to-text event) :append true)
       ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query "-j" outfile "-o" "resources/output"]))]
+      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query "-o" "resources/output"]))]
         (spit debug (:out output))
         (if (:out output)
           {:text (:out output)}

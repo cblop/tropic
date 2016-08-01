@@ -57,7 +57,7 @@ or STRING to string"
 
 
 (defn param-str [ev params]
-  (let [event (or (:permission ev) ev)
+  (let [event (or (:permission ev) (:obligation ev) ev)
         format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
         ;; get roles, objects, places, quests for just this event
         roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
@@ -328,7 +328,8 @@ or STRING to string"
 (defn external-events [trope]
   (let [header (str "% EXTERNAL EVENTS: " (namify (:label trope)) " ----------")
         params (get-params trope)
-        evs (remove :obligation (:events trope))
+        es (remove :obligation (:events trope))
+        evs (map #(or (:permission %) %) es)
         deads (remove nil? (map #(-> % :obligation :deadline) (:events trope)))
         obls (remove nil? (map :obligation (:events trope)))
         events (concat evs obls deads)
