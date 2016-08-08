@@ -474,22 +474,22 @@ or STRING to string"
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:label trope)))]))
 
-(defn param-str [event params]
-  (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
-        ;; get roles, objects, places, quests for just this event
-        roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
-        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
-        places (map event-name (vals (select-keys event [:place])))
-        quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
-        ;; format them into role(X, hero) strings by looking up their letters in params
-        rstrs (map #(format "role" %) (map vector (map #(get-letter % (:roles params)) roles) roles))
-        ostrs (map #(format "object" %) (map vector (map #(get-letter % (:objects params)) objects) objects))
-        pstrs (map #(format "place" %) (map vector (map #(get-letter % (:places params)) places) places))
-        qstrs (map #(format "quest" %) (map vector (map #(get-letter % (:quests params)) quests) quests))
-        ]
-    ;; put them in a nice list for processing
-    (mapcat flatten [rstrs ostrs pstrs qstrs])
-    ))
+;; (defn param-str [event params]
+;;   (let [format (fn [x y] (str x "(" (reduce str (interpose ", " y)) ")"))
+;;         ;; get roles, objects, places, quests for just this event
+;;         roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
+;;         objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+;;         places (map event-name (vals (select-keys event [:place])))
+;;         quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+;;         ;; format them into role(X, hero) strings by looking up their letters in params
+;;         rstrs (map #(format "role" %) (map vector (map #(get-letter % (:roles params)) roles) roles))
+;;         ostrs (map #(format "object" %) (map vector (map #(get-letter % (:objects params)) objects) objects))
+;;         pstrs (map #(format "place" %) (map vector (map #(get-letter % (:places params)) places) places))
+;;         qstrs (map #(format "quest" %) (map vector (map #(get-letter % (:quests params)) quests) quests))
+;;         ]
+;;     ;; put them in a nice list for processing
+;;     (mapcat flatten [rstrs ostrs pstrs qstrs])
+;;     ))
 
 
 (defn inst-letters [trope]
