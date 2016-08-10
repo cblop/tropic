@@ -502,6 +502,7 @@ class makeInstalParser(object):
         terminates : fluent TERMINATES fluent_list SEMI
         terminates : fluent TERMINATES fluent_list condition SEMI
         """
+#        print("p_terminates: ",p[1],p[2],p[3],"*****")
         inev = p[1]
         self.check_event(p[1])
         inf = p[3]
@@ -832,8 +833,10 @@ ifluent(0,0).
 nifluent(0,0).
 oblfluent(0,0).
 % fluent rules
-holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I),
-    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In).
+fluentterminated(P, In, I) :- terminated(P, In, I), instant(I), inst(In).
+fluentterminated(P, In, I) :- xterminated(InS, P, In, I), instant(I), inst(In), inst(InS).
+holdsat(P,In,J):- holdsat(P,In,I),not fluentterminated(P,In,I),
+    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In), inst(InS).
 holdsat(P,In,J):- initiated(P,In,I),next(I,J),
     ifluent(P, In),instant(I),instant(J), inst(In).
 holdsat(P,In,J):- initiated(P,In,I),next(I,J),
@@ -860,7 +863,7 @@ occurred(viol(E),In,I):-
     not holdsat(perm(E),In,I),
     event(E),instant(I),event(viol(E)), inst(In).
 % needed until I tidy up some of the constraint generation
-% true.
+true.
 start(0).
 instant(0..T) :- final(T).
 next(T,T+1) :- instant(T).

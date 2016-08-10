@@ -7,9 +7,9 @@
 
 (def solver-parser
   (insta/parser
-   "output = <observation>* final <end>?
+   "output = <observation>* final
     final = observation
-    <observation> = (observed <'\n'>)+ <'\n'>
+    <observation> = (observed <'\n'>)+ <'\n'>+
     observed = (<'holdsat('> norm+ <')'>) | (<'occurred('> (event / v-event)+ <')'>)
     norm = (perm / obl / pow / ipow / live / fluent) <',' inst>
     perm = <'perm('> word [<'('> params <')'>] <')'>

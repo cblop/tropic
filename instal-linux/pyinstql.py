@@ -301,23 +301,6 @@ def instql_parse(d):
     yacc.yacc()
     yacc.parse(d)
 
-#GDB 20130220: code for file input at command line
-parser = argparse.ArgumentParser()
-parser.add_argument("-i","--input-file")
-args = parser.parse_args()
-
-inp = open(args.input_file,'r')
-
-document = " "
-
-if args.input_file: document = inp.read(-1)
-else: document = sys.stdin.read(-1)
-#debug("input: ",document)
-instql_parse(document)
-ast.reverse()
-#debug("output: ",ast)
-#debug("---------------------------")
-
 def id2string(p): #GDB: modified
 #    debug("is2string: p = ",p)
     if isinstance(p,str): return p
@@ -522,6 +505,27 @@ def instql_print(t):
     
     return id2string(t)
 
-for x in ast: print(instql_print(x))
+def instql_to_asp(instql):
+	instql_parse(instql)
+	ast.reverse()
+	output = ""
+	for x in ast:
+		output += instql_print(x)
+	return output
 
-    
+if __name__ == "__main__":
+	#GDB 20130220: code for file input at command line
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-i","--input-file")
+	args = parser.parse_args()
+
+	inp = open(args.input_file,'r')
+
+	document = " "
+
+	if args.input_file: document = inp.read(-1)
+	else: document = sys.stdin.read(-1)
+	#debug("input: ",document)
+	instql_to_asp(document)
+
+	    

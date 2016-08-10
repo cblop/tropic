@@ -27,8 +27,8 @@ def buildargparser():
         "-d", "--domain-files", type=str, nargs='+',
         help="specify one or more domain files (.idc)")
     argparser.add_argument(
-        "-f", "--fact-file", type=str,
-        help="specify initial fact file (.iaf)")
+        "-f", "--fact-files", type=str, nargs='+',
+        help="specify initial fact file(s) (.iaf or .json)")
     argparser.add_argument(
         "-g", "--gantt-file", type=str,
         help="specify output file for gantt visualization")
@@ -82,10 +82,11 @@ def check_args(args,unk):
             sys.stderr.write("WARNING: Query file extension incorrect (should be .iaq)\n")
 
     #Fact file checking
-    if args.fact_file:
-        name,ext = os.path.splitext(args.fact_file)
-        if not ext == ".iaf":
-            sys.stderr.write("WARNING: Fact file extension incorrect (should be .iaf)\n")
+    if args.fact_files != None:
+        for f in args.fact_files:
+            name,ext = os.path.splitext(f)
+            if not (ext == ".iaf" or ext == ".json"):
+                sys.stderr.write("WARNING: Fact file extension incorrect (should be .iaf or .json)\n")
 
     #Domain file checking
     if args.domain_files != None:

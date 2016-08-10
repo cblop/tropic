@@ -18,6 +18,8 @@ from collections import defaultdict
 from instalargparse import buildargparser
 import simplejson as json
 
+from instaljsonhelpers import as_Fun, check_trace_integrity, json_dict_to_string
+
 latex_trace_header = r"""
 \documentclass{article}
 %\usepackage[a4paper,margin=0cm]{geometry}
@@ -63,8 +65,13 @@ def neighborhood(iterable):
 
 def render_observed(observed,t):
     stem = ""
-    if observed[t].name()=="observed":
-        stem = str(observed[t].args()[0])
+    obs = observed[t]
+    if len(obs) != 1:
+	return
+    else:
+	obs = obs[0]
+    if obs.name() =="observed":
+        stem = str(obs.args()[0])
     else: print("% Unrecognised observation",observed[t])
     return stem.rstrip().replace('_','\_').replace(',',', ').replace('(','(\\allowbreak{}')
 
@@ -98,15 +105,6 @@ def parse_range(args,limit):
         events.discard(max(events))
     return sorted(states), sorted(events)
 
-def check_trace_integrity(trace):
-    # check that current and previous timestamps present and consistent
-    return True
-
-def as_Fun(dct):
-    if '__Fun__' in dct:
-        return Fun(dct['name'], dct['args'])
-    return dct
-
 def instal_trace(args,observed,occurred,holdsat):
     # selective printing of states requires subsantial refactoring... not now (20160405)
     # but one contiguous subset seems safe (20160504)
@@ -122,8 +120,7 @@ def instal_trace(args,observed,occurred,holdsat):
                                         in ["perm","pow","ipow","gpow","tpow"]),
                                 holdsat[t])
     with open(args.trace_file,'w') as tfile:
-        sys.stdout = tfile
-        print(latex_trace_header)
+        print(latex_trace_header,file=tfile)
         # define transition labels as macros \Ezero ...
         for t in selected_events:
             if not args.verbose: # to save sorting a sorted list...
@@ -135,7 +132,7 @@ def instal_trace(args,observed,occurred,holdsat):
                          + r"\\""\n"r"\em "
                          + render_occurred(occurred,t)
                          + "\n"r"\end{tabular}}""\n")
-            print(labels[t])
+            print(labels[t],file=tfile)
         # define state tables as macros \Szero ...
         for t in selected_states:
             if not args.verbose: # to save sorting a sorted list...
@@ -147,49 +144,44 @@ def instal_trace(args,observed,occurred,holdsat):
                          r"\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]""\n"
                          + render_holdsat(holdsat,t,max(selected_states))
                          + r"\end{description}\end{minipage}}""\n")
-            print(states[t])
+            print(states[t],file=tfile)
         # output trace as a tikzpicture in resizebox in a longtable
         print(r"\newlength{\tableWidth}""\n"
               + "\\setlength{{\\tableWidth}}{{{tw}}}\n".format(tw=tableWidth)
               + r"\begin{longtable}{@{}l@{}}""\n"
               r"\resizebox{\textwidth}{!}{""\n"
               r"\begin{tikzpicture}""\n"
-              "[\nstart chain=trace going right,")
+              "[\nstart chain=trace going right,",file=tfile)
         for t in selected_states:
-            print("start chain=state{} going down,".format(t))
+            print("start chain=state{} going down,".format(t),file=tfile)
         print("node distance=1cm and 5.2cm""\n]"
-          "\n{{ [continue chain=trace]")
+          "\n{{ [continue chain=trace]",file=tfile)
         for t in selected_states:
             print(r"\node[circle,draw,on chain=trace]"
-                  + "(i{i}) {{$S_{{{i}}}$}};".format(i=t))
+                  + "(i{i}) {{$S_{{{i}}}$}};".format(i=t),file=tfile)
         for t in selected_states:
             print("{{ [continue chain=state{i} going below]\n"
                   "\\node [on chain=state{i},below=of i{i},"
                   "rectangle,draw,inner frame sep=0pt] (s{i}) {{".format(i=t)
                   + r'\S{i}'.format(i=p.number_to_words(t).replace('-',''))
                   + "};} % end node and chain\n"
-                  + r"\draw (i{}) -- (s{});".format(t,t))
-        print(r"}}")
+                  + r"\draw (i{}) -- (s{});".format(t,t),file=tfile)
+        print(r"}}",file=tfile)
         # output lines between states labelled with events observed/occurred
         for t in selected_events:
             print(r"\draw[-latex,thin](i{x}) -- node[above]{{\E{y}}}(i{z});"
-                  .format(x=t,y=p.number_to_words(t).replace('-',''),z=t+1))
+                  .format(x=t,y=p.number_to_words(t).replace('-',''),z=t+1),file=tfile)
         # end tikzpicture/resizebox/table
         print(r"\end{tikzpicture}}\\""\n"
               r"\end{longtable}""\n"
-              r"\end{document}")
-    sys.stdout = sys.__stdout__
+              r"\end{document}",file=tfile)
 
-def instal_text(args,observed,occurred,holdsat):
-    selected_states, selected_events = parse_range(args,len(observed)) if args.states else (set(range(0,len(observed)+1)), set(range(0,len(observed))))
+def instal_text(args,trace):
     with open(args.text_file,'w') as tfile:
-        sys.stdout = tfile
-        for t in selected_events:
-            print(observed[t])
-            for x in occurred[t]: print(x)
-            if t in selected_states:
-                for x in holdsat[t]: print(x)
-    sys.stdout = sys.__stdout__
+	for i in range(1,len(trace)):
+		t = trace[i]
+		print(json_dict_to_string(t)+"\n", file=tfile)
+        
 
 latex_gannt_header = r"""
 \documentclass{article}
@@ -219,40 +211,38 @@ def instal_gantt(args,observed,occurred,holdsat):
                                         in ["perm","pow","ipow","gpow"]),
                                 holdsat[t])
     with open(args.gantt_file,'w') as tfile:
-        sys.stdout = tfile
-        print(latex_gannt_header)
-        print(r"\begin{longtable}{@{}r@{}}""\n")
+        print(latex_gannt_header,file=tfile)
+        print(r"\begin{longtable}{@{}r@{}}""\n",file=tfile)
         # set each chart fragment as a line in longtable to be breakable over page boundaries
         for t in range(1,len(observed)+1):
             if occurred[t]==[]: continue # ought not to happen
             print(r"\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}" +
-                  "{{{t}}}\n".format(t=len(observed)+1))
+                  "{{{t}}}\n".format(t=len(observed)+1),file=tfile)
             for x in occurred[t][:-1]:
                 l = (str(x.args()[0])+": "+str(x.args()[1])).replace('_','\_')
                 print("\\ganttmilestone{{{l}}}{{{f}}}\\ganttnewline"
-                      .format(l=l,f=t-1))
+                      .format(l=l,f=t-1),file=tfile)
             # handle last event separately to drop \ganttnewline
             x = occurred[t][-1]
             l = (str(x.args()[0])+": "+str(x.args()[1])).replace('_','\_')
             print("\\ganttmilestone{{{l}}}{{{f}}}"
-                  .format(l=l,f=t-1))
-            print(r"\end{ganttchart}\\[-0.7em]""\n")
+                  .format(l=l,f=t-1),file=tfile)
+            print(r"\end{ganttchart}\\[-0.7em]""\n",file=tfile)
         facts = invert(holdsat)
         keys = sorted(facts,key=lambda x: x.args()[0].name())
         for f in keys:
             print(r"\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}" +
-                  "{{{t}}}\n".format(t=len(observed)+1))
+                  "{{{t}}}\n".format(t=len(observed)+1),file=tfile)
             i = facts[f][0]
             l = (str(f.args()[0])+": "+str(f.args()[1])).replace('_','\_')
             print("\\ganttbar{{{label}}}{{{start}}}{{{finish}}}"
-                  .format(label=l,start=i,finish=i))
+                  .format(label=l,start=i,finish=i),file=tfile)
             for t in facts[f][1:]:
                 print("\\ganttbar{{}}{{{start}}}{{{finish}}}"
-                      .format(start=t,finish=t))
-            print(r"\end{ganttchart}\\[-0.7em]""\n")
+                      .format(start=t,finish=t),file=tfile)
+            print(r"\end{ganttchart}\\[-0.7em]""\n",file=tfile)
         print(r"\end{longtable}""\n"
-              r"\end{document}")
-    sys.stdout = sys.__stdout__
+              r"\end{document}",file=tfile)
 
 def instal_trace_preprocess_with_args(args,unk):
     if not args.json_file: exit(-1)
@@ -269,7 +259,7 @@ def instal_trace_preprocess_with_args(args,unk):
     for t in range(0,len(trace)): holdsat[t] = trace[t]['state']['holdsat']
     if args.trace_file: instal_trace(args,observed,occurred,holdsat)
     if args.gantt_file: instal_gantt(args,observed,occurred,holdsat)
-    if args.text_file: instal_text(args,observed,occurred,holdsat)
+    if args.text_file: instal_text(args,trace)
 
 def instal_trace_preprocess():
     argparser = buildargparser()

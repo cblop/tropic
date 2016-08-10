@@ -56,6 +56,7 @@
 (def tenancy-agreement
   (join-strings
    ["\"Tenancy Agreement\" is a policy where:"
+    "  The Lessor leases a Property"
     "  The \"Maintenance of Confidence\" policy applies"
     "  The Lessee must be quiet"
     "    Otherwise, the Lessor may cancel the contract"
@@ -119,7 +120,7 @@
 
 (def objlist-policy
   [{:label "Sales Rights" :type "Rights"}
-   {:label "Ukai bune" :type "Object"}
+   {:label "fune" :type "Object"}
    ])
 
 
@@ -175,7 +176,9 @@
 ;; (test-story [lease sublease] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
 ;; (test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
 (test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
-(solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "ride" "Ituski Hiroshi" "Ukai bune"))
+(solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "fune"))
+(trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "fune"))))
+(spit "/tmp/instal-error.txt" (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "ride" "Ituski Hiroshi" "fune")))
 
 ;; TEST:
 ;; (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")

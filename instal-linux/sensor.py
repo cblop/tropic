@@ -14,10 +14,12 @@ from gringo import Control, Model, Fun, parse_term
 import json
 import sys
 
+from instaljsonhelpers import model_atoms_to_lists, state_dict_from_lists, atom_str, state_to_string, dict_funs_to_list
+
 class Sensor(object):
 
     def __init__(self, callback, initially, model_files, domain_facts, args):
-	self.holdsat = map(parse_term,initially)
+        self.holdsat = initially
         self.occurred = []
         self.callback = callback
         self.last_solution = None
@@ -25,6 +27,7 @@ class Sensor(object):
         self.horizon = 1
         self.args = args
         self.observation = None
+	self.observed = []
         self.undo_external = []
         self.ctl = Control(['-c', 'horizon={0}'.format(self.horizon)])
         for x in model_files:
@@ -104,18 +107,10 @@ class Sensor(object):
         self.last_solution = model.atoms()
         self.holdsat = []
         self.occurred = []
-        for atom in model.atoms(Model.ATOMS):
-            # hook for client processing of atoms
-            if len(atom.args())==3: self.callback(atom,self.cycle)
-            if ((atom.name()=="occurred") and len(atom.args()) == 3 and atom.args()[2] == 0):
-                self.occurred.append(Fun(atom.name(), atom.args()[:-1]))
-            if ((atom.name()=="holdsat") and len(atom.args()) == 3 and atom.args()[2] == 1):
-                self.holdsat.append(Fun(atom.name(), atom.args()[:-1]))
+        self.observed, self.occurred, self.holdsat = model_atoms_to_lists(model.atoms(Model.ATOMS),verbose=self.args.verbose)
         if self.args.verbose>0:
-            self.holdsat = sorted(self.holdsat,key=lambda x: x.args()[0].name())
-            for atom in self.holdsat:
-                print(atom.name()+'('+','.join(str(x) for x in atom.args())+')')
-        if self.args.verbose>0:
-            self.occurred = sorted(self.occurred,key=lambda x: x.args()[0].name())
-            for atom in self.occurred:
-                print(atom.name()+'('+','.join(str(x) for x in atom.args())+')')
+            print(state_to_string(self.observed,self.occurred,self.holdsat))
+			
+
+    def get_state_json(self):
+	return state_dict_from_lists(self.observed,self.occurred,self.holdsat)

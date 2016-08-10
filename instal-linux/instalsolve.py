@@ -11,7 +11,7 @@
 # 20160322 JAP: created file
 
 from __future__ import print_function
-from instalargparse import getargs
+from instalargparse import getargs, check_args, buildargparser
 from instalcompile import instal_compile, instal_state_facts, instal_domain_facts
 from instaltrace import instal_trace, instal_gantt
 from sensor import Sensor
@@ -39,12 +39,54 @@ def encode_Fun(obj):
         return {"__Fun__": True, "name": obj.name(), "args": obj.args() }
     raise TypeError(repr(obj) + " is not JSON serializable")
 
+def decode_Fun(obj):
+    return
+
 def instal_solve():
     args,unk=getargs()
     instal_solve_with_args(args,unk)
 
-def instal_solve_keyword(bridge_file=None,domain_files=[],fact_file=None,gantt_file=None, ial_files=[], input_files=[], json_file=None,lp_files=[], output_file=None,query="",states=None,trace_file=None,verbose=None):
-	pass
+def instal_solve_keyword(bridge_file=False, domain_files=[],fact_files=[],gantt_file=None,input_files=[],json_file=None,output_file=None,trace_file=None,verbose=0,query=None,states=None,text_file=None):
+    parser = buildargparser()
+    args = []
+    if bridge_file:
+        args += ["-b",bridge_file]
+
+    args += ["-d"] + domain_files
+
+    if len(fact_files) > 0:
+        args += ["-f"] + fact_files
+
+    if gantt_file is not None:
+        args += ["-g"] + gantt_file
+
+    args += ["-i"] + input_files
+
+    if json_file is not None:
+        args += ["-j", json_file]
+
+    if output_file is not None:
+        args += ["-o", output_file]
+
+    if trace_file is not None:
+        args += ["-t", trace_file]
+
+    if verbose > 0: args += ["-{v}".format(v="v"*verbose)]
+
+    if query is not None:
+        args += ["-q" ,query]
+
+    if states is not None:
+        args += ["-s",states]
+
+    if json_file is not None:
+        args += ["-j",json_file]
+
+    (a,u) = parser.parse_known_args(args)
+    check_args(a,u)
+    instal_solve_with_args(a,u)
+
+
 
 def instal_solve_with_args(args,unk):
     model_files = instal_compile(args)
@@ -68,20 +110,17 @@ def instal_solve_with_args(args,unk):
     holdsat[0] = sensor.holdsat
     if args.json_file:
         metadata['timestamp'], metadata['previous_timestamp'] = time.time(), metadata['timestamp']
-        print(json.dumps({"metadata": metadata,
-                          "state": {"observed": [],
-                                    "occurred": [],
-                                    "holdsat": sensor.holdsat}},
+	out_json = sensor.get_state_json()
+	out_json.update({"metadata" : metadata})
+        print(json.dumps(out_json,
                          sort_keys=True,separators=(',',':'),default=encode_Fun),file=jf)
     for event in fileinput.input(args.query):
         sensor.solve(event)
         # dump trace data in JSON format
         if args.json_file:
-            metadata['timestamp'], metadata['previous_timestamp'] = time.time(), metadata['timestamp']
-            print(json.dumps({"metadata": metadata,
-                              "state": {"observed": sensor.observation,
-                                        "occurred": sensor.occurred,
-                                        "holdsat": sensor.holdsat}},
+	    out_json = sensor.get_state_json()
+	    out_json.update({"metadata" : metadata})
+            print(json.dumps(out_json,
                              sort_keys=True,separators=(',',':'),default=encode_Fun),file=jf)
         # keep trace data in internal format if visualization option selected
         if args.trace_file or args.gantt_file:

@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # REVISION HISTORY
 #------------------------------------------------------------------------
+# 20160715 JAP: fixed viol(event) for xgenerates as well, but also had to 
+# 20160715 JAP: fixed bug in external definition for gpow
+# 20160713 JAP: found xinitiates did not handle viol(event) on lhs, likewise xterminates, also rewrote several occurrences of inst(a;b) to inst(a), inst(b)
 # 20160412 JAP: removed print_domain function.  Now staged to sensor instantiation.
 # Pending: wrong print for ifluent(ipow(obl
 # Pending: xinitiate obligation is not working
@@ -130,7 +133,7 @@ class makeInstalParser(object):
     mode = ""
 
     # dictionaries
-    names = { }
+    names = { "institution" : "tbd" }
     types = { }
     exevents = { }
     inevents = { }
@@ -430,6 +433,11 @@ class makeInstalParser(object):
     # TL20140129: add time
     # TL20140215: for cross-generation rules. new 
     def p_xgenerates(self,p):
+        # """ xgenerates : fluent XGENERATES fluent_list SEMI
+        #     xgenerates : fluent XGENERATES fluent_list condition SEMI
+        #     xgenerates : fluent XGENERATES fluent_list IN NUMBER SEMI
+        #     xgenerates : fluent XGENERATES fluent_list condition IN NUMBER SEMI
+        # """
         """ xgenerates : extended_typed_term XGENERATES typed_term_list SEMI
             xgenerates : extended_typed_term XGENERATES typed_term_list condition SEMI
             xgenerates : extended_typed_term XGENERATES typed_term_list IN NUMBER SEMI
@@ -492,11 +500,12 @@ class makeInstalParser(object):
         self.xterminates = [[sf,df,cond]] + self.xterminates
         p[0] = [p[1]]
 
-
+    # JAP 20160713: added viol here, but it's a hack just as in instalparser
     def p_fluent(self,p):
         """ fluent : NAME
             fluent : POW LPAR fluent RPAR
             fluent : PERM LPAR fluent RPAR
+            fluent : VIOL LPAR fluent RPAR
             fluent : OBL LPAR fluent COMMA fluent COMMA fluent RPAR
             fluent : GPOW LPAR fluent COMMA fluent COMMA fluent RPAR 
             fluent : IPOW LPAR fluent COMMA fluent COMMA fluent RPAR 
@@ -783,6 +792,7 @@ class makeInstalParser(object):
                         instList.append(inst)
         if instList == []:
             self.instal_error("ERROR: Unknown event/fluent of {test}".format(test=test))
+            x = 1/0
             exit(-1)
         else:
             return instList
@@ -796,7 +806,9 @@ class makeInstalParser(object):
     # JAP 20160315: replaced inst(In;InS) with inst(In), inst(InS)... why so?
     standard_prelude = """
 % fluent rules
-holdsat(P,In,J):- holdsat(P,In,I),not terminated(P,In,I), not xterminated(InS,P,In,I),
+hfluentterminated(P, In, I) :- terminated(P, In, I), instant(I), inst(In).
+fluentterminated(P, In, I) :- xterminated(InS, P, In, I), instant(I), inst(In), inst(InS).
+holdsat(P,In,J):- holdsat(P,In,I),not fluentterminated(P,In,I),
     next(I,J),ifluent(P, In),instant(I),instant(J), inst(In), inst(InS).
 holdsat(P,In,J):- initiated(P,In,I),next(I,J),
     ifluent(P, In),instant(I),instant(J), inst(In).
@@ -810,10 +822,10 @@ holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),
     oblfluent(P, In),instant(I),instant(J), inst(InS), inst(In).
 holdsat(P,In,J):- xinitiated(InS,P,In,I),next(I,J),
     nifluent(P, In),instant(I),instant(J), inst(InS), inst(In).
-% true.
+true.
 % externals for bridge institutions
 #external holdsat(gpow(I1,E,I2),B) : inst(I1), inst(I2), inst(B), event(E).
-holdsat(gpow(I1,E,I2),B,J) :- holdsat(ipow(I1,E,I2),B), start(J).
+holdsat(gpow(I1,E,I2),B,J) :- holdsat(gpow(I1,E,I2),B), start(J).
 #external holdsat(ipow(I1,F,I2),B) : inst(I1), inst(I2), inst(B), fluent(F,I2).
 holdsat(ipow(I1,F,I2),B,J) :- holdsat(ipow(I1,F,I2),B), start(J).
 #external holdsat(tpow(I1,F,I2),B) : inst(I1), inst(I2), inst(B), fluent(F,I2).
@@ -1060,7 +1072,7 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
             tf = self.collectVars(xf[1],fvars)
            # tf = self.typecheck(xf[1][1])
             self.instal_print("fluent(tpow({sinst},{f},{dinst}), {inst}) :- \n"
-                              "    inst({sinst}; {dinst}; {inst}), "
+                              "    inst({sinst}), inst({dinst}), inst({inst}), "
                               .format(f=f,sinst=sinst,dinst=dinst,inst=self.names["institution"]))
             for k in fvars:
                 self.instal_print(
@@ -1070,7 +1082,7 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
                               .format(f=f, dinst=dinst))
 
             self.instal_print("ifluent(tpow({sinst},{f},{dinst}), {inst}) :- \n"
-                              "    inst({sinst}; {dinst}; {inst}), "
+                              "    inst({sinst}), inst({dinst}), inst({inst}), "
                               .format(f=f,sinst=sinst,dinst=dinst,inst=self.names["institution"]))
             for k in fvars:
                 self.instal_print(
@@ -1204,7 +1216,10 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
             for x in exev:
                 vars2 = {}
                 self.collectVars(x,vars2)
-                for sinst in self.getInst(inev[0]):
+                # JAP 20160713: horrible hack to handle viol(event)
+                y = inev[0]
+                if y == 'viol': y = inev[1][0]
+                for sinst in self.getInst(y):
                     for dinst in self.getInst(x[0]):
                         if sinst == dinst: continue 
                         else:
@@ -1213,7 +1228,7 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
                                 "% Translation of {inev} of {sinst} xgenerates {x} of {dinst} if {condition} in {time}\n"
                                 "occurred({x},{dinst},I{time}) :- occurred({inev},{sinst},I),\n"
                                 "   holdsat(gpow({sinst},{x},{dinst}),{inst},I{time}), \n"
-                                "   inst({dinst};{sinst}), "
+                                "   inst({dinst}), inst({sinst}), "
                                 .format(inev=self.extendedterm2string(inev),
                                         x=self.extendedterm2string(x),
                                         inst=self.names["institution"],
@@ -1247,20 +1262,25 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
                 vars2 = {}
                 self.collectVars(x,vars2)
                 #self.instal_print("x:{x}".format(x=x))
-                for sinst in self.getInst(sf[0]):
+                # JAP 20160713: horrible hack to handle viol(event)
+                y = sf[0]
+                if y == 'viol': y = sf[1][0]
+                for sinst in self.getInst(y):
                     for dinst in self.getInst(x):
                         if sinst == dinst: continue 
                         else:
+                            # JAP 20160713: extendedterm2string not term2string (for viol)
                             self.instal_print(
                                 "%\n% Translation of {sf} of {sinst} xinitiates {x} of {dinst} if {condition}"
-                                .format(sf=self.term2string(sf),x=x,condition=cond, sinst = sinst, dinst = dinst))
+                                .format(sf=self.extendedterm2string(sf),x=x,condition=cond, sinst = sinst, dinst = dinst))
+                            # JAP 20160713: as above (for sf)
                             self.instal_print("%\nxinitiated({sinst}, {x},{dinst},I) :-\n"
                                               "   occurred({sf},{sinst},I),\n"
                                               "   holdsat(ipow({sinst}, {x}, {dinst}), {inst}, I), \n"
                                               "   holdsat(live({inst}),{inst},I), inst({inst}), \n"
-                                              "   inst({dinst};{sinst}), "
+                                              "   inst({dinst}), inst({sinst}), "
                                               .format(x=self.extendedterm2string(x),
-                                                      sf=self.term2string(sf),
+                                                      sf=self.extendedterm2string(sf),
                                                       sinst = sinst,
                                                       dinst = dinst,
                                                       inst=self.names["institution"]))
@@ -1289,20 +1309,25 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
             for x in df:
                 vars2 = {}
                 self.collectVars(x,vars2)
-                for sinst in self.getInst(sf[0]):
+                # JAP 20160713: horrible hack to handle viol(event)
+                y = sf[0]
+                if y == 'viol': y = sf[1][0]
+                for sinst in self.getInst(y):
                     for dinst in self.getInst(x):
                         if sinst == dinst: continue 
                         else:
+                            # JAP 20160713: extendedterm2string not term2string (for viol)
                             self.instal_print(
                                 "%\n% Translation of {sf} of {sinst} xterminates {x} of {dinst} if {condition}"
-                                .format(sf=self.term2string(sf),x=x,condition=cond, sinst = sinst, dinst = dinst))
+                                .format(sf=self.extendedterm2string(sf),x=x,condition=cond, sinst = sinst, dinst = dinst))
+                            # JAP 20160713: as above (for sf)
                             self.instal_print("%\nxterminated({sinst}, {x}, {dinst}, I) :-\n"
                                               "   occurred({sf},{sinst},I),\n"
                                               "   holdsat(tpow({sinst}, {x}, {dinst}), {inst}, I), \n"
                                               "   holdsat(live({inst}),{inst},I), inst({inst}), \n"
-                                              "   inst({dinst};{sinst}), "
+                                              "   inst({dinst}), inst({sinst}), "
                                               .format(x=self.extendedterm2string(x),
-                                                      sf=self.term2string(sf),
+                                                      sf=self.extendedterm2string(sf),
                                                       sinst = sinst,
                                                       dinst = dinst,
                                                       inst=self.names["institution"]))
@@ -1355,7 +1380,7 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
                         .format(inst=self.names["institution"], x=self.extendedterm2string(cond))) #TL:20130118
                 # TL new for cross fluents 
                 if i[0] in ['gpow', 'tpow', 'ipow']:
-                    self.instal_print("   inst({dinst}; {sinst}), ".format(sinst=i[1][0][0] ,dinst=i[1][2][0],inst=self.names["institution"]))
+                    self.instal_print("   inst({dinst}), inst({sinst}), ".format(sinst=i[1][0][0] ,dinst=i[1][2][0],inst=self.names["institution"]))
                 self.instal_print("   inst({inst}), start(I).".format(inst=self.names["institution"]))
         else:
             self.instal_print("% at least one create event")

@@ -565,7 +565,6 @@ or STRING to string"
     (concat [header] gen-subs gen-a gen-s ["\n"])
     ))
 
-
 (defn bridge [tropes]
   (let [;; ievents (subs-triggers tropes)
         subtropes (into [] (set (mapcat #(get-subtropes % tropes) tropes)))
@@ -575,9 +574,10 @@ or STRING to string"
                       inst (str (inst-start-name (:label strope))
                                 (param-brackets (first (:events strope)) params))
                       fevent (first (:events strope))
-                      ex (event-str fevent params)
+                      ex (if (:obligation fevent) (str "obl(" (event-str (:obligation fevent) params) ", " (event-str (:deadline (:obligation fevent)) params) ", " (viol-name fevent) ")")
+                             (str "perm(" (event-str fevent params) ")"))
                       cnds (param-str fevent params)]
-                  (str inst " xinitiates\n" WS "perm(" ex ")" " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")))
+                  (str inst " xinitiates\n" WS ex " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")))
 
         tmake (fn [strope]
                 (let [params (get-all-params strope)
@@ -588,15 +588,18 @@ or STRING to string"
                       cnds (param-str fevent params)]
                   (str inst " xterminates\n" WS "perm(" ex ")" " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")))
         cmake (fn [strope]
-                (let [ex (event-str (first (:events strope)) (get-all-params strope))]
-                  (str "cross fluent ipow(Trope, perm(" ex "), Trope);")))
+                (let [params (get-all-params strope)
+                      fevent (first (:events strope))
+                      ex (if (:obligation fevent) (str "obl(" (event-str (:obligation fevent) params) ", " (event-str (:deadline (:obligation fevent)) params) ", " (viol-name fevent) ")")
+                             (str "perm(" (event-str fevent params) ")"))]
+                  (str "cross fluent ipow(Trope, " ex ", Trope);")))
         imake (fn [trope]
                 (let [subs (get-subtropes trope tropes)
                       iname (event-name (:label trope))
-                      enames (map #(perm (event-str (first (:events %)) (get-all-params %))) subs)
+                      enames (map #(if (:obligation (first (:events %))) (obl (first (:events %)) (get-all-params %)) (perm (event-str (first (:events %)) (get-all-params %)))) subs)
                       snames (map #(event-name (:label %)) subs)
                       ess (map vector enames snames)
-                      is (map #(str "initially ipow (" iname ", " (first %) ", " (second %) ");") ess)
+                      is (map #(str "initially ipow (" iname ", " (first %) ", " (second %) ");\n") ess)
                       ]
                   (apply str (interpose "\n" is))))
         ;; imake (fn [strope])
@@ -786,8 +789,9 @@ or STRING to string"
   (let [bridge-name ["institution tropeBridge;\n"]
         bridge-text (bridge tropes)
         insts (mapcat #(inst-events % tropes) tropes)
-        exts (mapcat external-events tropes)]
-    (apply str (interpose "\n" (concat bridge-name types fluents ["\n"] insts ["\n"] exts ["\n"] [bridge-text])))))
+        exts (mapcat external-events tropes)
+        viols (mapcat viol-events tropes)]
+    (apply str (interpose "\n" (concat bridge-name types fluents ["\n"] insts ["\n"] exts ["\n"] viols ["\n"] [bridge-text])))))
 
 (defn bridge-file [tropes output]
     (do

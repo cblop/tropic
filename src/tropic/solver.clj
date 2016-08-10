@@ -75,9 +75,9 @@
      (make-bridge hmap id)
      (make-query [] id)
      ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
-     (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
+     (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/" id "/domain-" id ".idc") "-q" (str "resources/" id "/query-" id ".iaq" "-o" (str "resources/" id "/output"))]))]
        (do
-         (spit (str "resources/output-" id ".lp") output)
+         (spit (str "resources/" id "/output-" id ".lp") output)
          ;; (clean-up id)
          {:id id
           :text "Welcome to the world of adventure!"}))
@@ -88,22 +88,24 @@
 
 (defn solve-story [id tropes event]
   (let [trps (map :label tropes)
-        ials (map #(str "resources/" id "-" (event-name %) ".ial") trps)
-        domain (str "resources/domain-" id ".idc")
-        temp (str "resources/temp-" id ".lp")
-        query (str "resources/query-" id ".iaq")
-        bridge (str "resources/" id "-bridge.ial")
-        outfile (str "resources/output-" id ".json")
-        debug (str "resources/debug-" id ".lp")
+        ials (map #(str "resources/" id "/" id "-" (event-name %) ".ial") trps)
+        domain (str "resources/" id "/domain-" id ".idc")
+        temp (str "resources/" id "/temp-" id ".lp")
+        query (str "resources/" id "/query-" id ".iaq")
+        bridge (str "resources/" id "/" id "-bridge.ial")
+        outfile (str "resources/" id "/output-" id ".json")
+        debug (str "resources/" id "/debug-" id ".lp")
         ]
     (do
       (spit query (event-to-text event) :append true)
       ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query "-o" "resources/output"]))]
-        (spit debug (:out output))
-        (if (:out output)
-          {:text (:out output)}
-          {:text output})))))
+      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query]))]
+        (do
+          (spit debug output)
+          (spit outfile (:out output))
+          (if (:out output)
+            {:text (:out output)}
+            {:text output}))))))
 
 (defn trope-map [trope]
   (let [parsed (make-map (parse-trope trope))]
