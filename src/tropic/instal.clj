@@ -75,10 +75,11 @@ or STRING to string"
     ))
 
 (defn param-brackets
-  [event params]
-  (let [format (fn [xs]  (str "(" (reduce str (interpose ", " xs)) ")"))
+  [ev params]
+  (let [event (or (:obligation ev) (:permission ev) ev)
+        format (fn [xs]  (str "(" (reduce str (interpose ", " xs)) ")"))
         roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
-        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
+        objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (concat (vals (select-keys (:deadline event) [:object])) (vals (select-keys event [:object])))))
         places (map event-name (vals (select-keys event [:place])))
         quests (map event-name (filter #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
         rletters (sort (map #(get-letter % (:roles params)) roles))
@@ -146,7 +147,7 @@ or STRING to string"
                    (vals)
                    )
         name (cap-first (event-name (reduce str (interpose " " vstuff))))]
-    (str "viol" (reduce str name))))
+    (str "viol" (reduce str name) "(Identity)")))
 
 (defn obl-p [{:keys [obligation]} params]
   (let [deadline (:deadline obligation)

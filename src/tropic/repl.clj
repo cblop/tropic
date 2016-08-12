@@ -110,8 +110,8 @@
 
 
 (def charlist-policy
-  [{:label "Itsuki Hiroshi" :role "Seller"}
-   {:label "Ishikawa Sayuri" :role "Buyer"}
+  [{:label "Itsuki Hiroshi" :role "Lessor"}
+   {:label "Ishikawa Sayuri" :role "Lessee"}
    {:label "Kitajima Saburo" :role "Third party"}
    ])
 
@@ -177,7 +177,8 @@
 ;; (test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
 (test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
 (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "fune"))
-(trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "fune"))))
+(trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "leases" "Ituski Hiroshi" "Ishikawa Sayuri" "fune"))))
+(spit "out.lp" (trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "Ishikawa Sayuri" "fune")))))
 (spit "/tmp/instal-error.txt" (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "ride" "Ituski Hiroshi" "fune")))
 
 ;; TEST:

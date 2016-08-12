@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # REVISION HISTORY
 #------------------------------------------------------------------------
+# 20160812 JAP: fixed handling of obl(...) in getInst
 # 20160715 JAP: fixed viol(event) for xgenerates as well, but also had to 
 # 20160715 JAP: fixed bug in external definition for gpow
 # 20160713 JAP: found xinitiates did not handle viol(event) on lhs, likewise xterminates, also rewrote several occurrences of inst(a;b) to inst(a), inst(b)
@@ -769,6 +770,8 @@ class makeInstalParser(object):
     def getInst(self,test):
         instList = [] 
         for inst, lists in self.all_lists.iteritems():
+            # print("--------------------------------")
+            # print("inst=",inst,"\nlists=",lists,"\ntest=",test)
             #TL: if the test is not an obligation fluent 
             if type(test) <> type([ ]): 
                 if lists[0].has_key(test) or lists[1].has_key(test) or lists[2].has_key(test) or lists[3].has_key(test) or lists[5].has_key(test):
@@ -781,9 +784,11 @@ class makeInstalParser(object):
                         instList.append(inst)
 
                 elif test[0] == 'obl':
-                    test = test[1]
+                    # JAP 20160812: oblargs was test which had the effect of discarding test[0] == 'obl' and failing
+                    # on the next loop iteration
+                    oblargs = test[1]
                     for of in lists[4]:
-                        if of[0][0] == test[0][0] and of[1][0] == test[1][0] and of[2][0] == test[2][0]:
+                        if of[0][0] == oblargs[0][0] and of[1][0] == oblargs[1][0] and of[2][0] == oblargs[2][0]:
                             #return inst
                             instList.append(inst)
                 else: # for normal flunets 

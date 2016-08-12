@@ -84,7 +84,7 @@
      )))
 
 (defn event-to-text [{:keys [player verb object-a object-b]}]
-  (str "observed(" verb "(" (event-name player) (if object-a (str "," object-a (if object-b (str "," object-b)) ")")) ")\n"))
+  (str "observed(" verb "(" (event-name player) (if object-a (str "," (event-name object-a) (if object-b (str "," (event-name object-b))) ")")) ")\n"))
 
 (defn solve-story [id tropes event]
   (let [trps (map :label tropes)
