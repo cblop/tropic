@@ -23,7 +23,6 @@ from instaljsonhelpers import dict_funs_to_list, trace_dicts_from_file
 
 def instal_state_facts(args):
     if args.fact_files == None: return []  # ([],[])
-    if len(args.fact_files) == 0: return []  # ([],[])
     initlist = []
     for f in args.fact_files:
         name, ext = os.path.splitext(f)

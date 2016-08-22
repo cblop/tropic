@@ -75,7 +75,7 @@
      (make-bridge hmap id)
      (make-query [] id)
      ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
-     (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/" id "/domain-" id ".idc") "-q" (str "resources/" id "/query-" id ".iaq" "-o" (str "resources/" id "/output"))]))]
+     (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-vv" "-i"] ials ["-l 1" "-n 0" "-x" (str "resources/" id "/trace-" id ".lp")  "-d" (str "resources/" id "/domain-" id ".idc") "-q" (str "resources/" id "/query-" id ".iaq")]))]
        (do
          (spit (str "resources/" id "/output-" id ".lp") output)
          ;; (clean-up id)
@@ -99,7 +99,7 @@
     (do
       (spit query (event-to-text event) :append true)
       ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      (let [output (apply sh (concat ["python2" "instal-linux/instalsolve.py" "-v" "-i"] ials ["-b" bridge "-d" domain "-q" query]))]
+      (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] ials ["-l 1" "-n 0" "-x" (str "resources/" id "/trace-" id ".lp") "-b" bridge "-d" domain "-q" query]))]
         (do
           (spit debug output)
           (spit outfile (:out output))

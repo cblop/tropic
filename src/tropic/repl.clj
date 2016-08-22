@@ -169,7 +169,7 @@
     (make-story story-map out)))
 
 ;; TEST:
-(test-story [heros-journey quest] charlist objlist placelist "Luke Skywalker" "ex1")
+;; (test-story [heros-journey quest] charlist objlist placelist "Luke Skywalker" "ex1")
 
 ;; (test-story [warranty warranty-release est-rights sales-contract] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "pol1")
 
@@ -177,9 +177,9 @@
 ;; (test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
 (test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "lease1")
 (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "fune"))
-(trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "leases" "Ituski Hiroshi" "Ishikawa Sayuri" "fune"))))
-(spit "out.lp" (trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "Ishikawa Sayuri" "fune")))))
-(spit "/tmp/instal-error.txt" (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "ride" "Ituski Hiroshi" "fune")))
+;; (trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "leases" "Ituski Hiroshi" "Ishikawa Sayuri" "fune"))))
+;; (spit "out.lp" (trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "Ishikawa Sayuri" "fune")))))
+;; (spit "/tmp/instal-error.txt" (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "ride" "Ituski Hiroshi" "fune")))
 
 ;; TEST:
 ;; (make-story (st-map "test1" [heros-journey] charlist objlist placelist "Luke Skywalker") "test1")
