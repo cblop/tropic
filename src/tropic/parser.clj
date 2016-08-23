@@ -68,7 +68,7 @@
 
 
     event =
-        (character <' is'>? <' '> (move / task)) | give | sell | tverb | meet | kill
+        (character <' is'>? <' '> (move / task)) | give | sell | tverb | meet | kill | pay
 
 
     give =
@@ -90,6 +90,8 @@
         character <' meets '> character
     kill =
         character <' kills '> character
+    pay =
+        <'pay '> character
 
     norms = permission | obligation
 
@@ -108,8 +110,8 @@
 
     <pverb> = verb (<' '> verb)*
 
-    permission = character <' may '> (move / bverb / cverb / task) conditional? <'\\n'?>
-    obligation = character <' must '> (move / bverb / cverb / pverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
+    permission = character <' may '> (move / pay / bverb / cverb / task) conditional? <'\\n'?>
+    obligation = character <' must '> (move / pay / bverb / cverb / pverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
 
     deadline = consequence
 

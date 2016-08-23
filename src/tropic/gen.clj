@@ -51,6 +51,7 @@
     :sell (fn [& args] (let [chars (get-by-key :role args)] {:verb "give" :from (first chars) :to (second chars) :object (first (get-by-key :object args))}))
     :meet (fn [& args] (let [chars (get-by-key :role args)] {:verb "meet" :role-a (first chars) :role-b (second chars)}))
     :kill (fn [& args] (let [chars (get-by-key :role args)] {:verb "kill" :role-a (first chars) :role-b (second chars)}))
+    :pay (fn [& args] (let [chars (get-by-key :role args)] {:verb "pay" :role-b (first chars)}))
     :task (partial merge)
     :norms (fn [& args] (first args))
     :obligation (fn [& args] {:obligation (apply merge args)})

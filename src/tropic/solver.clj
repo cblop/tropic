@@ -75,7 +75,7 @@
      (make-bridge hmap id)
      (make-query [] id)
      ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
-     (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-vv" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/trace-" id ".lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))]
+     (let [output (apply sh (concat ["python" "instal/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/trace-" id ".lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))]
        (do
          (spit (str "resources/" id "/output-" id ".lp") output)
          ;; (clean-up id)
@@ -99,7 +99,7 @@
     (do
       (spit query (event-to-text event) :append true)
       ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-vvv" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 3" "-n 0" "-x" (str "resources/" id "/trace-" id ".lp") "-b" bridge "-d" domain]))]
+      (let [output (apply sh (concat ["python" "instal/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/trace-" id ".lp") "-b" bridge "-d" domain]))]
         (do
           (spit debug output)
           (spit outfile (:out output))

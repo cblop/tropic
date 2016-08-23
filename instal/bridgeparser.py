@@ -770,8 +770,8 @@ class makeInstalParser(object):
     def getInst(self,test):
         instList = [] 
         for inst, lists in self.all_lists.iteritems():
-            print("--------------------------------")
-            print("inst=",inst,"\nlists=",lists,"\ntest=",test)
+            # print("--------------------------------")
+            # print("inst=",inst,"\nlists=",lists,"\ntest=",test)
             #TL: if the test is not an obligation fluent 
             if type(test) <> type([ ]): 
                 if lists[0].has_key(test) or lists[1].has_key(test) or lists[2].has_key(test) or lists[3].has_key(test) or lists[5].has_key(test):
@@ -1271,7 +1271,6 @@ holdsat(tpow(I1,F,I2),B,J) :- holdsat(tpow(I1,F,I2),B), start(J).
                 y = sf[0]
                 if y == 'viol': y = sf[1][0]
                 for sinst in self.getInst(y):
-                    print("x =",x)
                     for dinst in self.getInst(x):
                         if sinst == dinst: continue 
                         else:

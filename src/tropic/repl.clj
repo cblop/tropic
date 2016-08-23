@@ -119,8 +119,9 @@
   [])
 
 (def objlist-policy
-  [{:label "Sales Rights" :type "Rights"}
-   {:label "fune" :type "Object"}
+  [
+   ;; {:label "Sales Rights" :type "Rights"}
+   {:label "fune" :type "Thing"}
    ])
 
 

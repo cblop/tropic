@@ -648,7 +648,6 @@ or STRING to string"
         ;; fperm-strs (map #(perm (event-str % params)) first-perms)
         fperm-strs (map #(str (norm-str %1 %2) " if " (reduce str (interpose ", " (param-str %1 %2)))) first-events param-map)
         ;; fperm-cnds (map #(param-str % params) first-events)
-
         fperms fperm-strs
         ;event-name?
         roles (filter #(in? role-list (:class %)) instances)
