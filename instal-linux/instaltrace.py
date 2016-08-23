@@ -206,7 +206,7 @@ def instal_text_aset(args,answerset):
         sys.stdout = tfile
         [observed,occurred,holdsat] = answerset
         for t in selected_events:
-            # print(observed[t][0])
+            print(observed[t])
             for x in occurred[t]: print(x)
             if t in selected_states:
                 for x in holdsat[t]: print(x)
