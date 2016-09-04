@@ -662,6 +662,15 @@ or STRING to string"
         phases (map #(event-name (:label %)) (:tropes hmap))
         phasestrs (map phasefn phases)
         powifs (fn [letters] (reduce str (flatten (interpose ", " (map (partial interpose " != ") (partition 2 1 letters))))))
+        permfn (fn [x] (let [letters (inst-letters x)
+                            cnds (reduce str (flatten (interpose ", " (map #(interpose "!=" %) (partition 2 letters)))))]
+                        (str "perm(" (inst-name (:label x))
+                             "(" (reduce str (interpose ", " letters))
+                             ;; ")) if " cnds)))
+                             ;; "))"
+                             ;; )))
+                             ;; this one -->
+                             ")) if " (powifs letters))))
         powfn (fn [x] (let [letters (inst-letters x)
                             cnds (reduce str (flatten (interpose ", " (map #(interpose "!=" %) (partition 2 letters)))))]
                         (str "pow(" (inst-name (:label x))
@@ -676,11 +685,13 @@ or STRING to string"
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
         powers (map powfn (:tropes hmap))
+        perms (map permfn (:tropes hmap))
 
         first-perms (reduce str (map #(str "initially\n    " (reduce str %) ";\n") fperms))
         ;; first-perms ""
 
         powstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") powers))
+        permstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") perms))
         ;; powstrs ""
         ]
 
@@ -688,7 +699,7 @@ or STRING to string"
     ;; (concat role-list place-list)
     ;; roles
     ;; (map #(event-name (:class %)) instances)
-    [header (str first-perms powstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
+    [header (str first-perms powstrs permstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
     ;; (map :class instances)
     ))
 

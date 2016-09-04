@@ -2,6 +2,7 @@
 #------------------------------------------------------------------------
 # REVISION HISTORY:
 
+# 20160819 JAP: added code to print out text trace but need to check format
 # 20160428 JAP: forgot code to remove - in two calls to number_to_words
 # 20160415 JAP: changed render_observed to account for observed/compObserved unification
 # 20160405 JAP: add render_observed and differentiate observed/compObserved
@@ -12,6 +13,7 @@
 from __future__ import print_function
 import string
 import inflect
+import os
 import sys
 from gringo import Fun
 from collections import defaultdict
@@ -105,7 +107,14 @@ def parse_range(args,limit):
         events.discard(max(events))
     return sorted(states), sorted(events)
 
-def instal_trace(args,observed,occurred,holdsat):
+def instal_trace(args,answersets):
+    name,ext = os.path.splitext(args.trace_file)
+    for i in range(0,len(answersets)):
+        if answersets[i]==[]: continue
+        args.trace_file = name+str(i)+ext
+        instal_trace_aset(args,observed,answersets[i])
+
+def instal_trace_aset(args,answerset):
     # selective printing of states requires subsantial refactoring... not now (20160405)
     # but one contiguous subset seems safe (20160504)
     labels = {}
@@ -113,6 +122,7 @@ def instal_trace(args,observed,occurred,holdsat):
     tableWidth = "5cm"
     p = inflect.engine() # to provide translation of numbers to words
     selected_states, selected_events = parse_range(args,len(observed)) if args.states else (set(range(0,len(observed)+1)), set(range(0,len(observed))))
+    [observed,occured,holdsat] = answerset
     if not(args.verbose): # cheap test to suppress perm/pow/ipow/gpow/tpow in trace
         for t in selected_states:
             holdsat[t] = filter(lambda x:
@@ -176,12 +186,34 @@ def instal_trace(args,observed,occurred,holdsat):
               r"\end{longtable}""\n"
               r"\end{document}",file=tfile)
 
-def instal_text(args,trace):
-    with open(args.text_file,'w') as tfile:
-	for i in range(1,len(trace)):
-		t = trace[i]
-		print(json_dict_to_string(t)+"\n", file=tfile)
+# def instal_text(args,trace):
+#     with open(args.text_file,'w') as tfile:
+# 	for i in range(1,len(trace)):
+# 		t = trace[i]
+# 		print(json_dict_to_string(t)+"\n", file=tfile)
         
+def instal_text(args,answersets):
+    name,ext = os.path.splitext(args.text_file)
+    for i in range(0,len(answersets)):
+        if answersets[i]==[]: continue
+        args.text_file = name+str(i)+ext
+        instal_text_aset(args,answersets[i],i)
+
+def instal_text_aset(args,answerset,i):
+    howmany = answerset[0][0]  
+    selected_states, selected_events = parse_range(args,len(howmany)) if args.states else (set(range(0,len(howmany)+1)), set(range(0,len(howmany))))
+    with open(args.text_file,'w') as tfile:
+        sys.stdout = tfile
+        [observed,occurred,holdsat] = answerset
+        print("Answer Set " + str(i) + ":\n")
+        for t in range(0, args.length):
+            # if observed[t][0]: print(observed[t][0])
+            print("\nTime Step " + str(t) + ":\n")
+            for x in observed[t]: print(x)
+            for x in occurred[t]: print(x)
+            if t in selected_states:
+                for x in holdsat[t]: print(x)
+    sys.stdout = sys.__stdout__
 
 latex_gannt_header = r"""
 \documentclass{article}

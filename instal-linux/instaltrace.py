@@ -197,16 +197,19 @@ def instal_text(args,answersets):
     for i in range(0,len(answersets)):
         if answersets[i]==[]: continue
         args.text_file = name+str(i)+ext
-        instal_text_aset(args,answersets[i])
+        instal_text_aset(args,answersets[i],i)
 
-def instal_text_aset(args,answerset):
+def instal_text_aset(args,answerset,i):
     howmany = answerset[0][0]  
     selected_states, selected_events = parse_range(args,len(howmany)) if args.states else (set(range(0,len(howmany)+1)), set(range(0,len(howmany))))
     with open(args.text_file,'w') as tfile:
         sys.stdout = tfile
         [observed,occurred,holdsat] = answerset
-        for t in selected_events:
-            print(observed[t])
+        print("Answer Set " + str(i) + ":\n")
+        for t in range(0, args.length):
+            # if observed[t][0]: print(observed[t][0])
+            print("\nTime Step " + str(t) + ":\n")
+            for x in observed[t]: print(x)
             for x in occurred[t]: print(x)
             if t in selected_states:
                 for x in holdsat[t]: print(x)
@@ -300,4 +303,3 @@ def instal_trace_preprocess():
 if __name__=="__main__": 
     instal_trace_preprocess()
 
-

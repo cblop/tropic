@@ -29,14 +29,51 @@
     <instant> = number
     <word> = #'[a-zA-Z\\-\\_\\']+'
     <number> = #'[0-9]+'
-    <words> = word (<' '> word)*"))
+    <words> = word (<' '> word)*
+"))
 
+(def query-parser
+  (insta/parser
+   "output = set-no <'\\n'>+ step+
+    set-no = <'Answer Set '> number <':'>
+    step = (step-no <'\\n'>+ facts <'\\n'>*)
+    step-no = <'Time Step '> number <':'>
+    facts = ((<null> / observed / occurred / holds) <'\\n'>)+
+    <null> = ('observed' | 'occurred' | 'holdsat') <'(null,'> <inst>
+    observed = <'observed('> event <')'>
+    occurred = <'occurred('> event <')'>
+    holds = (<'holdsat('> norm+ <')'>) | (<'occurred('> (event / v-event)+ <')'>)
+    norm = (perm / obl / pow / ipow / live / fluent) <',' inst>
+    perm = <'perm('> word [<'('> params <')'>] <')'>
+    obl = <'obl('> obl-event <','> deadline <','> viol<')'>
+    pow = <'pow('> inst <','> word [<'('> params <')'>] <')'>
+    ipow = <'ipow('> inst <','> (perm / obl / (word [<'('> params <')'>])) <','> inst <')'>
+    live = <'live('> word [<'('> params <')'>] <')'>
+    fluent = word [<'('> params <')'>]
+    event = word [<'('> params <')'>]<','> inst
+    obl-event = word [<'('> params <')'>]
+    deadline = word [<'('> params <')'>]
+    viol = word [<'('> params <')'>]
+    <v-event> = <'viol(' <viol> '),' inst>
+    inst = word
+    end = <'\n'>* <'Passed(' number ')'> <'\n'>*
+    params = word (<','> word)*
+    <instant> = number
+    <word> = #'[a-zA-Z\\-\\_\\']+'
+    <words> = word (<' '> word)*
+    <number> = #'[0-9]+'
+"))
 
 
 (defn solve-parse [text]
   (insta/add-line-and-column-info-to-metadata
    text
    (solver-parser text)))
+
+(defn query-parse [text]
+  (insta/add-line-and-column-info-to-metadata
+   text
+   (query-parser text)))
 
 ;; (solve-parse (slurp "resources/output.txt"))
 
@@ -66,7 +103,45 @@
 ;;     (say-options)
 ;;     )
 
+(defn parse-int [s]
+  (Integer/parseInt (re-find #"\A-?\d+" s)))
 
+(defn query-transform
+  [ptree]
+  (insta/transform
+   {:instant (fn [& args] {:instant (parse-int (first args))})
+    :inst (fn [& args] {:inst (first args)})
+    :fluent (fn [& args] (apply merge (conj (rest args) {:fluent (first args)})))
+    :perm (fn [& args] (apply merge (conj (rest args) {:perm (first args)})))
+    :pow (fn [& args] {:pow (first args)})
+    :viol (fn [& args] {:viol (first args)})
+    :deadline (fn [& args] {:deadline (apply merge (conj (rest args) {:event (first args)}))})
+    :obl-event (fn [& args] (apply merge (conj (rest args) {:event (first args)})))
+    :event (fn [& args] (apply merge (conj (rest args) {:event (first args)})))
+    :live (fn [& args] {:live (first args)})
+    :params (fn [& args] {:params args})
+    :norm (partial merge)
+    :obl (fn [& args] {:obl (apply merge args)})
+    :observed (fn [& args] {:observed (apply merge args)})
+    :occurred (fn [& args] {:occurred (apply merge args)})
+    :holds (fn [& args] {:holds (apply merge args)})
+    :step (fn [& args] args)
+    :set-no (fn [& args] {:set (parse-int (first args))})
+    :step-no (fn [& args] {:step (parse-int (first args))})
+    :facts (fn [& args] {:facts args})
+    :output (fn [& args]
+              (let [stuff (apply concat (rest args))
+                    facts (map :facts (get-if-key :facts stuff))
+                    map-maker (fn [x] (hash-map
+                                       :occurred (remove #(= (:event %) "null") (map :occurred (get-if-key :occurred x)))
+                                       :viols (map :viol (get-if-key :viol x))
+                                       ;; :holds (map :holds (get-if-key :holds x))
+                                       ))]
+                (map map-maker facts)
+                ;; args
+                ;; facts
+                ))}
+   ptree))
 
 (defn transform
   [ptree]
@@ -162,11 +237,34 @@
     (reduce str (interpose "\n" (concat fluents perms obls)))
     ))
 
+(defn occurred-prose [{:keys [inst params event]}]
+  (let [policy (embellish inst)
+        verb (embellish event)]
+    (str (if (first params) (embellish (first params))) " " verb (if (second params) (str " " (embellish (second params))) ".") (if (nth params 2 nil) (str " " (embellish (nth params 2)))) "\n")))
+
+(defn legal-prose [{:keys [occurred viols]}]
+  (str (apply str (map occurred-prose occurred)) "\n"
+       (if-not (empty? viols) (str "Violation:" (apply str (map occurred-prose viols)) "\n")))
+  )
+
+(defn legal-story [as]
+  (str "The following occurred:\n" (apply str (interpose "Then:\n" (map legal-prose as)))))
+
 (defn trace-to-prose [trace]
   (-> trace
       (solve-parse)
       (transform)
       (say-options)))
+
+(defn answer-set-to-prose [as]
+  (-> as
+      query-parse
+      query-transform
+      legal-story))
+
+(defn lawyer-talk [fname]
+  (answer-set-to-prose (slurp fname)))
+
 
 (defn trace-to-map [trace]
   (-> trace

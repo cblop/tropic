@@ -4,6 +4,7 @@
    [clojure.java.io :as io]
    [tropic.gen :refer [make-map make-inst-map]]
    [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
+   [tropic.text-parser :refer [query-parse]]
    [clojure.java.shell :refer [sh]]
    [me.raynes.conch :refer [programs with-programs let-programs] :as sh]))
 
@@ -75,7 +76,7 @@
      (make-bridge hmap id)
      (make-query [] id)
      ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
-     (let [output (apply sh (concat ["python" "instal/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/trace-" id ".lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))]
+     (let [output (apply sh (concat ["python" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/trace-" id "-.lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))]
        (do
          (spit (str "resources/" id "/output-" id ".lp") output)
          ;; (clean-up id)
@@ -86,7 +87,10 @@
 (defn event-to-text [{:keys [player verb object-a object-b]}]
   (str "observed(" verb "(" (event-name player) (if object-a (str "," (event-name object-a) (if object-b (str "," (event-name object-b))) ")")) ")\n"))
 
-(defn solve-story [id tropes event]
+(defn events-to-text[events]
+  (apply str (interpose "\n" (map event-to-text events))))
+
+(defn solve-story [id tropes events]
   (let [trps (map :label tropes)
         ials (map #(str "resources/" id "/" id "-" (event-name %) ".ial") trps)
         domain (str "resources/" id "/domain-" id ".idc")
@@ -97,9 +101,9 @@
         debug (str "resources/" id "/debug-" id ".lp")
         ]
     (do
-      (spit query (event-to-text event) :append true)
+      (spit query (events-to-text events) :append true)
       ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      (let [output (apply sh (concat ["python" "instal/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/trace-" id ".lp") "-b" bridge "-d" domain]))]
+      (let [output (apply sh (concat ["python" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 2" "-n 0" "-x" (str "resources/" id "/trace-" id "-.lp") "-b" bridge "-d" domain] (if events ["-q" query])))]
         (do
           (spit debug output)
           (spit outfile (:out output))
