@@ -2,7 +2,7 @@
   (:require [tropic.solver :refer [make-story make-domain make-instal solve-story make-cmd trope-map st-map]]
             [tropic.gen :refer [make-map make-inst-map]]
             [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
-            [tropic.text-parser :refer [trace-to-prose trace-to-map query-transform lawyer-talk]]
+            [tropic.text-parser :refer [trace-to-prose trace-to-map query-transform lawyer-talk explain query-parse]]
             [tropic.instal :refer [instal instal-file]]))
 
 
@@ -185,11 +185,22 @@
 
 (test-story [lease sublease sublease-permission maintenance-confidence tenancy-agreement] charlist-policy objlist-policy placelist-policy "Alice" "lease1")
 (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) nil)
-(def parsed (:parsed (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) nil)))
-(spit "/tmp/parsed.txt" parsed)
-(query-transform parsed)
 
-(lawyer-talk "resources/lease1/trace-lease1-0.lp")
+;; (def parsed (:parsed (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) nil)))
+;; (spit "/tmp/parsed.txt" parsed)
+;; (query-transform parsed)
+(-> (slurp "resources/lease1/traces/trace-lease1-0.lp")
+    query-parse
+    query-transform
+    )
+
+;; (lawyer-talk "resources/lease1/trace-lease1-0.lp")
+(spit "/tmp/explanation.txt" (explain "resources/lease1/traces"))
+
+(do
+  (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) nil)
+  (spit "resources/lease1/explanation.txt" (explain "resources/lease1/traces"))
+  )
 
 ;; (trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "leases" "Ituski Hiroshi" "Ishikawa Sayuri" "fune"))))
 ;; (spit "out.lp" (trace-to-prose (:text (solve-story "lease1" (map trope-map [lease sublease sublease-permission maintenance-confidence tenancy-agreement]) (ev "lease" "Ituski Hiroshi" "Ishikawa Sayuri" "fune")))))

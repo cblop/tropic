@@ -1,0 +1,1904 @@
+---------------------------------------------------------------------
+
+Possibility 0:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 1:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 2:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 3:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 4:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 5:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 6:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 7:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 8:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 9:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 10:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 11:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 12:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 13:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 14:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 15:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 16:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 17:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 18:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 19:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 20:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 21:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 22:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 23:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 24:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 25:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 26:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 27:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 28:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 29:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 30:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 31:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 32:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 33:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 34:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 35:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 36:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 37:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 38:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 39:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 40:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 41:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 42:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 43:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 44:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 45:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 46:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 47:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 48:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 49:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 50:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 51:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 52:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 53:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 54:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 55:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 56:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 57:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 58:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 59:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 60:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 61:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 62:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 63:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 64:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 65:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 66:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 67:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 68:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 69:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 70:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 71:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 72:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 73:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 74:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 75:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 76:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 77:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 78:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 79:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 80:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 81:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 82:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 83:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 84:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 85:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 86:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 87:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 88:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 89:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 90:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 91:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 92:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 93:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 94:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 95:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 96:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 97:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 98:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 99:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 100:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 101:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 102:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 103:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 104:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 105:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 106:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 107:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 108:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 109:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 110:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 111:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 112:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 113:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 114:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 115:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 116:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 117:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+
+---------------------------------------------------------------------
+
+Possibility 118:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 119:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 120:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 121:
+
+The following occurred:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Charlotte Sublease Alice Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 122:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 123:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 124:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 125:
+
+The following occurred:
+  Alice Int Tenancyagreement Charlotte House
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Bob Ask Permissiontosublease House
+
+---------------------------------------------------------------------
+
+Possibility 126:
+
+The following occurred:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Int Tenancyagreement Bob House
+  Alice Lets House
+  Alice Int Tenancyagreement Charlotte House
+Then:
+  Bob Ask Permissiontosublease House
+Then:
+  Alice Leases Bob Lawnmower
+  Alice Int Lease Bob Lawnmower
+
+---------------------------------------------------------------------
+
+Possibility 127:
+
+The following occurred:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+Then:
+  Alice Int Lease Bob Lawnmower
+  Alice Leases Bob Lawnmower
+Then:
+  Charlotte Sublease Alice Lawnmower
+

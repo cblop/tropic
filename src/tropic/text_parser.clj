@@ -41,11 +41,11 @@
     facts = ((<null> / observed / occurred / holds) <'\\n'>)+
     <null> = ('observed' | 'occurred' | 'holdsat') <'(null,'> <inst>
     observed = <'observed('> event <')'>
-    occurred = <'occurred('> event <')'>
-    holds = (<'holdsat('> norm+ <')'>) | (<'occurred('> (event / v-event)+ <')'>)
+    occurred = <'occurred('> (event | viol) <')'>
+    holds = (<'holdsat('> norm+ <')'>)
     norm = (perm / obl / pow / ipow / live / fluent) <',' inst>
     perm = <'perm('> word [<'('> params <')'>] <')'>
-    obl = <'obl('> obl-event <','> deadline <','> viol<')'>
+    obl = <'obl('> obl-event <','> deadline <','> consequence <')'>
     pow = <'pow('> inst <','> word [<'('> params <')'>] <')'>
     ipow = <'ipow('> inst <','> (perm / obl / (word [<'('> params <')'>])) <','> inst <')'>
     live = <'live('> word [<'('> params <')'>] <')'>
@@ -53,8 +53,9 @@
     event = word [<'('> params <')'>]<','> inst
     obl-event = word [<'('> params <')'>]
     deadline = word [<'('> params <')'>]
-    viol = word [<'('> params <')'>]
-    <v-event> = <'viol(' <viol> '),' inst>
+    consequence = word [<'('> params <')'>]
+    viol-event = word [<'('> params <')'>]
+    viol = <'viol('> viol-event <'),'> inst
     inst = word
     end = <'\n'>* <'Passed(' number ')'> <'\n'>*
     params = word (<','> word)*
@@ -114,6 +115,8 @@
     :fluent (fn [& args] (apply merge (conj (rest args) {:fluent (first args)})))
     :perm (fn [& args] (apply merge (conj (rest args) {:perm (first args)})))
     :pow (fn [& args] {:pow (first args)})
+    :consequence (fn [& args] {:consequence (apply merge (conj (rest args) {:event (first args)}))})
+    :viol-event (fn [& args] (apply merge (conj (rest args) {:event (first args)})))
     :viol (fn [& args] {:viol (first args)})
     :deadline (fn [& args] {:deadline (apply merge (conj (rest args) {:event (first args)}))})
     :obl-event (fn [& args] (apply merge (conj (rest args) {:event (first args)})))
@@ -237,13 +240,15 @@
     (reduce str (interpose "\n" (concat fluents perms obls)))
     ))
 
-(defn occurred-prose [{:keys [inst params event]}]
+(defn occurred-prose [{:keys [inst params event viol]}]
   (let [policy (embellish inst)
         verb (embellish event)]
-    (str (if (first params) (embellish (first params))) " " verb (if (second params) (str " " (embellish (second params))) ".") (if (nth params 2 nil) (str " " (embellish (nth params 2)))) "\n")))
+    (if viol
+      (str "  VIOLATION: " (if (first (:params viol)) (embellish (first (:params viol)))) " " (embellish (:event viol)) (if (second (:params viol)) (str " " (embellish (second (:params viol)))) ".") (if (nth (:params viol) 2 nil) (str " " (embellish (nth (:params viol) 2)))) "\n")
+      (str "  " (if (first params) (embellish (first params))) " " verb (if (second params) (str " " (embellish (second params))) ".") (if (nth params 2 nil) (str " " (embellish (nth params 2)))) "\n"))))
 
 (defn legal-prose [{:keys [occurred viols]}]
-  (str (apply str (map occurred-prose occurred)) "\n"
+  (str (apply str (map occurred-prose occurred))
        (if-not (empty? viols) (str "Violation:" (apply str (map occurred-prose viols)) "\n")))
   )
 
@@ -264,6 +269,14 @@
 
 (defn lawyer-talk [fname]
   (answer-set-to-prose (slurp fname)))
+
+(defn explain [dir]
+  (let [dir (clojure.java.io/file dir)
+        files (file-seq dir)
+        fnames (rest (map #(.getPath %) files))]
+    (apply str (map-indexed (fn [i x] (str "---------------------------------------------------------------------\n\n" "Possibility " i ":\n\n" (lawyer-talk x) "\n")) fnames)
+           ;; fnames
+           )))
 
 
 (defn trace-to-map [trace]
