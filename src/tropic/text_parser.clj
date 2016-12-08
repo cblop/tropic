@@ -137,7 +137,11 @@
                     facts (map :facts (get-if-key :facts stuff))
                     map-maker (fn [x] (hash-map
                                        :occurred (remove #(= (:event %) "null") (map :occurred (get-if-key :occurred x)))
+                                       :observed (remove #(= (:event %) "null") (map :observed (get-if-key :observed x)))
                                        :viols (map :viol (get-if-key :viol x))
+                                       :perms (into [] (get-if-key :perm (map :holds (get-if-key :holds x))))
+                                       :obls (into [] (get-if-key :obl (map :holds (get-if-key :holds x))))
+                                       :fluents (into [] (get-if-key :fluent (map :holds (get-if-key :holds x))))
                                        ;; :holds (map :holds (get-if-key :holds x))
                                        ))]
                 (map map-maker facts)
@@ -261,6 +265,11 @@
       (transform)
       (say-options)))
 
+(defn answer-set-to-map [as]
+  (-> as
+      query-parse
+      query-transform))
+
 (defn answer-set-to-prose [as]
   (-> as
       query-parse
@@ -278,12 +287,10 @@
            ;; fnames
            )))
 
-
 (defn trace-to-map [trace]
   (-> trace
       (solve-parse)
       (transform)))
-
 
 ;; (-> (str
 ;;      "holdsat(obl(ex_red(bar),ex_green(bar),ex_blue(bar)),basic,2)\n"

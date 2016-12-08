@@ -4,11 +4,11 @@
    [clojure.java.io :as io]
    [tropic.gen :refer [make-map make-inst-map]]
    [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
-   [tropic.text-parser :refer [query-parse]]
+   [tropic.text-parser :refer [query-parse answer-set-to-map]]
    [clojure.java.shell :refer [sh]]
    [me.raynes.conch :refer [programs with-programs let-programs] :as sh]))
 
-(programs python clingo)
+(programs python2 clingo)
 
 (defn random-character []
   "Random Character")
@@ -77,16 +77,24 @@
         ]
    (do
      (.mkdir (java.io.File. (str "resources/" id)))
+     (.mkdir (java.io.File. (str "resources/" id "/traces")))
      (make-domain hmap id)
      (make-instal hmap id)
      (make-bridge hmap id)
      (make-query [] id)
-     ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
-     (let [output (apply sh (concat ["python" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "traces/trace-" id "-.lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))]
+     ;; (let [output (apply sh (concat ["python2" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
+     ;; (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "traces/trace-" id "-.lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))]
+     (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] ials ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))
+           tracedir (clojure.java.io/file (str "resources/" id "/traces"))
+           traces (filter #(.isFile %) (file-seq tracedir))
+           sets (for [t traces]
+                  (answer-set-to-map (slurp t)))
+           ]
        (do
          (spit (str "resources/" id "/output-" id ".lp") output)
          ;; (clean-up id)
          {:id id
+          :sets sets
           :text "Welcome to the world of adventure!"}))
      )))
 
@@ -108,13 +116,19 @@
         ]
     (do
       (spit query (events-to-text events) :append true)
-      ;; (let [output (apply sh (concat ["python" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
-      (let [output (apply sh (concat ["python" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-b" bridge "-d" domain] (if events ["-q" query])))]
+      ;; (let [output (apply sh (concat ["python2" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
+      ;; (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-b" bridge "-d" domain] (if events ["-q" query])))]
+      (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] ials ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-b" bridge "-d" domain] (if events ["-q" query])))
+            tracedir (clojure.java.io/file (str "resources/" id "/traces"))
+            traces (filter #(.isFile %) (file-seq tracedir))
+            sets (for [t traces]
+                   (answer-set-to-map (slurp t)))]
         (do
           (spit debug output)
           (spit outfile (:out output))
           (if (:out output)
-            {:text (:out output)}
+            {:sets sets
+             :text (:out output)}
             {:text output}))))))
 
 (defn trope-map [trope]

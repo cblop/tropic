@@ -1,6 +1,6 @@
-(defproject tropic "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject tropic "0.3.2"
+  :description "DSL for interactive narrative"
+  :url "http://mthompson.org/tropical"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
