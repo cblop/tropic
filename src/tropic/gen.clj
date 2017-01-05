@@ -25,6 +25,19 @@
 (defn remove-blank [xs]
   (filter #(not (= (:verb %) "")) xs))
 
+(defn process-ors [events]
+  (loop [evs events acc [] ors []]
+    (if (empty? evs) acc
+        (cond
+          (and (not (:or (first evs))) (:or (second evs))) (recur (rest evs) acc (conj ors (first evs)))
+          (and (:or (first evs)) (:or (second evs))) (recur (rest evs) acc (conj ors (:or (first evs))))
+          (and (:or (first evs)) (not (:or (second evs)))) (recur (rest evs) (conj acc {:or (conj ors (:or (first evs)))}) [])
+          :else (recur (rest evs) (conj acc (first evs)) ors)
+          )
+        )))
+
+;; (process-ors (:events {:label "The Hero's Journey", :events '({:role "The Hero", :verb "go", :place "Home"} {:role "Hero", :verb "go", :place "Away"} {:or {:role "Hero", :verb "go", :place "Home"}} {:or {:role "Villain", :verb "go", :place "Away"}}), :situations []}))
+
 (defn make-map [ptree]
   (insta/transform
    {:verb (partial param-map :verb)
@@ -40,6 +53,7 @@
     :fluent (partial merge)
     :character (partial param-map :role)
     :sequence (fn [& args] {:events (into [] (remove-blank args))})
+    :or (partial param-map :or)
     :situation (fn [& args] (first args))
     :situationdef (fn [& args] {:situation {:when (first args) :norms (into [] (map first (rest args)))}})
     :consequence (fn [& args] (hash-map :consequence (apply merge args)))
@@ -68,7 +82,8 @@
                                  :roles (vec (set (concat (mapcat #(walk-get-key :role %) args) (mapcat #(walk-get-key :role-a %) args) (mapcat #(walk-get-key :role-b %) args))))
                                  :objects (vec (set (mapcat #(walk-get-key :object %) args)))
                                  :locations (vec (set (mapcat #(walk-get-key :place %) args)))
-                                 :events (mapcat :events args)
+                                 :events (process-ors (mapcat :events args))
+                                 ;; :events (mapcat :events args)
                                  :situations (mapcat :situation args)}})
     }
    ptree))

@@ -75,6 +75,7 @@
   (let [trps (map :label (:tropes hmap))
         ials (map #(str "resources/" id "/" id "-" (event-name %) ".ial") trps)
         debug (str "resources/" id "/debug-" id ".lp")
+        constraint "resources/constraint.lp"
         ]
    (do
      (.mkdir (java.io.File. (str "resources/" id)))
@@ -85,7 +86,7 @@
      (make-query [] id)
      ;; (let [output (apply sh (concat ["python2" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
      ;; (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "traces/trace-" id "-.lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))]
-     (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] ials (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
+     (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
            tracedir (clojure.java.io/file (str "resources/" id "/traces"))
            traces (filter #(.isFile %) (file-seq tracedir))
            sets (for [t traces]
@@ -101,7 +102,7 @@
      )))
 
 (defn event-to-text [{:keys [player verb object-a object-b]}]
-  (str "observed(" verb "(" (if object-a (str object-a (if object-b (str "," object-b)) ")")) ")\n"))
+  (str "observed(" verb "(" (event-name player) (if object-a (str "," object-a (if object-b (str "," object-b)) ")")) ")"))
 
 (defn events-to-text[events]
   (apply str (interpose "\n" (map event-to-text events))))
@@ -123,13 +124,14 @@
         bridge (str "resources/" id "/" id "-bridge.ial")
         outfile (str "resources/" id "/output-" id ".json")
         debug (str "resources/" id "/debug-" id ".lp")
+        constraint "resources/constraint.lp"
         ]
     (do
       (delete-traces id)
       (spit query (events-to-text events) :append false)
       ;; (let [output (apply sh (concat ["python2" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
       ;; (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-b" bridge "-d" domain] (if events ["-q" query])))]
-      (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] ials (if (> (count ials) 1) ["-b" bridge]) ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" domain] (if events ["-q" query])))
+      (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" bridge]) ["-l 4" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" domain] (if events ["-q" query])))
             tracedir (clojure.java.io/file (str "resources/" id "/traces"))
             traces (filter #(.isFile %) (file-seq tracedir))
             sets (for [t traces]

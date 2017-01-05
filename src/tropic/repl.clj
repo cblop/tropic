@@ -128,9 +128,18 @@
 
 (def heros-journey
   (join-strings
-   ["The Hero's Journey is a trope where:"
+   ["\"The Hero's Journey\" is a trope where:"
     "  The Hero is at Home"
-    "  Then the Quest happens"]))
+    "    Then the Hero goes Away"
+    "    Or the Hero goes Home"
+    "    Or the Villain goes Away"
+    ]))
+
+(def heros-journey
+  (join-strings
+   [
+    "The Hero is at Home"
+    "  Then the Hero goes Away"]))
 
 (def quest
   (join-strings
@@ -170,7 +179,17 @@
   (let [story-map (st-map out ts chars objs places player)]
     (make-story story-map out)))
 
+(parse-trope heros-journey)
+(trope-map heros-journey)
+
+(ev "go" "Luke Skywalker" "tatooine")
+
 ;; TEST:
+(test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1")
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "tatooine") (ev "go" "Luke Skywalker" "space")])
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "tatooine") (ev "go" "Luke Skywalker" "tatooine") (ev "go" "Luke Skywalker" "tatooine")])
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "tatooine")])
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "space")])
 ;; (test-story [heros-journey quest] charlist objlist placelist "Luke Skywalker" "ex1")
 
 ;; (test-story [warranty warranty-release est-rights sales-contract] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "pol1")

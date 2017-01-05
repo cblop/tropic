@@ -50,7 +50,7 @@
     ipow = <'ipow('> inst <','> (perm / obl / (word [<'('> params <')'>])) <','> inst <')'>
     live = <'live('> word [<'('> params <')'>] <')'>
     fluent = word [<'('> params <')'>]
-    event = word [<'('> params <')'>]<','> inst
+    event = word [<'('> params <')'>] (<','> inst)?
     obl-event = word [<'('> params <')'>]
     deadline = word [<'('> params <')'>]
     consequence = word [<'('> params <')'>]

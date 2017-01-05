@@ -625,6 +625,7 @@ or STRING to string"
 (defn norm-str [event params]
   (cond
     ;; (:subtrope event) (str "pow(" (inst-start-name (:subtrope event)))
+    (:or event) (apply str (interpose "," (map #(norm-str % params) (:or event))))
     (:obligation event) (obl event params)
         (:permission event) (perm (event-str (:permission event) params))
       :else (perm (event-str event params))))

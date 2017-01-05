@@ -59,7 +59,7 @@
 
 
     sequence =
-        ((conditional | event | norms | happens | block)  <'\\n'?>) | ((conditional | event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / event / obligation / happens) or?))*
+        ((conditional | event | norms | happens | block)  <'\\n'?>) | ((conditional | event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / event / obligation / happens) or*))*
 
     situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace whitespace> consequence)+ <'\\n'?>
 
