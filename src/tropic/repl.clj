@@ -181,6 +181,7 @@
 
 (parse-trope heros-journey)
 (trope-map heros-journey)
+;; => {:label "The Hero's Journey", :events [{:role "The Hero", :verb "go", :place "Home"} {:or [{:role "Hero", :verb "go", :place "Away"} {:role "Hero", :verb "go", :place "Home"} {:role "Villain", :verb "go", :place "Away"}]}], :situations []}
 
 (ev "go" "Luke Skywalker" "tatooine")
 

@@ -249,13 +249,19 @@ or STRING to string"
 (defn get-all-params [trope]
   (let [
         sits (map :when (filter :when (:situations trope)))
+        ors (mapcat :or (filter :or (:events trope)))
         perms (flatten (map #(map :permission (filter :permission %)) (map :norms (:situations trope))))
         eperms (map :permission (filter :permission (:events trope)))
+        operms (map :permission (filter :permission ors))
         aperms (concat perms eperms)
-        obls (map :obligation (filter :obligation (:events trope)))
-        deads (map :deadline (map :obligation (filter :obligation (:events trope))))
+        sobls (map :obligation (filter :obligation (:events trope)))
+        orobls (map :obligation (filter :obligation ors))
+        obls (concat sobls orobls)
+        sdeads (map :deadline (map :obligation (filter :obligation (:events trope))))
+        ordeads (map :deadline (map :obligation (filter :obligation ors)))
+        deads (concat sdeads ordeads)
         ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
-        evs (concat sits aperms obls deads (:events trope))
+        evs (concat sits aperms obls deads ors (:events trope))
         roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
         objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
         places (make-unique (map #(select-keys % [:place]) evs))
@@ -625,7 +631,7 @@ or STRING to string"
 (defn norm-str [event params]
   (cond
     ;; (:subtrope event) (str "pow(" (inst-start-name (:subtrope event)))
-    (:or event) (apply str (interpose "," (map #(norm-str % params) (:or event))))
+    (:or event) (apply str (interpose ",\n    " (map #(norm-str % params) (:or event))))
     (:obligation event) (obl event params)
         (:permission event) (perm (event-str (:permission event) params))
       :else (perm (event-str event params))))
@@ -715,10 +721,11 @@ or STRING to string"
         ]
     {:names wstrs :events wpvec :conds wpparams}))
 
-
 (defn norm-params [ev params]
-  (if (:obligation ev)  (mapcat #(param-str % params) [(:obligation ev) (:deadline (:obligation ev)) (:violation (:obligation ev))])
-    (param-str ev params)))
+  (cond
+    (:obligation ev) (mapcat #(param-str % params) [(:obligation ev) (:deadline (:obligation ev)) (:violation (:obligation ev))])
+    (:or ev) (seq (set (mapcat #(norm-params % params) (:or ev))))
+    :else (param-str ev params)))
 
 (defn get-viols [trope]
   (let [obls (filter :obligation (:events trope))
@@ -731,6 +738,8 @@ or STRING to string"
         conds (map #(param-str % params) pevs)
         ]
     {:names vnames :events [evs] :conds conds}))
+
+
 
 (defn initiates [trope]
   (let [params (get-all-params trope)
@@ -757,7 +766,8 @@ or STRING to string"
         obls (get-obls trope)
         viols (get-viols trope)
         ;; tvec (conj phases [(last phases)])
-        tvec (map vector phases)
+        ;; tvec (map conj pstrs phases)
+        tvec (cons [(first phases)] (into [] (map conj pstrs (rest phases))))
         init-a (map imake (repeat inst) evec cvec)
         init-s (map imake (:names sits) (:events sits) (:conds sits))
         init-v (map imake (:names viols) (:events viols) (:conds viols))
