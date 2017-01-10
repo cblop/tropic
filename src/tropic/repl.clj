@@ -130,9 +130,10 @@
   (join-strings
    ["\"The Hero's Journey\" is a trope where:"
     "  The Hero is at Home"
-    "    Then the Hero goes Away"
-    "    Or the Hero goes Home"
-    "    Or the Villain goes Away"
+    ;; "    Then the Hero goes Away"
+    "  Or the Hero goes Home"
+    "  Or the Agent goes to Asia"
+    "  Or the Villain goes Away"
     ]))
 
 (def heros-journey
