@@ -132,7 +132,7 @@
     "  The Hero is at Home"
     ;; "    Then the Hero goes Away"
     "  Or the Hero goes Home"
-    "  Or the Agent goes to Asia"
+    "  Or the Mentor goes to The Forest"
     "  Or the Villain goes Away"
     ]))
 
@@ -156,19 +156,19 @@
 
 (def charlist
   [{:label "Luke Skywalker" :role "Hero"}
-   {:label "Darth Vader" :role "Villain"}])
+   {:label "Darth Vader" :role "Villain"}
+   {:label "Obi Wan" :role "Mentor"}])
 
 
 (def placelist
-  [{:label "Tatooine" :location "Home"}
-   {:label "Space" :location "Away"}])
+  [{:label "Tatooine" :location "Home"
+    {:label "Space" :location "Away"}
+    {:label "Alderaan" :location "The Forest"}}])
 
 
 (def objlist
   [{:label "Light Saber" :type "Weapon"}
    {:label "Sword" :type "Weapon"}])
-
-
 
 (defn ev
   ([verb player obj-a] {:verb verb :player player :object-a obj-a})
