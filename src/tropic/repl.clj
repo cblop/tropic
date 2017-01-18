@@ -142,6 +142,14 @@
     "The Hero is at Home"
     "  Then the Hero goes Away"]))
 
+(def heros-journey
+  (join-strings
+   ["\"The Hero's Journey\" is a trope where:"
+    "  The Hero is at Home"
+    "    Then the Hero goes Away"
+    "    Or the Hero kills the Villain"]
+   ))
+
 (def quest
   (join-strings
    ["The Quest is a trope where:"
@@ -182,7 +190,7 @@
 
 (parse-trope heros-journey)
 (trope-map heros-journey)
-;; => {:label "The Hero's Journey", :events [{:role "The Hero", :verb "go", :place "Home"} {:or [{:role "Hero", :verb "go", :place "Away"} {:role "Hero", :verb "go", :place "Home"} {:role "Villain", :verb "go", :place "Away"}]}], :situations []}
+;; => {:label "The Hero's Journey", :events [{:role "The Hero", :verb "go", :place "Home"} {:or [{:role "Hero", :verb "go", :place "Away"} {:role "Hero", :verb "kills", :role-b "Villain"}]}], :situations []}
 
 (ev "go" "Luke Skywalker" "tatooine")
 
