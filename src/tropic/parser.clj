@@ -118,7 +118,7 @@
     task = pverb <' '> role-b / verb / (verb <(' the ' / ' a ' / ' an ')> item) / (verb <' '> item)
     role-b = name
 
-    pverb = 'kill' / 'kills' / 'refunds' / 'refund'
+    pverb = 'kill' / 'kill'<'s'> / 'refund'<'s'> / 'refund'
 
     consequence =
         [<'The ' / 'the '>] character <' will '>? <' '> (move / item)

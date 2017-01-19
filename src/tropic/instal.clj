@@ -332,6 +332,12 @@ or STRING to string"
      :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
 
+(defn extract-ors [events]
+  (let [ors (mapcat :or (filter #(:or %) events))
+        nors (remove #(:or %) events)]
+    (concat nors ors))
+  )
+
 (defn external-events [trope]
   (let [header (str "% EXTERNAL EVENTS: " (namify (:label trope)) " ----------")
         params (get-params trope)
@@ -342,10 +348,12 @@ or STRING to string"
         events (concat evs obls deads)
         situations (map :when (:situations trope))
         sperms (mapcat #(map :permission (filter :permission %)) (map :norms (:situations trope)))
-        all (concat events situations sperms)
+        fall (concat events situations sperms)
+        all (extract-ors fall)
         types (map ev-types all)
         strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))]
-    (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["exogenous event noDeadline(Identity);"])))
+    (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["exogenous event noDeadline(Identity);"])
+    ))
     ;; (prn-str types)
   ;; ))
 

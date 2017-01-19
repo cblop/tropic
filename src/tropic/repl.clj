@@ -3,7 +3,10 @@
             [tropic.gen :refer [make-map make-inst-map]]
             [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
             [tropic.text-parser :refer [trace-to-prose trace-to-map query-transform lawyer-talk explain query-parse]]
-            [tropic.instal :refer [instal instal-file]]))
+            [tropic.instal :refer [instal instal-file external-events]]))
+
+(external-events {:characters [{:role "Hero", :label "Luke Skywalker", :id "586d153259111a0f09895659"} {:role "Villain", :label "Darth Vader", :id "586d153259111a0f0989565a"}], :objects [], :places [{:location "Away", :label "Space", :id "582487a35d2a0108a93fd8fa"} {:location "Home", :label "Tatooine", :id "582487a35d2a0108a93fd8fe"}], :subverted false, :events [{:role "Hero", :verb "go", :place "Home"} {:or [{:role "Hero", :verb "go", :place "Away"} {:role "Hero", :verb "kill", :role-b "Villain"}]}], :label "The Hero's Journey", :id "58806384a7986c11cd473ee5"})
+
 
 
 (defn join-strings [strs]
