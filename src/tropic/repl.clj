@@ -3,10 +3,17 @@
             [tropic.gen :refer [make-map make-inst-map]]
             [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
             [tropic.text-parser :refer [trace-to-prose trace-to-map query-transform lawyer-talk explain query-parse]]
-            [tropic.instal :refer [instal instal-file external-events]]))
+            [tropic.instal :refer [instal instal-file external-events initially get-all-params]]))
 
 (external-events {:characters [{:role "Hero", :label "Luke Skywalker", :id "586d153259111a0f09895659"} {:role "Villain", :label "Darth Vader", :id "586d153259111a0f0989565a"}], :objects [], :places [{:location "Away", :label "Space", :id "582487a35d2a0108a93fd8fa"} {:location "Home", :label "Tatooine", :id "582487a35d2a0108a93fd8fe"}], :subverted false, :events [{:role "Hero", :verb "go", :place "Home"} {:or [{:role "Hero", :verb "go", :place "Away"} {:role "Hero", :verb "kill", :role-b "Villain"}]}], :label "The Hero's Journey", :id "58806384a7986c11cd473ee5"})
 
+(get-all-params {:characters [{:role "Hero", :label "Luke Skywalker", :id "586d153259111a0f09895659"} {:role "Villain", :label "Darth Vader", :id "586d153259111a0f0989565a"}], :objects [], :places [{:location "Away", :label "Space", :id "582487a35d2a0108a93fd8fa"} {:location "Home", :label "Tatooine", :id "582487a35d2a0108a93fd8fe"}], :subverted false, :events [{:role "Hero", :verb "go", :place "Home"} {:or [{:role "Hero", :verb "go", :place "Away"} {:role "Hero", :verb "kill", :role-b "Villain"}]}], :label "The Hero's Journey", :id "58806384a7986c11cd473ee5"})
+
+(get-all-params {:label "The Hero's Journey", :events [{:or [{:role "The Hero", :verb "go", :place "Home"} {:role "Hero", :verb "go", :place "Home"} {:role "Mentor", :verb "go", :place "The Forest"} {:role "Villain", :verb "go", :place "Away"}]}], :situations []})
+;; => {:label "The Hero's Journey", :events [{:or [{:role "The Hero", :verb "go", :place "Home"} {:role "Hero", :verb "go", :place "Home"} {:role "Mentor", :verb "go", :place "The Forest"} {:role "Villain", :verb "go", :place "Away"}]}], :situations []}
+
+(initially {:story {:storyname "hj1", :tropes ("The Hero's Journey"), :instances ({:class "Hero", :iname "Luke Skywalker"} {:class "Villain", :iname "Darth Vader"} {:class "Mentor", :iname "Obi Wan"} {:class "Weapon", :iname "Light Saber"} {:class "Weapon", :iname "Sword"} {:class "Home", :iname "Tatooine"})}, :tropes ({:label "The Hero's Journey", :events [{:or [{:role "The Hero", :verb "go", :place "Home"} {:role "Hero", :verb "go", :place "Home"} {:role "Mentor", :verb "go", :place "The Forest"} {:role "Villain", :verb "go", :place "Away"}]}], :situations []}), :characters [{:role "Hero", :label "Luke Skywalker"} {:role "Villain", :label "Darth Vader"} {:role "Mentor", :label "Obi Wan"}], :objects [{:type "Weapon", :label "Light Saber"} {:type "Weapon", :label "Sword"}], :places [{:label "Tatooine", {:label "Space", :location "Away"} {:label "Alderaan", :location "The Forest"}, :location "Home"}], :player "Luke Skywalker"})
+;; => {:story {:storyname "hj1", :tropes ("The Hero's Journey"), :instances ({:class "Hero", :iname "Luke Skywalker"} {:class "Villain", :iname "Darth Vader"} {:class "Mentor", :iname "Obi Wan"} {:class "Weapon", :iname "Light Saber"} {:class "Weapon", :iname "Sword"} {:class "Home", :iname "Tatooine"})}, :tropes ({:label "The Hero's Journey", :events [{:or [{:role "The Hero", :verb "go", :place "Home"} {:role "Hero", :verb "go", :place "Home"} {:role "Mentor", :verb "go", :place "The Forest"} {:role "Villain", :verb "go", :place "Away"}]}], :situations []}), :characters [{:role "Hero", :label "Luke Skywalker"} {:role "Villain", :label "Darth Vader"} {:role "Mentor", :label "Obi Wan"}], :objects [{:type "Weapon", :label "Light Saber"} {:type "Weapon", :label "Sword"}], :places [{:label "Tatooine", {:label "Space", :location "Away"} {:label "Alderaan", :location "The Forest"}, :location "Home"}], :player "Luke Skywalker"}
 
 
 (defn join-strings [strs]
@@ -189,20 +196,22 @@
 
 (defn test-story [ts chars objs places player out]
   (let [story-map (st-map out ts chars objs places player)]
-    (make-story story-map out)))
+    (make-story story-map out 2)))
 
 (parse-trope heros-journey)
+(st-map "hj1" [heros-journey] charlist objlist placelist "Luke Skywalker")
+;; => {:story {:storyname "hj1", :tropes ("The Hero's Journey"), :instances ({:class "Hero", :iname "Luke Skywalker"} {:class "Villain", :iname "Darth Vader"} {:class "Mentor", :iname "Obi Wan"} {:class "Weapon", :iname "Light Saber"} {:class "Weapon", :iname "Sword"} {:class "Home", :iname "Tatooine"})}, :tropes ({:label "The Hero's Journey", :events [{:or [{:role "The Hero", :verb "go", :place "Home"} {:role "Hero", :verb "go", :place "Home"} {:role "Mentor", :verb "go", :place "The Forest"} {:role "Villain", :verb "go", :place "Away"}]}], :situations []}), :characters [{:role "Hero", :label "Luke Skywalker"} {:role "Villain", :label "Darth Vader"} {:role "Mentor", :label "Obi Wan"}], :objects [{:type "Weapon", :label "Light Saber"} {:type "Weapon", :label "Sword"}], :places [{:label "Tatooine", {:label "Space", :location "Away"} {:label "Alderaan", :location "The Forest"}, :location "Home"}], :player "Luke Skywalker"}
 (trope-map heros-journey)
-;; => {:label "The Hero's Journey", :events [{:role "The Hero", :verb "go", :place "Home"} {:or [{:role "Hero", :verb "go", :place "Away"} {:role "Hero", :verb "kills", :role-b "Villain"}]}], :situations []}
+;; => {:label "The Hero's Journey", :events [{:or [{:role "The Hero", :verb "go", :place "Home"} {:role "Hero", :verb "go", :place "Home"} {:role "Mentor", :verb "go", :place "The Forest"} {:role "Villain", :verb "go", :place "Away"}]}], :situations []}
 
 (ev "go" "Luke Skywalker" "tatooine")
 
 ;; TEST:
 (test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1")
-(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "tatooine") (ev "go" "Luke Skywalker" "space")])
-(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "tatooine") (ev "go" "Luke Skywalker" "tatooine") (ev "go" "Luke Skywalker" "tatooine")])
-(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "tatooine")])
-(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "space")])
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 2)
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine")] 2)
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine")] 2)
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "space")] 2)
 ;; (test-story [heros-journey quest] charlist objlist placelist "Luke Skywalker" "ex1")
 
 ;; (test-story [warranty warranty-release est-rights sales-contract] charlist-policy objlist-policy placelist-policy "Itsuki Hiroshi" "pol1")

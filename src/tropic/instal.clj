@@ -246,6 +246,27 @@ or STRING to string"
      :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
      :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
+(defn get-some-params [trope]
+  (let [
+        sits (map :when (filter :when (:situations trope)))
+        perms (flatten (map #(map :permission (filter :permission %)) (map :norms (:situations trope))))
+        eperms (map :permission (filter :permission (:events trope)))
+        aperms (concat perms eperms)
+        sobls (map :obligation (filter :obligation (:events trope)))
+        obls sobls
+        sdeads (map :deadline (map :obligation (filter :obligation (:events trope))))
+        deads sdeads
+        ;; wpvec (map (fn [x] (map #(perm (event-str (:permission %) sparams)) (filter :permission x))) sitnorms)
+        evs (concat sits aperms obls deads (:events trope))
+        roles (make-unique (map #(select-keys % [:role :role-a :role-b :from :to]) evs))
+        objects (into [] (remove #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))
+        places (make-unique (map #(select-keys % [:place]) evs))
+        quests (into [] (filter #(or (= "Quest" %) (= "quest" %)) (make-unique (map #(select-keys % [:object]) evs))))]
+    {:roles (map vector roles PARAMS)
+     :objects (map vector objects (prange (count roles) (count objects)))
+     :places (map vector places (prange (+ (count roles) (count objects)) (count places)))
+     :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
+
 (defn get-all-params [trope]
   (let [
         sits (map :when (filter :when (:situations trope)))
@@ -658,7 +679,7 @@ or STRING to string"
         place-list (map :location (:places hmap))
         ;; obj-list (mapcat #(map first (:objects %)) param-map)
         obj-list (map :type (:objects hmap))
-        first-events (map first (map :events (:tropes hmap)))
+        first-events (map (fn [x] (if (:or (first x)) (first (:or (first x))) (first x))) (map :events (:tropes hmap)))
         ;; first-perms (map :perm (filter :perm first-events))
         ;; fperm-strs (map #(perm (event-str % params)) first-perms)
         fperm-strs (map #(str (norm-str %1 %2) " if " (reduce str (interpose ", " (param-str %1 %2)))) first-events param-map)
