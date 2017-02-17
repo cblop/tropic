@@ -212,7 +212,7 @@
 (test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1")
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 2)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine")] 2)
-(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine")] 2)
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine")] 3)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "space")] 2)
 ;; (test-story [heros-journey quest] charlist objlist placelist "Luke Skywalker" "ex1")
 

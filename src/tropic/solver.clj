@@ -6,7 +6,8 @@
    [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
    [tropic.text-parser :refer [query-parse answer-set-to-map]]
    [clojure.java.shell :refer [sh]]
-   [me.raynes.conch :refer [programs with-programs let-programs] :as sh]))
+   [me.raynes.conch :refer [programs with-programs let-programs] :as sh]
+   [clojure.string :as str]))
 
 (programs python2 clingo)
 
@@ -81,6 +82,7 @@
         constraint "resources/constraint.lp"
         ]
    (do
+     (println (str "Architecture: " ARCH))
      (.mkdir (java.io.File. (str "resources/" id)))
      (.mkdir (java.io.File. (str "resources/" id "/traces")))
      (make-domain hmap id)
@@ -97,6 +99,7 @@
            ]
        (do
          (spit debug output)
+         (spit (str "resources/" id "/sets-" id ".edn") (prn-str sets))
          (spit (str "resources/" id "/output-" id ".lp") output)
          ;; (clean-up id)
          {:id id
@@ -142,6 +145,7 @@
                    (answer-set-to-map (slurp t)))]
         (do
           (spit debug output)
+          (spit (str "resources/" id "/sets-" id ".edn") (prn-str sets))
           (spit outfile (:out output))
           (if (:out output)
             {:sets sets
