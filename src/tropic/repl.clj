@@ -136,6 +136,48 @@
    {:label "lawnmower" :type "Thing"}
    {:label "house" :type "Property"}])
 
+(def pcd-one
+  (join-strings
+   ["\"pcd1\" is a policy where:"
+    "  The Accessor may access Dataset1"
+    "  Then the Accessor may access Dataset1"
+    ]))
+
+(def pcd-two
+  (join-strings
+   ["\"pcd2\" is a policy where:"
+    "  The Accessor accesses Dataset2"
+    "  Then the Accessor may not access Dataset2"]))
+
+(def pcd-three
+  (join-strings
+   ["\"pcd3\" is a policy where:"
+    "  The Accessor accesses Dataset1"
+    "  Then the Accessor must contribute to Dataset2"]))
+
+
+(def charlist-pcd
+  [{:label "Alice" :role "Accessor"}
+   {:label "d1" :role "Dataset1"}
+   {:label "d2" :role "Dataset2"}])
+
+
+(def placelist-pcd
+  [])
+
+(def objlist-pcd
+  [])
+
+
+(parse-trope pcd-one)
+(parse-trope pcd-two)
+(parse-trope pcd-three)
+(st-map "pcd1" [pcd-one] charlist-pcd objlist-pcd placelist-pcd "Alice")
+(st-map "hj1" [heros-journey] charlist objlist placelist "Luke Skywalker")
+
+
+(test-story [pcd-three] charlist-pcd objlist-pcd placelist-pcd "Alice" "pcd3")
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 2)
 
 
 (def heros-journey

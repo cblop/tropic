@@ -59,7 +59,7 @@
 
 
     sequence =
-        ((conditional | event | norms | happens | block)  <'\\n'?> or*) | ((conditional | event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / event / obligation / happens) or*))*
+        ((conditional | event | norms | happens | block)  <'\\n'?> or*) | ((conditional | event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / norms / event / happens) or*))*
 
     situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace whitespace> consequence)+ <'\\n'?>
 
@@ -93,7 +93,7 @@
     pay =
         <'pay '> character
 
-    norms = permission | obligation
+    norms = permission | rempermission | obligation
 
     violation = norms
 
@@ -111,6 +111,7 @@
     <pverb> = verb (<' '> verb)*
 
     permission = character <' may '> (move / pay / bverb / cverb / task) conditional? <'\\n'?>
+    rempermission = character <' may not '> (move / pay / bverb / cverb / task) conditional? <'\\n'?>
     obligation = character <' must '> (move / pay / bverb / cverb / pverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
 
     deadline = consequence
