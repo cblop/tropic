@@ -158,7 +158,7 @@
   (join-strings
    ["\"The Hero's Journey\" is a trope where:"
     "  The Hero is at Home"
-    "    Then the Hero goes Away"
+    "  Then the Hero goes Away"
     "    Or the Hero kills the Villain"]
    ))
 
@@ -174,6 +174,184 @@
     "  The Villain has a Weapon"
     "  The Villain may kill the Hero"]))
 
+;; TESTS --------------
+
+;; PERMISSIONS------------------------------------------------------------
+
+(def test1
+  (join-strings
+   ["\"Test 1\" is a trope where:"
+    "  The Hero may go to the Land of Adventure"
+    ]))
+
+(parse-trope test1)
+(st-map "test1" [test1] charlist objlist placelist "")
+(test-story [test1] charlist objlist placelist "lukeSkywalker" "test1" 5)
+
+(def test2
+  (join-strings
+   ["\"Test 2\" is a trope where:"
+    "  The Hero may go to the Land of Adventure"
+    "  Then the Villain may kill the Hero"
+    ]))
+
+(parse-trope test2)
+(st-map "test2" [test2] charlist objlist placelist "")
+(test-story [test2] charlist objlist placelist "lukeSkywalker" "test2" 5)
+
+(def test3
+  (join-strings
+   ["\"Test 3\" is a trope where:"
+    "  The Hero may go to the Land of Adventure"
+    "  Then the Villain may kill the Hero"
+    "    Or the Villain may escape"
+    ]))
+
+(parse-trope test3)
+(st-map "test3" [test3] charlist objlist placelist "")
+(test-story [test3] charlist objlist placelist "lukeSkywalker" "test3" 5)
+
+;; OBLIGATIONS -------------------------------------------------------------
+
+(def test4
+  (join-strings
+   ["\"Test 4\" is a trope where:"
+    "  The Hero must go to the Land of Adventure"
+    ]))
+
+
+(parse-trope test4)
+(st-map "test4" [test4] charlist objlist placelist "")
+
+(def test5
+  (join-strings
+   ["\"Test 5\" is a trope where:"
+    "  The Hero must go to the Land of Adventure"
+    "    Otherwise, the Villain may kill the Hero"
+    ]))
+
+
+(parse-trope test5)
+(st-map "test5" [test5] charlist objlist placelist "")
+
+(def test6
+  (join-strings
+   ["\"Test 6\" is a trope where:"
+    "  The Villain may kill the Mentor"
+    "  The Hero must go to the Land of Adventure before the Villain kills the Mentor"
+    ]))
+
+(parse-trope test6)
+(st-map "test6" [test6] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test6" [test6] charlist objlist placelist ""))))
+
+(def test7
+  (join-strings
+   ["\"Test 7\" is a trope where:"
+    "  The Hero must go to the Land of Adventure before the Villain kills the Mentor"
+    "    Otherwise, the Villain may kill the Hero"
+    ]))
+
+(parse-trope test7)
+(st-map "test7" [test7] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test7" [test7] charlist objlist placelist ""))))
+
+;; SEQUENCING ------------------------------------------------------------------------
+(def test8
+  (join-strings
+   ["\"Test 8\" is a trope where:"
+    "  The Hero may go to the Land of Adventure"
+    "  Then the Hero may kill the Villain"
+    "  Then the Hero may return Home"
+    ]))
+
+(parse-trope test8)
+(st-map "test8" [test8] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test8" [test8] charlist objlist placelist ""))))
+
+
+;; BRANCHING --------------------------------------------------------------------------
+(def test9
+  (join-strings
+   ["\"Test 9\" is a trope where:"
+    "  The Hero may go to the Land of Adventure"
+    "    Or the Hero may kill the Villain"
+    ]))
+
+(parse-trope test9)
+(st-map "test9" [test9] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test9" [test9] charlist objlist placelist ""))))
+
+(def test10
+  (join-strings
+   ["\"Test 10\" is a trope where:"
+    "  The Hero may go to the Land of Adventure"
+    "    Or the Hero may go Home"
+    "    Or the Hero may kill the Villain"
+    "    Or the Hero may visit the Mentor"
+    ]))
+
+(parse-trope test10)
+(st-map "test10" [test10] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test10" [test10] charlist objlist placelist ""))))
+
+
+;; CONDITIONALS --------------------------------------------------------------------------------
+(def test11
+  (join-strings
+   ["\"Test 11\" is a trope where:"
+    "  The Hero may go to the Land of Adventure"
+    "  Then the Hero may kill the Villain if:"
+    "    The Villain is at the Land of Adventure"
+    ]))
+
+(def test12
+  (join-strings
+   ["\"Test 12\" is a trope where:"
+    "  The Hero may go to the Land of Adventure if:"
+    "    The Hero is at Home"
+    "    The Villain is at the Land of Adventure"
+    ]))
+
+;; FLUENTS ---------------------------------------------------------------------------------------
+(def test13
+  (join-strings
+   ["\"Test 13\" is a trope where:"
+    "  The Hero is at Home"
+    ]))
+
+(def test14
+  (join-strings
+   ["\"Test 14\" is a trope where:"
+    "  The Villain is at the Land of Adventure"
+    "  The Hero is at Home"
+    ]))
+
+
+(def test15
+  (join-strings
+   ["\"Test 15\" is a trope where:"
+    "  The Hero is at Home"
+    "  Then the Hero goes to the Land of Adventure"
+    "  Then the Villain is at the Land of Adventure"
+    ]))
+
+(def test16
+  (join-strings
+   ["\"Test 16\" is a trope where:"
+    "  The Hero goes to the Land of Adventure"
+    "  Then the Villain has a Weapon"
+    ]))
+
+;; EMBEDDING TROPES ------------------------------------------------------------------------------------
+(def test17
+  (join-strings
+   ["\"Test 17\" is a trope where:"
+    "  The Hero goes to the Land of Adventure"
+    "  Then the \"Quest\" trope happens"
+    ]))
+
+
 (def charlist
   [{:label "Luke Skywalker" :role "Hero"}
    {:label "Darth Vader" :role "Villain"}
@@ -181,14 +359,66 @@
 
 
 (def placelist
-  [{:label "Tatooine" :location "Home"
-    {:label "Space" :location "Away"}
-    {:label "Alderaan" :location "The Forest"}}])
+  [{:label "Tatooine" :location "Home"}
+   {:label "Space" :location "Away"}
+   {:label "Alderaan" :location "The Forest"}])
 
 
 (def objlist
   [{:label "Light Saber" :type "Weapon"}
    {:label "Sword" :type "Weapon"}])
+
+(def pcd-one
+  (join-strings
+   ["\"pcd1\" is a policy where:"
+    "  The Accessor may access Dataset1"
+    "  Then the Accessor may access Dataset1"
+    ]))
+
+(def pcd-one-a
+  (join-strings
+   ["\"pcd1\" is a policy where:"
+    "  The Accessor may access Dataset1"
+    "  Then the Accessor may access Dataset1"
+    "  Then the Accessor may access Dataset1"
+    ]))
+
+(def pcd-two
+  (join-strings
+   ["\"pcd2\" is a policy where:"
+    "  The Accessor may access Dataset2"
+    "  Then the Accessor may not access Dataset2"
+    ]))
+
+(def pcd-three
+  (join-strings
+   ["\"pcd3\" is a policy where:"
+    "  The Accessor may access Dataset1"
+    "  Then the Accessor must contribute to Dataset2"
+    ]))
+
+(parse-trope pcd-one)
+(parse-trope pcd-one-a)
+(parse-trope pcd-two)
+(parse-trope pcd-three)
+
+
+(def charlist-pcd
+  [{:label "Alice" :role "Accessor"}
+   {:label "d1" :role "Dataset1"}
+   {:label "d2" :role "Dataset2"}])
+
+
+(def objlist-pcd
+  [])
+
+(def placelist-pcd
+  [])
+
+(st-map "pcd1" [pcd-one] charlist-pcd objlist-pcd placelist-pcd "Alice")
+(test-story [pcd-one] charlist-pcd objlist-pcd placelist-pcd "Alice" "pcd1" 5)
+(test-story [pcd-one-a] charlist-pcd objlist-pcd placelist-pcd "Alice" "pcd1" 5)
+
 
 (defn ev
   ([verb player obj-a] {:verb verb :player player :object-a obj-a})
@@ -196,9 +426,9 @@
   ([verb player obj-a obj-b] {:verb verb :player player :object-a obj-a :object-b obj-b}))
 
 
-(defn test-story [ts chars objs places player out]
+(defn test-story [ts chars objs places player out lookahead]
   (let [story-map (st-map out ts chars objs places player)]
-    (make-story story-map out 2)))
+    (make-story story-map out lookahead)))
 
 (parse-trope heros-journey)
 (st-map "hj1" [heros-journey] charlist objlist placelist "Luke Skywalker")
@@ -209,10 +439,11 @@
 (ev "go" "Luke Skywalker" "tatooine")
 
 ;; TEST:
-(test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1")
-(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 2)
+(test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1" 5)
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 5)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine")] 2)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine")] 3)
+(solve-story "hj1" (map trope-map [heros-journey]) [] 5)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "space")] 2)
 ;; (test-story [heros-journey quest] charlist objlist placelist "Luke Skywalker" "ex1")
 

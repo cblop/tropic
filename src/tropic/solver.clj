@@ -89,9 +89,8 @@
      (make-instal hmap id)
      (make-bridge hmap id)
      (make-query [] id)
-     ;; (let [output (apply sh (concat ["python2" "instal/instalsolve.py" "-v" "-i"] ials ["-d" (str "resources/domain-" id ".idc") "-q" (str "resources/query-" id ".iaq")]))]
-     ;; (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "traces/trace-" id "-.lp")  "-d" (str "resources/" id "/domain-" id ".idc")]))]
-     (let [output (apply sh (concat ["python2" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
+     ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
+     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
            tracedir (clojure.java.io/file (str "resources/" id "/traces"))
            traces (filter #(.isFile %) (file-seq tracedir))
            sets (for [t traces]
@@ -138,7 +137,7 @@
         (spit query (events-to-text events) :append false))
       ;; (let [output (apply sh (concat ["python2" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
       ;; (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-b" bridge "-d" domain] (if events ["-q" query])))]
-      (let [output (apply sh (concat ["python2" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" bridge]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" domain] (if events ["-q" query])))
+      (let [output (apply sh (concat ["python2" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" bridge]) [(str "-l " lookahead) "-o /tmp/out/" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" domain] (if events ["-q" query])))
             tracedir (clojure.java.io/file (str "resources/" id "/traces"))
             traces (filter #(.isFile %) (file-seq tracedir))
             sets (for [t traces]

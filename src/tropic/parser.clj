@@ -59,12 +59,12 @@
 
 
     sequence =
-        ((conditional | event | norms | happens | block)  <'\\n'?> or*) | ((conditional | event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / event / obligation / happens) or*))*
+        ((conditional | event | norms | happens | block)  <'\\n'?> or*) | ((conditional | event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / norms / event / obligation / happens) or*)*)*
 
     situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace whitespace> consequence)+ <'\\n'?>
 
     or =
-        <'\\n' whitespace+ 'Or '> event
+        <'\\n' whitespace+ 'Or '> (event | norms)
 
 
     event =
@@ -93,7 +93,7 @@
     pay =
         <'pay '> character
 
-    norms = permission | obligation
+    norms = permission | rempermission | obligation
 
     violation = norms
 
@@ -110,6 +110,7 @@
 
     <pverb> = verb (<' '> verb)*
 
+    rempermission = character <' may not '> (move / pay / bverb / cverb / task) conditional? <'\\n'?>
     permission = character <' may '> (move / pay / bverb / cverb / task) conditional? <'\\n'?>
     obligation = character <' must '> (move / pay / bverb / cverb / pverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
 
@@ -121,7 +122,7 @@
     pverb = 'kill' / 'kill'<'s'> / 'refund'<'s'> / 'refund'
 
     consequence =
-        [<'The ' / 'the '>] character <' will '>? <' '> (move / item)
+        [<'The ' / 'the '>] character <' will '>? <' '> (move / bverb / cverb / item)
         | [<'The ' / 'the '>] item <' '> verb
 
     item = [<'The ' / 'the '>] word
@@ -130,7 +131,7 @@
 
     <name> = (<'The ' | 'the '>)? cwords
     <words> = word (<' '> word)*
-    <cwords> = cword (<' '> cword)*
+    <cwords> = cword (<' '> ['of'<' '>] cword)*
     <cword> = #'[A-Z][0-9a-zA-Z\\-\\_\\']*'
     <the> = <'The ' | 'the '>
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"

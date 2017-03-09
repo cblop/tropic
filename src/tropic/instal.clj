@@ -91,8 +91,9 @@ or STRING to string"
     ))
 
 (defn event-str
-  [event params]
-  (let [format (fn [xs]  (str (if (:verb event) (event-name (:verb event)) "") "(" (reduce str (interpose ", " xs)) ")"))
+  [ev params]
+  (let [event (if (:permission ev) (:permission ev) ev)
+        format (fn [xs]  (str (if (:verb event) (event-name (:verb event)) "") "(" (reduce str (interpose ", " xs)) ")"))
         roles (map event-name (vals (select-keys event [:role :role-a :role-b :from :to])))
         objects (map event-name (remove #(or (= "Quest" %) (= "quest" %)) (vals (select-keys event [:object]))))
         places (map event-name (vals (select-keys event [:place])))
@@ -596,6 +597,8 @@ or STRING to string"
         gen-a (into [] (set (map gmake (repeat inst) estrs pstrs)))
         gen-s (map gmake wnames wstrs wifs)
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
+        p (println "Gen-a: ")
+        p (println params)
         ]
     ;; not sure why I had gen-d (obligations) in there
     (concat [header] gen-subs gen-a gen-s ["\n"])
