@@ -162,6 +162,10 @@
     "    Or the Hero kills the Villain"]
    ))
 
+(parse-trope heros-journey)
+(trope-map (parse-trope heros-journey))
+(trope-map heros-journey)
+
 (def quest
   (join-strings
    ["The Quest is a trope where:"
@@ -301,17 +305,25 @@
   (join-strings
    ["\"Test 11\" is a trope where:"
     "  The Hero may go to the Land of Adventure"
-    "  Then the Hero may kill the Villain if:"
-    "    The Villain is at the Land of Adventure"
+    "  Then the Hero may kill the Villain"
+    "    If the Villain is at the Land of Adventure"
     ]))
+
+(parse-trope test11)
+(st-map "test11" [test11] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test11" [test11] charlist objlist placelist ""))))
 
 (def test12
   (join-strings
    ["\"Test 12\" is a trope where:"
-    "  The Hero may go to the Land of Adventure if:"
-    "    The Hero is at Home"
-    "    The Villain is at the Land of Adventure"
+    "  The Hero may go to the Land of Adventure"
+    "    If the Hero is at Home"
+    "    If the Villain is at the Land of Adventure"
     ]))
+
+(parse-trope test12)
+(st-map "test12" [test12] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test12" [test12] charlist objlist placelist ""))))
 
 ;; FLUENTS ---------------------------------------------------------------------------------------
 (def test13
@@ -439,8 +451,8 @@
 (ev "go" "Luke Skywalker" "tatooine")
 
 ;; TEST:
-(test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1" 5)
-(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 5)
+(test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1" 3)
+(solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 3)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine")] 2)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine")] 3)
 (solve-story "hj1" (map trope-map [heros-journey]) [] 5)

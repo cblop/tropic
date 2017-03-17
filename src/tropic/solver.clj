@@ -35,11 +35,11 @@
         places (:places hmap)
         placenames (stringer (map :label places))
         locations (stringer (vec (set (map :location places))))
-        objects (:objects hmap)
+        objects (conj (:objects hmap))
         objectnames (stringer (map :label objects))
         types (stringer (vec (set (map :type objects))))
         phases (reduce str (interpose " " ["inactive" "done" "phaseA" "phaseB" "phaseC" "phaseD" "phaseE" "phaseF" "phaseG" "phaseH" "phaseI" "phaseJ"]))
-        strings ["Identity: id" (if (seq tropes) (str "\nTrope: " tropenames)) "\nPhase: " phases (if (seq characters) (str "\nAgent: " charnames)) (if (seq characters) (str "\nRole: " roles)) (if (seq places) (str "\nPlace: " locations)) (if (seq places) (str "\nPlaceName: " placenames)) (if (seq objects) (str "\nObject: " types)) (if (seq objects) (str "\nObjectName: " objectnames))]
+        strings ["Identity: id" (if (seq tropes) (str "\nTrope: " tropenames)) "\nPhase: " phases (str "\nAgent: " (if (seq charnames) charnames "noagent")) (str "\nRole: " (if (seq roles) roles "nobody")) (str "\nPlace: " (if (seq locations) locations "noplace")) (str "\nPlaceName: " (if (seq placenames) placenames "nowhere")) (str "\nObject: " (if (seq types) types "noobject")) (str "\nObjectName: " (if (seq objectnames) objectnames "nothing"))]
         final (reduce str strings)
         ]
     (do (spit (str "resources/" id "/domain-" id ".idc") final)
@@ -69,28 +69,44 @@
     ))
 
 
-(defn clean-up-traces [id]
-  (let [dir (io/file (str "resources/" id))
-        files (file-seq dir)]
-    (doseq [f file-seq] (io/delete-file f))))
+(defn delete-traces [id]
+  (let [tracedir (clojure.java.io/file (str "resources/" id "/traces"))
+        traces (filter #(.isFile %) (file-seq tracedir))]
+    (do
+      (doseq [t traces]
+        (io/delete-file t))
+      true)))
+
+(defn delete-json [id]
+  (let [tracedir (clojure.java.io/file (str "resources/" id "/json"))
+        traces (filter #(.isFile %) (file-seq tracedir))]
+    (do
+      (doseq [t traces]
+        (io/delete-file t))
+      true)))
 
 
 (defn make-story [hmap id lookahead]
   (let [trps (map :label (:tropes hmap))
         ials (map #(str "resources/" id "/" id "-" (event-name %) ".ial") trps)
         debug (str "resources/" id "/debug-" id ".lp")
+        debug2 (str "resources/" id "/debug2-" id ".lp")
         constraint "resources/constraint.lp"
         ]
    (do
+     (delete-json id)
+     (delete-traces id)
      (println (str "Architecture: " ARCH))
      (.mkdir (java.io.File. (str "resources/" id)))
+     (.mkdir (java.io.File. (str "resources/" id "/json")))
      (.mkdir (java.io.File. (str "resources/" id "/traces")))
      (make-domain hmap id)
      (make-instal hmap id)
      (make-bridge hmap id)
      (make-query [] id)
      ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
-     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
+     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
+           t-output (apply sh ["python3" (str ARCH "/instaltrace.py") "-j" (str "resources/" id "/json/") "-x" (str "resources/" id "/traces")])
            tracedir (clojure.java.io/file (str "resources/" id "/traces"))
            traces (filter #(.isFile %) (file-seq tracedir))
            sets (for [t traces]
@@ -98,6 +114,7 @@
            ]
        (do
          (spit debug output)
+         (spit debug2 t-output)
          (spit (str "resources/" id "/sets-" id ".edn") (prn-str sets))
          (spit (str "resources/" id "/output-" id ".lp") output)
          ;; (clean-up id)
@@ -112,13 +129,6 @@
 (defn events-to-text[events]
   (apply str (interpose "\n" (map event-to-text events))))
 
-(defn delete-traces [id]
-  (let [tracedir (clojure.java.io/file (str "resources/" id "/traces"))
-        traces (filter #(.isFile %) (file-seq tracedir))]
-    (do
-      (doseq [t traces]
-        (io/delete-file t))
-      true)))
 
 (defn solve-story [id tropes events lookahead]
   (let [trps (map :label tropes)
@@ -133,11 +143,14 @@
         ]
     (do
       (delete-traces id)
+      (delete-json id)
       (if (seq events)
         (spit query (events-to-text events) :append false))
       ;; (let [output (apply sh (concat ["python2" "instal/instalsolve.py" "-v" "-i"] ials ["-d" domain "-q" query]))]
       ;; (let [output (apply sh (concat ["python2" "instal-linux/instalquery.py" "-v" "-i"] (conj ials (str "resources/" id "/constraint.lp")) ["-l 1" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-b" bridge "-d" domain] (if events ["-q" query])))]
-      (let [output (apply sh (concat ["python2" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" bridge]) [(str "-l " lookahead) "-o /tmp/out/" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" domain] (if events ["-q" query])))
+      ;; (let [output (apply sh (concat ["python2" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" bridge]) [(str "-l " lookahead) "-o /tmp/out/" "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" domain] (if events ["-q" query])))
+      (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")] (if events ["-q" query])))
+            t-output (apply sh ["python3" (str ARCH "/instaltrace.py") "-j" (str "resources/" id "/json/") "-x" (str "resources/" id "/traces")])
             tracedir (clojure.java.io/file (str "resources/" id "/traces"))
             traces (filter #(.isFile %) (file-seq tracedir))
             sets (for [t traces]

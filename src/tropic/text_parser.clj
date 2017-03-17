@@ -14,7 +14,7 @@
     norm = (perm / obl / pow / ipow / live / fluent) <',' inst>
     perm = <'perm('> word [<'('> params <')'>] <')'>
     obl = <'obl('> obl-event <','> deadline <','> viol<')'>
-    pow = <'pow('> inst <','> word [<'('> params <')'>] <')'>
+    pow = <'pow('> inst [<'('> params <')'>] <')'>
     ipow = <'ipow('> inst <','> (perm / obl / (word [<'('> params <')'>])) <','> inst <')'>
     live = <'live('> word [<'('> params <')'>] <')'>
     fluent = word [<'('> params <')'>]
@@ -46,7 +46,7 @@
     norm = (perm / obl / pow / ipow / live / fluent) <',' inst>
     perm = <'perm('> word [<'('> params <')'>] <')'>
     obl = <'obl('> obl-event <','> deadline <','> consequence <')'>
-    pow = <'pow('> inst <','> word [<'('> params <')'>] <')'>
+    pow = <'pow('> inst [<'('> params <')'>] <')'>
     ipow = <'ipow('> inst <','> (perm / obl / (word [<'('> params <')'>])) <','> inst <')'>
     live = <'live('> word [<'('> params <')'>] <')'>
     fluent = word [<'('> params <')'>]

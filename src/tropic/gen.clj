@@ -25,6 +25,17 @@
 (defn remove-blank [xs]
   (filter #(not (= (:verb %) "")) xs))
 
+(defn process-ifs [events]
+  (loop [evs events acc [] ifs []]
+    (if (empty? evs) acc
+        (cond
+          (and (not (:if (first evs))) (:if (second evs))) (recur (rest evs) acc (conj ifs (first evs)))
+          (and (:if (first evs)) (:if (second evs))) (recur (rest evs) acc (conj ifs (:if (first evs))))
+          (and (:if (first evs)) (not (:if (second evs)))) (recur (rest evs) (conj acc {:if (conj ifs (:if (first evs)))}) [])
+          :else (recur (rest evs) (conj acc (first evs)) ifs)
+          )
+        )))
+
 (defn process-ors [events]
   (loop [evs events acc [] ors []]
     (if (empty? evs) acc
@@ -54,6 +65,7 @@
     :character (partial param-map :role)
     :sequence (fn [& args] {:events (into [] (remove-blank args))})
     :or (partial param-map :or)
+    :if (partial param-map :if)
     :situation (fn [& args] (first args))
     :situationdef (fn [& args] {:situation {:when (first args) :norms (into [] (map first (rest args)))}})
     :consequence (fn [& args] (hash-map :consequence (apply merge args)))
@@ -82,7 +94,7 @@
                                  :roles (vec (set (concat (mapcat #(walk-get-key :role %) args) (mapcat #(walk-get-key :role-a %) args) (mapcat #(walk-get-key :role-b %) args))))
                                  :objects (vec (set (mapcat #(walk-get-key :object %) args)))
                                  :locations (vec (set (mapcat #(walk-get-key :place %) args)))
-                                 :events (process-ors (mapcat :events args))
+                                 :events (process-ifs (process-ors (mapcat :events args)))
                                  ;; :events (mapcat :events args)
                                  :situations (mapcat :situation args)}})
     }

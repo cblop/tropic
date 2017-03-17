@@ -354,6 +354,12 @@ or STRING to string"
      :quests (map vector quests (prange (+ (count roles) (count objects) (count places)) (count quests)))}))
 
 
+(defn extract-ifs [events]
+  (let [ifs (mapcat :if (filter #(:if %) events))
+        nifs (remove #(:if %) events)]
+    (concat nifs ifs))
+  )
+
 (defn extract-ors [events]
   (let [ors (mapcat :or (filter #(:or %) events))
         nors (remove #(:or %) events)]
@@ -371,7 +377,7 @@ or STRING to string"
         situations (map :when (:situations trope))
         sperms (mapcat #(map :permission (filter :permission %)) (map :norms (:situations trope)))
         fall (concat events situations sperms)
-        all (extract-ors fall)
+        all (extract-ifs (extract-ors fall))
         types (map ev-types all)
         strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))]
     (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["exogenous event noDeadline(Identity);"])
@@ -537,6 +543,12 @@ or STRING to string"
                        (count (:quests params))])]
     (take num PARAMS)))
 
+(defn inst-params [trope]
+  (let [params (get-all-params trope)
+        roles (map #(str "role(" (second %) ", " (first %) ")") (:roles params))
+        objects (map #(str "object(" (second %) ", " (first %) ")") (:objects params))
+        places (map #(str "place(" (second %) ", " (first %) ")") (:places params))]
+    (apply str (interpose ", " (apply concat [roles objects places])))))
 
 (defn lookup-sit-letters [trope sit]
   (let [params (get-sit-params trope)
@@ -709,7 +721,8 @@ or STRING to string"
                              ;; "))"
                              ;; )))
                              ;; this one -->
-                             ")) if " (powifs letters))))
+                             ;; ")) if " (powifs letters))))
+                             ")) if " (inst-params x))))
         powfn (fn [x] (let [letters (inst-letters x)
                             cnds (reduce str (flatten (interpose ", " (map #(interpose "!=" %) (partition 2 letters)))))]
                         (str "pow(" (inst-name (:label x))
@@ -718,7 +731,8 @@ or STRING to string"
                              ;; "))"
                              ;; )))
                              ;; this one -->
-                             ")) if " (powifs letters))))
+                             ;; ")) if " (powifs letters))))
+                             ")) if " (inst-params x))))
         ;; test ["perm(go(lukeSkywalker,tatooine))"]
         situations (mapcat :situations (:tropes hmap))
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)

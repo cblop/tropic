@@ -37,9 +37,6 @@
     situation =
         <'When '> event <':'>
 
-    conditional =
-        <'If ' | 'if '> (fluent / tverb / character <' '> (bverb / cverb)) <':'> outcome
-
     fluent =
         object <' is '> adjective
 
@@ -48,7 +45,7 @@
     object = name
 
     outcome =
-        (<'\\n' whitespace whitespace> (event | obligation | happens) or? <'\\n'?>)+
+        (<'\\n' whitespace whitespace> (event | obligation | happens) (or? | if?) <'\\n'?>)+
 
     happens =
        <the?> subtrope <(' happens' / ' policy applies') '.'?>
@@ -59,16 +56,18 @@
 
 
     sequence =
-        ((conditional | event | norms | happens | block)  <'\\n'?> or*) | ((conditional | event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / conditional / norms / event / obligation / happens) or*)*)*
+        ((event | norms | happens | block)  <'\\n'?> (or* | if*)) | ((event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / norms / event / obligation / happens) (or* | if*))*)*
 
     situationdef = situation (<'\\n'> <whitespace> norms | <'\\n'> <whitespace whitespace> consequence)+ <'\\n'?>
 
     or =
         <'\\n' whitespace+ 'Or '> (event | norms)
 
+    if =
+        <'\\n' whitespace+ 'If '> (event | norms)
 
     event =
-        (character <' is'>? <' '> (move / task)) / give / sell / tverb / meet / kill / pay
+        (<'The '>? character <' is'>? <' '> (move / task)) / give / sell / tverb / meet / kill / pay
 
 
     give =
@@ -110,8 +109,8 @@
 
     <pverb> = verb (<' '> verb)*
 
-    rempermission = character <' may not '> (move / pay / bverb / cverb / task) conditional? <'\\n'?>
-    permission = character <' may '> (move / pay / bverb / cverb / task) conditional? <'\\n'?>
+    rempermission = character <' may not '> (move / pay / bverb / cverb / task) <'\\n'?>
+    permission = character <' may '> (move / pay / bverb / cverb / task) <'\\n'?>
     obligation = character <' must '> (move / pay / bverb / cverb / pverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>
 
     deadline = consequence
@@ -129,7 +128,7 @@
 
     <whitespace> = #'\\s\\s'
 
-    <name> = (<'The ' | 'the '>)? cwords
+    <name> = [<'The ' / 'the '>] cwords
     <words> = word (<' '> word)*
     <cwords> = cword (<' '> ['of'<' '>] cword)*
     <cword> = #'[A-Z][0-9a-zA-Z\\-\\_\\']*'
