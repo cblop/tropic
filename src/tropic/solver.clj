@@ -35,7 +35,7 @@
         places (:places hmap)
         placenames (stringer (map :label places))
         locations (stringer (vec (set (map :location places))))
-        objects (conj (:objects hmap))
+        objects (:objects hmap)
         objectnames (stringer (map :label objects))
         types (stringer (vec (set (map :type objects))))
         phases (reduce str (interpose " " ["inactive" "done" "phaseA" "phaseB" "phaseC" "phaseD" "phaseE" "phaseF" "phaseG" "phaseH" "phaseI" "phaseJ"]))

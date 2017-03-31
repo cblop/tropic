@@ -1,0 +1,2 @@
+* TropICAL plan
+** TODO remove first event from *terminates* as well

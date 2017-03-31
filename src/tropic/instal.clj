@@ -786,7 +786,6 @@ or STRING to string"
     {:names vnames :events [evs] :conds conds}))
 
 
-
 (defn initiates [trope]
   (let [params (get-all-params trope)
         inst (str (inst-name (:label trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
@@ -794,7 +793,7 @@ or STRING to string"
         header (str "\n% INITIATES: " (namify (:label trope)) " ----------")
         term-header (str "% TERMINATES: " (namify (:label trope)) " ----------")
         ;; events (remove :obligation (:events trope))
-        events (:events trope)
+        events (rest (:events trope))
         imake (fn [iname evs cnds] (str iname " initiates\n" WS (reduce str (interpose (str ",\n" WS) (remove #(= "perm(())" %) evs))) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";"))
         tmake (fn [iname evs cnds] (str iname " terminates\n" WS (reduce str (interpose (str ",\n" WS) (remove #(= "perm(())" %) evs))) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";"))
         ;; estrs (map #(event-str % params) events)
@@ -813,12 +812,16 @@ or STRING to string"
         viols (get-viols trope)
         ;; tvec (conj phases [(last phases)])
         ;; tvec (map conj pstrs phases)
-        tvec (cons [(first phases)] (into [] (map conj pstrs (rest phases))))
+        ;; tvec (cons [(first phases)] (into [] (map conj pstrs (rest phases))))
+        tfirst (norm-params (first (:events trope)) params)
+        efirst (norm-str (first (:events trope)) params)
+        tvec (into [] (map conj (cons tfirst pstrs) phases))
         init-a (map imake (repeat inst) evec cvec)
         init-s (map imake (:names sits) (:events sits) (:conds sits))
         init-v (map imake (:names viols) (:events viols) (:conds viols))
         term-o (map tmake (:names obls) [(:evs obls)] (:conds obls))
-        term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
+        ;; term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
+        term-a (map tmake (repeat inst) (into [] (map vector phases (cons efirst norms))) tvec)
         ]
     (concat [header] init-a init-s init-v ["\n"] [term-header] term-a term-o ["\n"])
     ;; (concat [header] init-a init-s init-v ["\n"])

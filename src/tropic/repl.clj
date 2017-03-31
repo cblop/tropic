@@ -159,7 +159,7 @@
    ["\"The Hero's Journey\" is a trope where:"
     "  The Hero is at Home"
     "  Then the Hero goes Away"
-    "    Or the Hero kills the Villain"]
+    "  Then the Hero kills the Villain"]
    ))
 
 (parse-trope heros-journey)
@@ -451,7 +451,7 @@
 (ev "go" "Luke Skywalker" "tatooine")
 
 ;; TEST:
-(test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1" 3)
+(test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1" 10)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 3)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine")] 2)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine")] 3)
