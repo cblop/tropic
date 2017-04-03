@@ -618,6 +618,8 @@ or STRING to string"
 
 (defn bridge [tropes]
   (let [;; ievents (subs-triggers tropes)
+        source (str "source " (event-name (:label (first tropes))) ";")
+        sink (str "sink " (event-name (:label (second tropes))) ";")
         subtropes (into [] (set (mapcat #(get-subtropes % tropes) tropes)))
         blocked-tropes (into [] (set (mapcat #(get-blocked-tropes % tropes) tropes)))
         bmake (fn [strope]
@@ -659,7 +661,7 @@ or STRING to string"
         crosses (apply str (map cmake subtropes))
         inits (apply str (map imake tropes))
         ]
-    (apply str (concat crosses ["\n\n"] bridges ["\n\n"] blocked ["\n\n"] inits))))
+    (apply str (concat source ["\n\n"] sink ["\n\n"] crosses ["\n\n"] bridges ["\n\n"] blocked ["\n\n"] inits))))
 
 ;; (spit "resources/bridge-test.ial" (bridge [{:label "Quest" :events [{:verb "go" :role "hero" :place "away"}]} {:label "Hero's Journey" :events [{:verb "go" :role "hero" :place "home"} {:subtrope "Quest"}]}]))
 
@@ -857,12 +859,17 @@ or STRING to string"
     "true"))
 
 (defn make-bridge [tropes]
-  (let [bridge-name ["institution tropeBridge;\n"]
-        bridge-text (bridge tropes)
-        insts (mapcat #(inst-events % tropes) tropes)
-        exts (mapcat external-events tropes)
-        viols (mapcat viol-events tropes)]
-    (apply str (interpose "\n" (concat bridge-name types fluents ["\n"] insts ["\n"] exts ["\n"] viols ["\n"] [bridge-text])))))
+  (if (> (count tropes) 1)
+    (let [bridge-name ["bridge tropeBridge;\n"]
+          bridge-text (bridge tropes)
+          insts (mapcat #(inst-events % tropes) tropes)
+          exts (mapcat external-events tropes)
+          viols (mapcat viol-events tropes)]
+      ;; (apply str (interpose "\n" (concat bridge-name types fluents ["\n"] insts ["\n"] exts ["\n"] viols ["\n"] [bridge-text])))
+      (apply str (interpose "\n" (concat bridge-name ["\n"] [bridge-text])))
+      )
+    ""
+    ))
 
 (defn bridge-file [tropes output]
     (do

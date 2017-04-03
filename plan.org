@@ -1,2 +1,6 @@
 * TropICAL plan
-** TODO remove first event from *terminates* as well
+** DONE remove first event from *terminates* as well
+   CLOSED: [2017-03-31 Fri 15:43]
+** TODO generate bridge institutions
+** TODO support multiple insts
+** TODO what us up with argument order?

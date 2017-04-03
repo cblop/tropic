@@ -150,9 +150,10 @@
 
 (def heros-journey
   (join-strings
-   [
-    "The Hero is at Home"
-    "  Then the Hero goes Away"]))
+   ["\"The Hero's Journey\" is a trope where:"
+    "  The Hero is at Home"
+    "  Then the Hero goes Away"
+    "    Or the Villain kills the Hero"]))
 
 (def heros-journey
   (join-strings
@@ -174,9 +175,9 @@
 
 (def evil-empire
   (join-strings
-   ["The Evil Empire is a trope where:"
+   ["\"The Evil Empire\" is a trope where:"
     "  The Villain has a Weapon"
-    "  The Villain may kill the Hero"]))
+    "  Then the Villain kills the Hero"]))
 
 ;; TESTS --------------
 
@@ -452,10 +453,13 @@
 
 ;; TEST:
 (test-story [heros-journey] charlist objlist placelist "Luke Skywalker" "hj1" 10)
+(test-story [evil-empire] charlist objlist placelist "Luke Skywalker" "ee1" 10)
+(test-story [heros-journey evil-empire] charlist objlist placelist "Luke Skywalker" "eehj1" 5)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "space")] 3)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine") (ev "go" "lukeSkywalker" "tatooine")] 2)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "lukeSkywalker" "tatooine")] 3)
 (solve-story "hj1" (map trope-map [heros-journey]) [] 5)
+(solve-story "eehj1" (map trope-map [heros-journey evil-empire]) [] 10)
 (solve-story "hj1" (map trope-map [heros-journey]) [(ev "go" "Luke Skywalker" "space")] 2)
 ;; (test-story [heros-journey quest] charlist objlist placelist "Luke Skywalker" "ex1")
 
