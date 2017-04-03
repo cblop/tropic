@@ -14,6 +14,8 @@
 (def ARCH (if (= (System/getProperty "os.name") "Mac OS X") "instal"
                (if (= (System/getProperty "os.arch") "amd64") "instal-linux" "instal-arm")))
 
+(println (prn-str ARCH))
+
 (defn random-character []
   "Random Character")
 

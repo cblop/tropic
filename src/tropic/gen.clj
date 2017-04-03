@@ -70,6 +70,7 @@
     :situationdef (fn [& args] {:situation {:when (first args) :norms (into [] (map first (rest args)))}})
     :consequence (fn [& args] (hash-map :consequence (apply merge args)))
     :permission (fn [& args] (hash-map :permission (apply merge args)))
+    :rempermission (fn [& args] (hash-map :rempermission (apply merge args)))
     :deadline (fn [& args] (hash-map :deadline (:consequence (first args))))
     :violation (fn [& args] (hash-map :violation (first (first args))))
     :visit (fn [& args] (hash-map :verb (first args) :place (:object (second args))))
