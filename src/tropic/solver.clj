@@ -88,7 +88,7 @@
       true)))
 
 
-(defn make-story [hmap id lookahead]
+(defn make-story [hmap id lookahead limit]
   (let [trps (map :label (:tropes hmap))
         ials (map #(str "resources/" id "/" id "-" (event-name %) ".ial") trps)
         debug (str "resources/" id "/debug-" id ".lp")
@@ -107,8 +107,8 @@
      (make-bridge hmap id)
      (make-query [] id)
      ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
-     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 100" "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
-           p (spit (str "resources/" id "/command.txt") (apply str (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")])))
+     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
+           ;; p (spit (str "resources/" id "/command.txt") (apply str (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")])))
            t-output (apply sh ["python3" (str ARCH "/instaltrace.py") "-j" (str "resources/" id "/json/") "-x" (str "resources/" id "/traces")])
            tracedir (clojure.java.io/file (str "resources/" id "/traces"))
            traces (filter #(.isFile %) (file-seq tracedir))
