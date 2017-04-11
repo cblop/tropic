@@ -3,5 +3,8 @@ nullevent :- observed(null, I, T), observed(E, I, T2), T2 > T, event(E), E != nu
 :- nullevent.
 deadEvent :- observed(noDeadline(X), I, T).
 :- deadEvent.
-violEvent :- occurred(viol(X), I, T).
-:- violEvent.
+hasViol(I, T) :- occurred(viol(E), I, T), instant(T), not final(T), inst(I).
+instNoViol(T) :- not hasViol(I, T), inst(I), instant(T).
+:- not instNoViol(T), instant(T), not final(T).
+nullInst :- occurred(X, null, T).
+:- nullInst.

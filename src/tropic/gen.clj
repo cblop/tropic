@@ -49,6 +49,24 @@
 
 ;; (process-ors (:events {:label "The Hero's Journey", :events '({:role "The Hero", :verb "go", :place "Home"} {:role "Hero", :verb "go", :place "Away"} {:or {:role "Hero", :verb "go", :place "Home"}} {:or {:role "Villain", :verb "go", :place "Away"}}), :situations []}))
 
+(defn make-defs-map [ptree]
+  (insta/transform
+   {
+    :label (fn [& args] {:label (make-string args)})
+    :chardef (fn [& args] {:chardef (make-string args)})
+    :objdef (fn [& args] {:objdef (make-string args)})
+    :placedef (fn [& args] {:placedef (make-string args)})
+    :trope (fn [& args] {:trope (str "  " (apply str (interpose "\n  " args)))})
+    :text (fn [& args] {
+                        :label (first (filter some? (map :label args)))
+                        :roles (filter some? (map :chardef args))
+                        :objects (filter some? (map :objdef args))
+                        :places (filter some? (map :placedef args))
+                        :trope (first (filter some? (map :trope args)))
+                        })
+    }
+   ptree))
+
 (defn make-map [ptree]
   (insta/transform
    {:verb (partial param-map :verb)

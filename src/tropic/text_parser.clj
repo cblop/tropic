@@ -60,7 +60,7 @@
     end = <'\n'>* <'Passed(' number ')'> <'\n'>*
     params = word (<','> word)*
     <instant> = number
-    <word> = #'[a-zA-Z\\-\\_\\']+'
+    <word> = #'[a-zA-Z0-9\\-\\_\\']+'
     <words> = word (<' '> word)*
     <number> = #'[0-9]+'
 "))

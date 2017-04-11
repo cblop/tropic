@@ -1,5 +1,6 @@
 (ns tropic.parser
-  (:require [instaparse.core :as insta]))
+  (:require [instaparse.core :as insta]
+            [tropic.gen :refer [make-defs-map]]))
 
 (def char-parser
   (insta/parser
@@ -24,6 +25,93 @@
     location = words
     <words> = word (<' '> word)*
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"))
+
+(def def-parser
+  (insta/parser
+   "text = tropedef defs trope
+    <tropedef> = label <' is a ' ('trope' / 'policy') ' where:\\n'>
+    <defs> = (<whitespace> (chardef | objdef | placedef) <'\\n'?>)+
+    chardef = charname <' is a character' '.'?>
+    objdef = objname <' is an object' '.'?>
+    placedef = placename <' is a place' '.'?>
+    <charname> = name
+    <objname> = name
+    <placename> = name
+    trope = (<whitespace> !(chardef | objdef | placedef) #'.*' <'\\n'>?)+
+    label = <'\"'> words <'\"'>
+    <whitespace> = #'\\s\\s'
+    <name> = [<'The ' / 'the '>] cwords
+    <words> = word (<' '> word)*
+    <cwords> = cword (<' '> ['of'<' '>] cword)*
+    <cword> = #'[A-Z][0-9a-zA-Z\\-\\_\\']*'
+    <the> = <'The ' | 'the '>
+    <word> = #'[0-9a-zA-Z\\-\\_\\']*'
+"
+))
+
+(defn make-pstring [choices]
+  (apply str (interpose " | " (map #(str (if (or (= (apply str (take 4 %)) "The ") (= (apply str (take 4 %)) "the ")) "<the?> " "") "'" (apply str (drop 4 %)) "'") choices)))
+  )
+
+(defn trope-parser-fn [{:keys [label roles objects places]}]
+  (let [rs (make-pstring roles)
+        os (make-pstring objects)
+        ps (make-pstring places)
+        ]
+    (insta/parser
+     (apply str
+      (interpose "\n"
+                 [
+                  "trope = (<whitespace> sequence)+ <'\\n'?>"
+                  (str "label = '" label "'")
+                  "fluent = object <' is '> adjective"
+                  "adjective = word"
+                  "outcome =
+          (<'\\n' whitespace whitespace> (event | obligation | happens) (or? | if?) <'\\n'?>)+"
+                  "happens =
+         <the?> subtrope <(' happens' / ' policy applies') '.'?>"
+                  "block =
+         <the?> subtrope <' policy does not apply' / ' does not happen'> <'.'?>"
+                  "sequence =
+         ((event | norms | happens | block)  <'\\n'?> (or* | if*)) | ((event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / norms / event / obligation / happens) (or* | if*))*)*"
+                  "or =
+         <'\\n' whitespace+ 'Or '> (event | norms)"
+                  "if =
+         <'\\n' whitespace+ 'If '> (event | norms)"
+                  "event = (character <' is'>? <' '> (move / task)) / tverb"
+                  "tverb =
+          character <' '> verb <(' the ' / ' a ' / ' an ')?> object <' to '>? <'a ' / 'an '>? character"
+                  "bverb =
+          verb <(' the ' / ' a ' / ' an ')?> object <' to '>? <'a ' / 'an '>? character"
+                  "cverb =
+          words <' the ' / ' a ' / ' an '> (object / character)"
+                  "norms = permission | rempermission | obligation"
+                  "violation = norms"
+                  (str "character = " (if (seq rs) rs "'nil'"))
+                  (str "place = " (if (seq ps) ps "'nil'"))
+                  (str "object = " (if (seq os) os "'nil'"))
+                  "subtrope = <'\"'> words <'\"'>"
+                  "label = <'\"'> words <'\"'>"
+                  "move = verb <' '> <'to '?> place"
+                  "verb = word"
+                  "<pverb> = verb (<' '> verb)*"
+                  "rempermission = character <' may not '> (bverb / cverb / task) <'\\n'?>"
+                  "permission = character <' may '> (bverb / cverb / task) <'\\n'?>"
+                  "obligation = character <' must '> (move / bverb / cverb / pverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>"
+                  "deadline = consequence"
+                  "task = pverb <' '> role-b / verb / (verb <(' the ' / ' a ' / ' an ')> object) / (verb <' '> object)"
+                  "role-b = character"
+                  "consequence =
+                       character <' will '>? <' '> (move / bverb / cverb / object)
+          | object <' '> verb"
+                  "<whitespace> = #'\\s\\s'"
+                  "<words> = word (<' '> word)*"
+                  "<cwords> = cword (<' '> ['of'<' '>] cword)*"
+                  "<cword> = #'[A-Z][0-9a-zA-Z\\-\\_\\']*'"
+                  "<the> = <'The ' | 'the '>"
+                  "<word> = #'[0-9a-zA-Z\\-\\_\\']*'"
+                  ])
+      ))))
 
 (def trope-parser
   (insta/parser
@@ -88,7 +176,7 @@
     meet =
         character <' meets '> character
     kill =
-        character <' kills '> character
+        (character <' kills '> character) | (character <' may kill '> character)
     pay =
         <'pay '> character
 
@@ -135,6 +223,22 @@
     <the> = <'The ' | 'the '>
     <word> = #'[0-9a-zA-Z\\-\\_\\']*'"
    ))
+
+
+(defn parse-defs
+  [text]
+  (insta/add-line-and-column-info-to-metadata
+   text
+   (def-parser text)))
+
+(defn parse-full-trope
+  [text]
+  (let [defs (make-defs-map (parse-defs text))
+        parser (trope-parser-fn defs)]
+    (insta/add-line-and-column-info-to-metadata
+     (:trope defs)
+     (parser (:trope defs)))
+    ))
 
 (defn parse-trope
   [text]

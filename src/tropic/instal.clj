@@ -787,7 +787,6 @@ or STRING to string"
         ]
     {:names vnames :events [evs] :conds conds}))
 
-
 (defn initiates [trope]
   (let [params (get-all-params trope)
         inst (str (inst-name (:label trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
@@ -796,8 +795,8 @@ or STRING to string"
         term-header (str "% TERMINATES: " (namify (:label trope)) " ----------")
         ;; events (remove :obligation (:events trope))
         events (rest (:events trope))
-        imake (fn [iname evs cnds] (str iname " initiates\n" WS (reduce str (interpose (str ",\n" WS) (remove #(= "perm(())" %) evs))) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";"))
-        tmake (fn [iname evs cnds] (str iname " terminates\n" WS (reduce str (interpose (str ",\n" WS) (remove #(= "perm(())" %) evs))) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";"))
+        imake (fn [iname evs cnds] (str iname " initiates\n" WS (reduce str (interpose (str ",\n" WS) (remove #(= "perm(())" %) evs))) (if (seq (remove nil? cnds)) (str " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds))) "") ";"))
+        tmake (fn [iname evs cnds] (str iname " terminates\n" WS (reduce str (interpose (str ",\n" WS) (remove #(= "perm(())" %) evs))) (if (seq (remove nil? cnds)) (str " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds))) "") ";"))
         ;; estrs (map #(event-str % params) events)
         estrs (map #(norm-str % params) events)
         pstrs (map #(norm-params % params) events)

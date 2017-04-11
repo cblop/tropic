@@ -1,7 +1,7 @@
 (ns tropic.repl
   (:require [tropic.solver :refer [make-story make-domain make-instal solve-story make-cmd trope-map st-map]]
-            [tropic.gen :refer [make-map make-inst-map]]
-            [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
+            [tropic.gen :refer [make-map make-inst-map make-defs-map]]
+            [tropic.parser :refer [parse-trope parse-defs parse-char parse-object parse-place trope-parser-fn parse-full-trope]]
             [tropic.text-parser :refer [trace-to-prose trace-to-map query-transform lawyer-talk explain query-parse]]
             [tropic.instal :refer [instal instal-file external-events initially get-all-params generates]]))
 
@@ -223,15 +223,44 @@
 
 ;; TESTS --------------
 
+
+(def charlist
+  [{:label "Luke Skywalker" :role "Hero"}
+   {:label "Darth Vader" :role "Villain"}
+   {:label "Obi Wan" :role "Mentor"}])
+
+
+(def placelist
+  [{:label "Tatooine" :location "Home"}
+   {:label "Space" :location "Away"}
+   {:label "Alderaan" :location "The Forest"}
+   {:label "Japan" :location "Land of Adventure"}
+   ])
+
+
+(def objlist
+  [{:label "Light Saber" :type "Weapon"}
+   {:label "Sword" :type "Weapon"}])
+
 ;; PERMISSIONS------------------------------------------------------------
 
 (def test1
   (join-strings
    ["\"Test 1\" is a trope where:"
+    "  The Hero is a character"
+    "  The Land of Adventure is a place"
+    "  Home is a place"
     "  The Hero may go to the Land of Adventure"
+    "  Then the Hero may go Home"
     ]))
 
 (parse-trope test1)
+(parse-defs test1)
+(make-defs-map (parse-defs test1))
+(parse-full-trope test1)
+(:trope (make-defs-map (parse-defs test1)))
+(trope-parser-fn (make-defs-map (parse-defs test1)))
+;; (spit "resources/parser.txt" (trope-parser-fn (make-defs-map (parse-defs test1))))
 (st-map "test1" [test1] charlist objlist placelist "")
 (test-story [test1] charlist objlist placelist "lukeSkywalker" "test1" 5)
 
@@ -269,6 +298,7 @@
 
 (parse-trope test4)
 (st-map "test4" [test4] charlist objlist placelist "")
+(test-story [test4] charlist objlist placelist "lukeSkywalker" "test4" 5)
 
 (def test5
   (join-strings
@@ -483,7 +513,7 @@
 
 (defn test-story [ts chars objs places player out lookahead]
   (let [story-map (st-map out ts chars objs places player)]
-    (make-story story-map out lookahead)))
+    (make-story story-map out lookahead 100)))
 
 (parse-trope heros-journey)
 (st-map "hj1" [heros-journey] charlist objlist placelist "Luke Skywalker")
