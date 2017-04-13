@@ -31,7 +31,7 @@
    "text = tropedef defs trope
     <tropedef> = label <' is a ' ('trope' / 'policy') ' where:\\n'>
     <defs> = (<whitespace> (chardef | objdef | placedef) <'\\n'?>)+
-    chardef = charname <' is a character' '.'?>
+    chardef = charname <' is a ' ('character' | 'role') '.'?>
     objdef = objname <' is an object' '.'?>
     placedef = placename <' is a place' '.'?>
     <charname> = name
@@ -50,7 +50,7 @@
 ))
 
 (defn make-pstring [choices]
-  (apply str (interpose " | " (map #(str (if (or (= (apply str (take 4 %)) "The ") (= (apply str (take 4 %)) "the ")) "<the?> " "") "'" (apply str (drop 4 %)) "'") choices)))
+  (apply str (interpose " | " (map #(str (if (or (= (apply str (take 4 %)) "The ") (= (apply str (take 4 %)) "the ")) (str "<the?> " "'" (apply str (drop 4 %)) "'") (str "'" % "'"))) choices)))
   )
 
 (defn trope-parser-fn [{:keys [label roles objects places]}]
@@ -69,44 +69,41 @@
                   "outcome =
           (<'\\n' whitespace whitespace> (event | obligation | happens) (or? | if?) <'\\n'?>)+"
                   "happens =
-         <the?> subtrope <(' happens' / ' policy applies') '.'?>"
+         <the?> subtrope <(' happens' / ' trope happens' / ' policy applies') '.'?>"
                   "block =
-         <the?> subtrope <' policy does not apply' / ' does not happen'> <'.'?>"
+         <the?> subtrope <' policy does not apply' / ' does not happen' / ' trope does not happen'> <'.'?>"
                   "sequence =
-         ((event | norms | happens | block)  <'\\n'?> (or* | if*)) | ((event | norms | happens | block) (<'\\n' whitespace+ 'Then '> (block / norms / event / obligation / happens) (or* | if*))*)*"
+         ((fluent | event | norms | happens | block) (or* | if*)) | ((fluent | event | norms | happens | block) (<whitespace+ 'Then '> (block / norms / event / fluent / obligation / happens) (or* | if*))*)*"
                   "or =
-         <'\\n' whitespace+ 'Or '> (event | norms)"
+         <whitespace+ 'Or '> (fluent | event | norms)"
                   "if =
-         <'\\n' whitespace+ 'If '> (event | norms)"
-                  "event = (character <' is'>? <' '> (move / task)) / tverb"
-                  "tverb =
-          character <' '> verb <(' the ' / ' a ' / ' an ')?> object <' to '>? <'a ' / 'an '>? character"
-                  "bverb =
-          verb <(' the ' / ' a ' / ' an ')?> object <' to '>? <'a ' / 'an '>? character"
-                  "cverb =
-          words <' the ' / ' a ' / ' an '> (object / character)"
+         <whitespace+ 'If '> (fluent | event | norms)"
+                  "action = !fverb verb [sp [particle sp] (character | object | place)] (crlf? | [sp particle? (role-b | object-b | place-b)] crlf?)"
+                  "event = character sp action"
+                  "<particle> = <'a' | 'at' | 'will' | 'of' | 'to'>"
                   "norms = permission | rempermission | obligation"
+                  "fluent = (character | object | place) sp fverb sp [particle sp] (character | object | place) crlf?"
+                  "fverb = (<'is'> sp 'at') | 'has'"
                   "violation = norms"
                   (str "character = " (if (seq rs) rs "'nil'"))
                   (str "place = " (if (seq ps) ps "'nil'"))
                   (str "object = " (if (seq os) os "'nil'"))
                   "subtrope = <'\"'> words <'\"'>"
                   "label = <'\"'> words <'\"'>"
-                  "move = verb <' '> <'to '?> place"
                   "verb = word"
-                  "<pverb> = verb (<' '> verb)*"
-                  "rempermission = character <' may not '> (bverb / cverb / task) <'\\n'?>"
-                  "permission = character <' may '> (bverb / cverb / task) <'\\n'?>"
-                  "obligation = character <' must '> (move / bverb / cverb / pverb / task) (<' before '> deadline)? (<'\\n' whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> <'\\n'?>"
+                  "rempermission = character <' may not '> action crlf?"
+                  "permission = character <' may '> action crlf?"
+                  "obligation = character <' must '> action (<' before '> deadline)? (<crlf whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> crlf?"
                   "deadline = consequence"
-                  "task = pverb <' '> role-b / verb / (verb <(' the ' / ' a ' / ' an ')> object) / (verb <' '> object)"
                   "role-b = character"
-                  "consequence =
-                       character <' will '>? <' '> (move / bverb / cverb / object)
-          | object <' '> verb"
+                  "object-b = object"
+                  "place-b = place"
+                  "<crlf> = <'\\n'>"
+                  "consequence = event"
                   "<whitespace> = #'\\s\\s'"
-                  "<words> = word (<' '> word)*"
-                  "<cwords> = cword (<' '> ['of'<' '>] cword)*"
+                  "<sp> = <' '>"
+                  "<words> = word (sp word)*"
+                  "<cwords> = cword (sp ['of' sp] cword)*"
                   "<cword> = #'[A-Z][0-9a-zA-Z\\-\\_\\']*'"
                   "<the> = <'The ' | 'the '>"
                   "<word> = #'[0-9a-zA-Z\\-\\_\\']*'"

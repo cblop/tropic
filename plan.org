@@ -9,6 +9,7 @@
 ** TODO declarations
 ** TODO add fluents
 ** TODO replace "when" with "if" (think about it first, though)
+** TODO stop it from wrapping single events/fluents into a sequence
 ** TODO generate bridge institutions
 ** TODO support multiple insts
 ** TODO what us up with argument order?
