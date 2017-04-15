@@ -101,6 +101,7 @@
     :norms (fn [& args] (first args))
     :obligation (fn [& args] {:obligation (apply merge args)})
     :event (partial merge)
+    :action (partial merge)
     :tverb (fn [& args] (let [chars (get-by-key :role args) objs (get-by-key :object args)] {:verb (first (get-by-key :verb args)) :role-a (first chars) :role-b (second chars) :object (first objs)}))
     :bverb (fn [& args] (let [chars (get-by-key :role args)] {:verb (first (get-by-key :verb args)) :role-b (first chars) :object (first (get-by-key :object args))}))
     :cverb (fn [& args] (let [char (first (get-by-key :role args)) obj (first (get-by-key :object args))] (merge {:verb (make-string (filter string? args))} (if (nil? char) {:object obj} {:role-b char}))))

@@ -2,8 +2,8 @@
   (:require
    [tropic.instal :refer [event-name instal-file bridge-file]]
    [clojure.java.io :as io]
-   [tropic.gen :refer [make-map make-inst-map]]
-   [tropic.parser :refer [parse-trope parse-char parse-object parse-place]]
+   [tropic.gen :refer [make-map make-inst-map make-defs-map]]
+   [tropic.parser :refer [parse-trope parse-char parse-object parse-place parse-defs]]
    [tropic.text-parser :refer [query-parse answer-set-to-map]]
    [clojure.java.shell :refer [sh]]
    [me.raynes.conch :refer [programs with-programs let-programs] :as sh]
@@ -168,10 +168,11 @@
             {:text output}))))))
 
 (defn trope-map [trope]
-  (let [parsed (make-map (parse-trope trope))]
-    {:label (:label (:trope parsed))
+  (let [defs (make-defs-map (parse-defs trope))
+        parsed (make-map (parse-trope trope))]
+    {:label (:label defs)
      :events (:events (:trope parsed))
-     :situations []})
+     })
   ;; also need: chars, obj, places?
   )
 

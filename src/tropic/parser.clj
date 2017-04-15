@@ -228,7 +228,7 @@
    text
    (def-parser text)))
 
-(defn parse-full-trope
+(defn parse-trope
   [text]
   (let [defs (make-defs-map (parse-defs text))
         parser (trope-parser-fn defs)]
@@ -236,12 +236,6 @@
      (:trope defs)
      (parser (:trope defs)))
     ))
-
-(defn parse-trope
-  [text]
-  (insta/add-line-and-column-info-to-metadata
-   text
-   (trope-parser text)))
 
 (defn parse-char
   [text]

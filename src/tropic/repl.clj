@@ -1,7 +1,7 @@
 (ns tropic.repl
   (:require [tropic.solver :refer [make-story make-domain make-instal solve-story make-cmd trope-map st-map]]
             [tropic.gen :refer [make-map make-inst-map make-defs-map]]
-            [tropic.parser :refer [parse-trope parse-defs parse-char parse-object parse-place trope-parser-fn parse-full-trope]]
+            [tropic.parser :refer [parse-trope parse-defs parse-char parse-object parse-place trope-parser-fn]]
             [tropic.text-parser :refer [trace-to-prose trace-to-map query-transform lawyer-talk explain query-parse]]
             [tropic.instal :refer [instal instal-file external-events initially get-all-params generates]]))
 
@@ -255,13 +255,15 @@
     ]))
 
 (parse-trope test1)
+(trope-map test1)
+(st-map "test1" [test1] charlist objlist placelist "")
+
 (parse-defs test1)
 (make-defs-map (parse-defs test1))
 (parse-full-trope test1)
 (:trope (make-defs-map (parse-defs test1)))
 (trope-parser-fn (make-defs-map (parse-defs test1)))
 ;; (spit "resources/parser.txt" (trope-parser-fn (make-defs-map (parse-defs test1))))
-(st-map "test1" [test1] charlist objlist placelist "")
 (test-story [test1] charlist objlist placelist "lukeSkywalker" "test1" 5)
 
 (def test2
@@ -273,6 +275,10 @@
     "  The Hero may go to the Land of Adventure"
     "  Then the Villain may kill the Hero"
     ]))
+
+(parse-trope test2)
+(trope-map test2)
+(st-map "test2" [test2] charlist objlist placelist "")
 
 (parse-full-trope test2)
 (parse-trope test2)
