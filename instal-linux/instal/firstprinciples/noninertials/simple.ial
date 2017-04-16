@@ -1,0 +1,23 @@
+institution simple;
+
+type Blank;
+
+exogenous event e_b;
+inst event i_b;
+
+exogenous event e_a;
+inst event i_a;
+
+fluent in_flu;
+noninertial fluent n_flu;
+
+n_flu when in_flu;
+
+e_a generates i_a;
+e_b generates i_b;
+
+i_a initiates in_flu;
+i_b terminates in_flu;
+
+initially perm(e_a), perm(i_a), pow(i_a);
+initially perm(e_b), perm(i_b), pow(i_b);

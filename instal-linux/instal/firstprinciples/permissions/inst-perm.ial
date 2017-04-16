@@ -1,0 +1,6 @@
+institution basic;
+
+exogenous event a;
+inst event b;
+
+a generates b;

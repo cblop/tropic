@@ -1,0 +1,2 @@
+observed(kill(alpha_one,beta_one))
+observed(ex_a(alpha_one))

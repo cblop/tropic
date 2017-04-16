@@ -1,0 +1,23 @@
+institution fluentchange;
+
+type Alpha;
+
+exogenous event ex_a(Alpha);
+exogenous event ex_b(Alpha, Alpha);
+
+inst event in_a(Alpha);
+inst event in_b(Alpha, Alpha);
+
+fluent flu_twoargs(Alpha, Alpha);
+fluent flu_onearg(Alpha);
+
+ex_a(A) generates in_a(A);
+ex_b(A, B) generates in_b(A, B);
+
+in_a(A) terminates flu_onearg(A);
+in_b(A, B) terminates flu_twoargs(A, B);
+
+exogenous event ex_no;
+inst event in_no;
+fluent flu_no;
+ex_no terminates perm(ex_no);

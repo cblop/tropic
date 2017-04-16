@@ -1,0 +1,8 @@
+institution incomplete;
+
+type Alpha;
+type Beta;
+
+exogenous event ex_a(Alpha, Beta);
+exogenous event ex_b(Beta);
+exogenous event ex_c;

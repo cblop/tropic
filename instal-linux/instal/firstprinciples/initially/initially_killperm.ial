@@ -1,0 +1,38 @@
+institution init;
+
+type Alpha;
+type Beta;
+
+exogenous event ex_a(Alpha);
+exogenous event ex_b(Alpha, Beta);
+
+inst event in_a(Alpha);
+inst event in_b(Alpha, Alpha);
+inst event in_c(Alpha, Beta);
+
+fluent flu_a(Alpha);
+fluent flu_b(Alpha, Beta);
+fluent flu_c(Alpha, Alpha);
+
+initially perm(ex_a(Alpha));
+initially perm(ex_b(Alpha,Beta));
+initially perm(in_a(Alpha));
+
+initially pow(in_a(Alpha));
+initially pow(in_b(Alpha,Alpha));
+initially pow(in_c(Alpha, Beta));
+
+initially flu_a(Alpha);
+initially flu_b(Alpha,Beta);
+initially flu_c(Alpha,Alpha);
+
+exogenous event kill(Alpha, Beta);
+inst event kill_perm(Alpha, Beta);
+initially perm(kill(Alpha, Beta));
+initially pow(kill_perm(Alpha, Beta));
+initially perm(kill_perm(Alpha, Beta));
+kill(A, B) generates kill_perm(A, B);
+
+kill_perm(A, B) terminates perm(in_a(A));
+kill_perm(A, B) terminates perm(ex_a(A));
+kill_perm(A, B) terminates perm(ex_b(A,B));

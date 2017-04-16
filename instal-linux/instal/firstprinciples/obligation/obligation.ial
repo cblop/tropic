@@ -1,0 +1,45 @@
+institution oblig;
+
+type None;
+
+exogenous event e_fail;
+exogenous event e_init;
+exogenous event e_deadline;
+exogenous event e_req;
+exogenous event e_notdefinedreq;
+exogenous event e_terminate;
+
+inst event i_init;
+inst event i_deadline;
+inst event i_req;
+inst event i_notdefinedreq;
+inst event i_terminate;
+
+inst event i_viol;
+violation event v_viol;
+
+obligation fluent obl(i_req, i_deadline, i_viol);
+obligation fluent obl(i_req, i_deadline, v_viol);
+
+e_init generates i_init;
+e_deadline generates i_deadline;
+e_req generates i_req;
+e_notdefinedreq generates i_notdefinedreq;
+e_terminate generates i_terminate;
+
+i_init initiates obl(i_req, i_deadline, i_viol),
+obl(i_req, i_deadline, v_viol);
+
+i_init initiates obl(i_notdefinedreq, i_deadline, i_viol),
+obl(i_notdefinedreq, i_deadline, v_viol);
+
+i_terminate terminates obl(i_req, i_deadline, i_viol),
+obl(i_req, i_deadline, v_viol);
+
+i_terminate terminates obl(i_notdefinedreq, i_deadline, i_viol),
+obl(i_notdefinedreq, i_deadline, v_viol);
+
+
+initially perm(e_init),  perm(e_fail),  perm(e_deadline),  perm(e_req),  perm(e_notdefinedreq),  perm(e_terminate);
+initially perm(i_init),  perm(i_deadline),  perm(i_req),  perm(i_notdefinedreq),  perm(i_terminate);
+initially pow(i_init),   pow(i_deadline),  pow(i_req),  pow(i_notdefinedreq),  pow(i_terminate);

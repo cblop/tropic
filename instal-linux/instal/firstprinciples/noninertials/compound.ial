@@ -1,0 +1,10 @@
+institution complex;
+
+fluent in_flu1;
+fluent in_flu2;
+fluent in_flu3;
+
+noninertial fluent n_flu;
+
+n_flu when in_flu1, in_flu2;
+n_flu when in_flu2, in_flu3;

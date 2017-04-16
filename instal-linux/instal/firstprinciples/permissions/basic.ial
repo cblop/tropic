@@ -1,0 +1,3 @@
+institution basic;
+
+exogenous event a;

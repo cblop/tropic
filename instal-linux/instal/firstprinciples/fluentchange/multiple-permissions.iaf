@@ -1,0 +1,3 @@
+initially(perm(ex_multiple),fluentchange)
+initially(perm(in_multiple),fluentchange)
+initially(pow(in_multiple),fluentchange)

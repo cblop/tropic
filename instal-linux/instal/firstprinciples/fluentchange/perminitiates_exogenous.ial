@@ -1,0 +1,16 @@
+institution fluentchange;
+
+type Alpha;
+
+exogenous event ex_a(Alpha);
+exogenous event ex_b(Alpha, Alpha);
+
+fluent flu_twoargs(Alpha, Alpha);
+fluent flu_onearg(Alpha);
+
+ex_a(A) initiates flu_onearg(A);
+ex_b(A, B) initiates flu_twoargs(A, B);
+
+exogenous event ex_no;
+fluent flu_no;
+ex_no initiates perm(ex_a(foo));

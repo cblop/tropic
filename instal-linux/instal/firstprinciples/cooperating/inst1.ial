@@ -1,0 +1,47 @@
+institution inst1;
+
+exogenous event ex_shared;
+inst event in_shared;
+fluent flu_shared;
+
+ex_shared generates in_shared;
+
+initially perm(ex_shared);
+initially perm(in_shared);
+initially pow(in_shared);
+
+exogenous event ex_halfshared;
+inst event in_halfshared;
+fluent flu_halfshared;
+
+ex_halfshared generates in_halfshared;
+in_halfshared initiates flu_halfshared;
+
+% permissions/powers here deliberately omitted
+
+exogenous event ex_inst1_only;
+inst event in_inst1_only;
+fluent flu_inst1_only;
+
+initially perm(ex_inst1_only);
+initially perm(in_inst1_only);
+initially pow(in_inst1_only);
+
+ex_inst1_only generates in_inst1_only;
+ex_halfshared generates in_inst1_only;
+
+exogenous event ex_ini;
+exogenous event ex_term;
+inst event in_ini;
+inst event in_term;
+ex_ini generates in_ini;
+ex_term generates in_term;
+in_ini initiates flu_halfshared;
+in_term terminates flu_halfshared;
+
+initially perm(ex_ini);
+initially perm(ex_term);
+initially pow(in_ini);
+initially pow(in_term);
+initially perm(in_ini);
+initially perm(in_term);

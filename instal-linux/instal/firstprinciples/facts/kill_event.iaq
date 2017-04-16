@@ -1,0 +1,3 @@
+observed(nothing)
+observed(kill(foo))
+observed(nothing)

@@ -1,0 +1,303 @@
+%
+% -------------------------------PART 1-------------------------------
+%
+%
+% Standard prelude for fact
+%
+% suppress clingo warnings in absence of inertials, non-inertials or obligations
+ifluent(0,0).
+nifluent(0,0).
+oblfluent(0,0).
+% fluent rules
+fluentterminated(P, In, I) :- terminated(P, In, I), instant(I), inst(In).
+fluentterminated(P, In, I) :- xterminated(InS, P, In, I), instant(I), inst(In), inst(InS).
+holdsat(P,In,J):- holdsat(P,In,I),not fluentterminated(P,In,I),
+    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In), inst(InS).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    ifluent(P, In),instant(I),instant(J), inst(In).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    oblfluent(P, In),instant(I),instant(J), inst(In).
+% all observed events occur
+occurred(E,In,I):- evtype(E,In,ex),observed(E,In,I),instant(I), inst(In).
+% produces null for unknown events
+occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+% produces gap warning for unknown events
+unknown(E, In, I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+warninggap(In, I) :- unknown(E,In,I), inst(In), instant(I).
+% a violation occurs for each non-permitted action
+occurred(viol(E),In,I):-
+    occurred(E,In,I),
+    evtype(E,In,ex),
+    not holdsat(perm(E),In,I),
+    holdsat(live(In),In,I),evinst(E,In),
+    event(E),instant(I),event(viol(E)),inst(In).
+occurred(viol(E),In,I):-
+    occurred(E,In,I),
+    evtype(E,In,inst),
+    not holdsat(perm(E),In,I),
+    event(E),instant(I),event(viol(E)), inst(In).
+% needed until I tidy up some of the constraint generation
+true.
+start(0).
+instant(0..T) :- final(T).
+next(T,T+1) :- instant(T).
+final(horizon).
+% externals for individual institutions
+% #external observed(E,I) : event(E), inst(I). removed 20160415 JAP
+% observed(E,I,J) :- observed(E,I), start(J). removed 20160415 JAP
+#external holdsat(F,I) : fluent(F,I), inst(I).
+holdsat(F,I,J) :- holdsat(F,I), start(J).
+#external holdsat(perm(E),I) : event(E), inst(I).
+holdsat(perm(E),I,J) :- holdsat(perm(E),I), start(J).
+#external holdsat(pow(E),I) : event(E), inst(I).
+holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
+% for incremental observations
+#external observed(E) : event(E).
+compObserved(E,J) :- observed(E), start(J).
+% for observation sequences
+#external observed(E,I) : event(E), instant(I).
+compObserved(E,I) :- observed(E,I).
+
+%
+% Rules for Institution fact
+%
+  ifluent(live(fact), fact).
+  fluent(live(fact), fact).
+  inst(fact).
+%
+% Constraints for observable events
+%
+%%  mode COMPOSITE is chosen:
+{compObserved(E, J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).
+:- compObserved(E,J),compObserved(F,J),instant(J),evtype(E,InX,ex),
+   evtype(F,InY,ex), E!=F,inst(InX;InY). 
+obs(I):- compObserved(E,I),evtype(E,In,ex),instant(I),inst(In).
+      :- not obs(I), not final(I), instant(I), inst(In).
+observed(E,In,I) :- compObserved(E,I), inst(In), instant(I).
+%
+% Exogenous events
+% Event: ex_b (type: ex)
+  event(ex_b(Alpha0)) :- alpha(Alpha0).
+  evtype(ex_b(Alpha0),fact,ex) :- alpha(Alpha0).
+  evinst(ex_b(Alpha0),fact) :- alpha(Alpha0).
+  ifluent(perm(ex_b(Alpha0)), fact) :- alpha(Alpha0).
+  fluent(perm(ex_b(Alpha0)), fact) :- alpha(Alpha0).
+  event(viol(ex_b(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(ex_b(Alpha0)), fact, viol) :- alpha(Alpha0).
+  evinst(viol(ex_b(Alpha0)),fact) :- alpha(Alpha0).
+% Event: ex_a (type: ex)
+  event(ex_a(Alpha0)) :- alpha(Alpha0).
+  evtype(ex_a(Alpha0),fact,ex) :- alpha(Alpha0).
+  evinst(ex_a(Alpha0),fact) :- alpha(Alpha0).
+  ifluent(perm(ex_a(Alpha0)), fact) :- alpha(Alpha0).
+  fluent(perm(ex_a(Alpha0)), fact) :- alpha(Alpha0).
+  event(viol(ex_a(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(ex_a(Alpha0)), fact, viol) :- alpha(Alpha0).
+  evinst(viol(ex_a(Alpha0)),fact) :- alpha(Alpha0).
+% Event: kill (type: ex)
+  event(kill(Alpha0)) :- alpha(Alpha0).
+  evtype(kill(Alpha0),fact,ex) :- alpha(Alpha0).
+  evinst(kill(Alpha0),fact) :- alpha(Alpha0).
+  ifluent(perm(kill(Alpha0)), fact) :- alpha(Alpha0).
+  fluent(perm(kill(Alpha0)), fact) :- alpha(Alpha0).
+  event(viol(kill(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(kill(Alpha0)), fact, viol) :- alpha(Alpha0).
+  evinst(viol(kill(Alpha0)),fact) :- alpha(Alpha0).
+%
+% null event for unknown events
+% Event: null (type: ex)
+  event(null).
+  evtype(null,fact,ex).
+  evinst(null,fact).
+  ifluent(perm(null), fact).
+  fluent(perm(null), fact).
+  event(viol(null)).
+  evtype(viol(null),fact,viol).
+  evinst(viol(null),fact).
+% Institutional events
+% Event: kill_in (type: in)
+  event(kill_in(Alpha0)) :- alpha(Alpha0).
+  evtype(kill_in(Alpha0),fact,inst) :- alpha(Alpha0).
+  evinst(kill_in(Alpha0),fact) :- alpha(Alpha0).
+  ifluent(pow(fact,kill_in(Alpha0)),fact) :- alpha(Alpha0).
+  ifluent(perm(kill_in(Alpha0)),fact) :- alpha(Alpha0).
+  fluent(pow(fact,kill_in(Alpha0)),fact) :- alpha(Alpha0).
+  fluent(perm(kill_in(Alpha0)),fact) :- alpha(Alpha0).
+  event(viol(kill_in(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(kill_in(Alpha0)),fact,viol) :- alpha(Alpha0).
+  evinst(viol(kill_in(Alpha0)),fact) :- alpha(Alpha0).
+% Event: in_a (type: in)
+  event(in_a(Alpha0)) :- alpha(Alpha0).
+  evtype(in_a(Alpha0),fact,inst) :- alpha(Alpha0).
+  evinst(in_a(Alpha0),fact) :- alpha(Alpha0).
+  ifluent(pow(fact,in_a(Alpha0)),fact) :- alpha(Alpha0).
+  ifluent(perm(in_a(Alpha0)),fact) :- alpha(Alpha0).
+  fluent(pow(fact,in_a(Alpha0)),fact) :- alpha(Alpha0).
+  fluent(perm(in_a(Alpha0)),fact) :- alpha(Alpha0).
+  event(viol(in_a(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(in_a(Alpha0)),fact,viol) :- alpha(Alpha0).
+  evinst(viol(in_a(Alpha0)),fact) :- alpha(Alpha0).
+% Event: in_b (type: in)
+  event(in_b(Alpha0)) :- alpha(Alpha0).
+  evtype(in_b(Alpha0),fact,inst) :- alpha(Alpha0).
+  evinst(in_b(Alpha0),fact) :- alpha(Alpha0).
+  ifluent(pow(fact,in_b(Alpha0)),fact) :- alpha(Alpha0).
+  ifluent(perm(in_b(Alpha0)),fact) :- alpha(Alpha0).
+  fluent(pow(fact,in_b(Alpha0)),fact) :- alpha(Alpha0).
+  fluent(perm(in_b(Alpha0)),fact) :- alpha(Alpha0).
+  event(viol(in_b(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(in_b(Alpha0)),fact,viol) :- alpha(Alpha0).
+  evinst(viol(in_b(Alpha0)),fact) :- alpha(Alpha0).
+% Event: in_c (type: in)
+  event(in_c(Alpha0)) :- alpha(Alpha0).
+  evtype(in_c(Alpha0),fact,inst) :- alpha(Alpha0).
+  evinst(in_c(Alpha0),fact) :- alpha(Alpha0).
+  ifluent(pow(fact,in_c(Alpha0)),fact) :- alpha(Alpha0).
+  ifluent(perm(in_c(Alpha0)),fact) :- alpha(Alpha0).
+  fluent(pow(fact,in_c(Alpha0)),fact) :- alpha(Alpha0).
+  fluent(perm(in_c(Alpha0)),fact) :- alpha(Alpha0).
+  event(viol(in_c(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(in_c(Alpha0)),fact,viol) :- alpha(Alpha0).
+  evinst(viol(in_c(Alpha0)),fact) :- alpha(Alpha0).
+%
+% Violation events
+%
+%
+% Creation events
+%
+%
+% Dissolution events
+%
+%
+% dissolve events
+%
+%
+% inertial fluents
+%
+ifluent(in_fact(Alpha0),fact) :-
+  alpha(Alpha0).
+fluent(in_fact(Alpha0),fact) :-
+  alpha(Alpha0).
+
+%
+% noninertial fluents
+%
+%
+% violation fluents (to be implemented)
+
+%
+% obligation fluents
+%
+oblfluent(obl(in_a(Alpha0),in_b(Alpha1),in_c(Alpha2)), fact) :-
+   event(in_a(Alpha0)),
+   event(in_b(Alpha1)),
+   event(in_c(Alpha2)), alpha(Alpha0),alpha(Alpha1),alpha(Alpha2),inst(fact).
+ifluent(obl(in_a(Alpha0),in_b(Alpha1),in_c(Alpha2)), fact) :-
+   event(in_a(Alpha0)),
+   event(in_b(Alpha1)),
+   event(in_c(Alpha2)), alpha(Alpha0),alpha(Alpha1),alpha(Alpha2),inst(fact).
+fluent(obl(in_a(Alpha0),in_b(Alpha1),in_c(Alpha2)), fact) :-
+   event(in_a(Alpha0)),
+   event(in_b(Alpha1)),
+   event(in_c(Alpha2)), alpha(Alpha0),alpha(Alpha1),alpha(Alpha2),inst(fact).
+terminated(obl(in_a(Alpha0),in_b(Alpha1),in_c(Alpha2)),fact,I) :-
+   event(in_a(Alpha0)), occurred(in_a(Alpha0),fact,I),
+   event(in_b(Alpha1)),
+   holdsat(obl(in_a(Alpha0),in_b(Alpha1),in_c(Alpha2)),fact,I),
+   event(in_c(Alpha2)), alpha(Alpha0),alpha(Alpha1),alpha(Alpha2),inst(fact).
+terminated(obl(in_a(Alpha0),in_b(Alpha1),in_c(Alpha2)),fact,I) :-
+   event(in_a(Alpha0)), 
+   event(in_b(Alpha1)), occurred(in_b(Alpha1),fact,I),
+   holdsat(obl(in_a(Alpha0),in_b(Alpha1),in_c(Alpha2)),fact,I),
+   event(in_c(Alpha2)), alpha(Alpha0),alpha(Alpha1),alpha(Alpha2),inst(fact).
+occurred(in_c(Alpha2),fact,I) :-
+   event(in_a(Alpha0)), 
+   event(in_b(Alpha1)), occurred(in_b(Alpha1),fact,I),
+   holdsat(obl(in_a(Alpha0),in_b(Alpha1),in_c(Alpha2)),fact,I),
+   event(in_c(Alpha2)), alpha(Alpha0),alpha(Alpha1),alpha(Alpha2),inst(fact).
+%
+% -------------------------------PART 2-------------------------------
+%
+%
+% generate rules
+%
+%
+% Translation of kill(A) generates kill_in(A) if [] in 
+occurred(kill_in(A),fact,I) :- occurred(kill(A),fact,I),
+   holdsat(pow(fact,kill_in(A)),fact,I),
+   alpha(A),
+   inst(fact), instant(I).
+%
+% initiate rules
+%
+%
+% terminate rules
+%
+%
+% Translation of kill_in(A) terminates ['in_fact', ['A']] if []
+%
+terminated(in_fact(A),fact,I) :-
+   occurred(kill_in(A),fact,I),
+   holdsat(live(fact),fact,I),inst(fact),
+   alpha(A),
+   inst(fact), instant(I).
+%
+% Translation of kill_in(A) terminates ['perm', ['ex_a', ['A']]] if []
+%
+terminated(perm(ex_a(A)),fact,I) :-
+   occurred(kill_in(A),fact,I),
+   holdsat(live(fact),fact,I),inst(fact),
+   alpha(A),
+   inst(fact), instant(I).
+%
+% Translation of kill_in(A) terminates ['pow', ['in_a', ['A']]] if []
+%
+terminated(pow(fact,in_a(A)),fact,I) :-
+   occurred(kill_in(A),fact,I),
+   holdsat(live(fact),fact,I),inst(fact),
+   alpha(A),
+   inst(fact), instant(I).
+%
+% Translation of kill_in(A) terminates ['perm', ['in_a', ['A']]] if []
+%
+terminated(perm(in_a(A)),fact,I) :-
+   occurred(kill_in(A),fact,I),
+   holdsat(live(fact),fact,I),inst(fact),
+   alpha(A),
+   inst(fact), instant(I).
+%
+% noninertial rules
+%
+%
+% -------------------------------PART 3-------------------------------
+%
+%
+% initially
+%
+% no creation event
+holdsat(live(fact),fact,I) :- start(I), inst(fact).
+holdsat(perm(null),fact,I) :- start(I), inst(fact).
+% initially: perm(kill_in(Alpha))
+holdsat(perm(kill_in(Alpha)),fact,I) :-
+   alpha(Alpha),
+   inst(fact), start(I).
+% initially: pow(fact,kill_in(Alpha))
+holdsat(pow(fact,kill_in(Alpha)),fact,I) :-
+   alpha(Alpha),
+   inst(fact), start(I).
+% initially: perm(kill(Alpha))
+holdsat(perm(kill(Alpha)),fact,I) :-
+   alpha(Alpha),
+   inst(fact), start(I).
+%
+% -------------------------------GROUNDING-------------------------------
+%
+% Alpha
+#program alpha(l).
+alpha(l).
+
+%
+% End of file
+%

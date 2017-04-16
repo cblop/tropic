@@ -1,0 +1,10 @@
+institution unrecog;
+
+type Alpha;
+type Beta;
+
+exogenous event recognised;
+
+exogenous event unrecognised_argnum1(Alpha, Beta);
+exogenous event unrecognised_argnum2(Alpha);
+exogenous event unrecognised_argnum3;

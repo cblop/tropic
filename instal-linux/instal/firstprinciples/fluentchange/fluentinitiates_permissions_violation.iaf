@@ -1,0 +1,6 @@
+initially(perm(ex_a(foo)),fluentchange)
+initially(fluentchange,perm(ex_b(foo, foo)))
+initially(pow(in_a(foo)),fluentchange)
+initially(fluentchange,pow(in_b(foo, foo)))
+initially(perm(ex_no),fluentchange)
+initially(pow(in_no),fluentchange)

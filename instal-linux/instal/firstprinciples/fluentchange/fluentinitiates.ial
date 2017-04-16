@@ -1,0 +1,38 @@
+institution fluentchange;
+
+type Alpha;
+
+exogenous event ex_a(Alpha);
+exogenous event ex_b(Alpha, Alpha);
+
+inst event in_a(Alpha);
+inst event in_b(Alpha, Alpha);
+
+fluent flu_twoargs(Alpha, Alpha);
+fluent flu_onearg(Alpha);
+
+ex_a(A) generates in_a(A);
+ex_b(A, B) generates in_b(A, B);
+
+in_a(A) initiates flu_onearg(A);
+in_b(A, B) initiates flu_twoargs(A, B);
+
+exogenous event ex_no;
+inst event in_no;
+fluent flu_no;
+ex_no generates in_no;
+in_no initiates flu_no;
+
+exogenous event ex_multiple;
+inst event in_multiple;
+fluent flu_multiple1;
+fluent flu_multiple2;
+ex_multiple generates in_multiple;
+in_multiple initiates flu_multiple1, flu_multiple2;
+
+exogenous event ex_condition;
+inst event in_condition;
+fluent flu_condition;
+fluent flu_conditional;
+ex_condition generates in_condition;
+in_condition initiates flu_conditional if flu_condition;

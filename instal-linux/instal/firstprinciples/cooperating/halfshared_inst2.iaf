@@ -1,0 +1,3 @@
+initially(perm(ex_halfshared),inst2)
+initially(perm(in_halfshared),inst2)
+initially(pow(in_halfshared),inst2)

@@ -1,0 +1,27 @@
+institution complex;
+
+exogenous event ex_ev;
+inst event in_ev;
+
+inst event deadline_dummy;
+inst event violation_dummy;
+
+fluent in_flu1;
+fluent in_flu2;
+fluent in_flu3;
+
+obligation fluent obl(in_ev, deadline_dummy, violation_dummy);
+
+noninertial fluent n_all_in;
+noninertial fluent n_2flu_pow;
+noninertial fluent n_2flu_perm;
+noninertial fluent n_2flu_obl;
+noninertial fluent n_1flu_perm_pow;
+noninertial fluent n_perm_pow_obl;
+
+n_all_in when in_flu1, in_flu2, in_flu3;
+n_2flu_pow when in_flu1, in_flu2, pow(in_ev);
+n_2flu_perm when in_flu1, in_flu2, perm(in_ev);
+n_2flu_obl when in_flu1, in_flu2, obl(in_ev, deadline_dummy, violation_dummy);
+n_1flu_perm_pow when in_flu1, perm(in_ev), pow(in_ev);
+n_perm_pow_obl when obl(in_ev, deadline_dummy, violation_dummy), perm(in_ev), pow(in_ev);

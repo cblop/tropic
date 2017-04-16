@@ -1,0 +1,11 @@
+institution generate;
+
+exogenous event ex_lhs;
+inst event in_lhs;
+violation event vi_lhs;
+
+exogenous event ex_rhs;
+inst event in_rhs;
+violation event vi_rhs;
+
+ex_lhs generates ex_rhs;

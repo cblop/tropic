@@ -1,0 +1,239 @@
+%
+% -------------------------------PART 1-------------------------------
+%
+%
+% Standard prelude for init
+%
+% suppress clingo warnings in absence of inertials, non-inertials or obligations
+ifluent(0,0).
+nifluent(0,0).
+oblfluent(0,0).
+% fluent rules
+fluentterminated(P, In, I) :- terminated(P, In, I), instant(I), inst(In).
+fluentterminated(P, In, I) :- xterminated(InS, P, In, I), instant(I), inst(In), inst(InS).
+holdsat(P,In,J):- holdsat(P,In,I),not fluentterminated(P,In,I),
+    next(I,J),ifluent(P, In),instant(I),instant(J), inst(In), inst(InS).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    ifluent(P, In),instant(I),instant(J), inst(In).
+holdsat(P,In,J):- initiated(P,In,I),next(I,J),
+    oblfluent(P, In),instant(I),instant(J), inst(In).
+% all observed events occur
+occurred(E,In,I):- evtype(E,In,ex),observed(E,In,I),instant(I), inst(In).
+% produces null for unknown events
+occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+% produces gap warning for unknown events
+unknown(E, In, I) :- not evtype(E,In,ex), observed(E,In,I),
+    instant(I), inst(In).
+warninggap(In, I) :- unknown(E,In,I), inst(In), instant(I).
+% a violation occurs for each non-permitted action
+occurred(viol(E),In,I):-
+    occurred(E,In,I),
+    evtype(E,In,ex),
+    not holdsat(perm(E),In,I),
+    holdsat(live(In),In,I),evinst(E,In),
+    event(E),instant(I),event(viol(E)),inst(In).
+occurred(viol(E),In,I):-
+    occurred(E,In,I),
+    evtype(E,In,inst),
+    not holdsat(perm(E),In,I),
+    event(E),instant(I),event(viol(E)), inst(In).
+% needed until I tidy up some of the constraint generation
+true.
+start(0).
+instant(0..T) :- final(T).
+next(T,T+1) :- instant(T).
+final(horizon).
+% externals for individual institutions
+% #external observed(E,I) : event(E), inst(I). removed 20160415 JAP
+% observed(E,I,J) :- observed(E,I), start(J). removed 20160415 JAP
+#external holdsat(F,I) : fluent(F,I), inst(I).
+holdsat(F,I,J) :- holdsat(F,I), start(J).
+#external holdsat(perm(E),I) : event(E), inst(I).
+holdsat(perm(E),I,J) :- holdsat(perm(E),I), start(J).
+#external holdsat(pow(E),I) : event(E), inst(I).
+holdsat(pow(I,E),I,J) :- holdsat(pow(E),I), start(J).
+% for incremental observations
+#external observed(E) : event(E).
+compObserved(E,J) :- observed(E), start(J).
+% for observation sequences
+#external observed(E,I) : event(E), instant(I).
+compObserved(E,I) :- observed(E,I).
+
+%
+% Rules for Institution init
+%
+  ifluent(live(init), init).
+  fluent(live(init), init).
+  inst(init).
+%
+% Constraints for observable events
+%
+%%  mode COMPOSITE is chosen:
+{compObserved(E, J)}:- evtype(E,In,ex),instant(J), not final(J), inst(In).
+:- compObserved(E,J),compObserved(F,J),instant(J),evtype(E,InX,ex),
+   evtype(F,InY,ex), E!=F,inst(InX;InY). 
+obs(I):- compObserved(E,I),evtype(E,In,ex),instant(I),inst(In).
+      :- not obs(I), not final(I), instant(I), inst(In).
+observed(E,In,I) :- compObserved(E,I), inst(In), instant(I).
+%
+% Exogenous events
+% Event: ex_b (type: ex)
+  event(ex_b(Alpha0,Beta1)) :- alpha(Alpha0),beta(Beta1).
+  evtype(ex_b(Alpha0,Beta1),init,ex) :- alpha(Alpha0),beta(Beta1).
+  evinst(ex_b(Alpha0,Beta1),init) :- alpha(Alpha0),beta(Beta1).
+  ifluent(perm(ex_b(Alpha0,Beta1)), init) :- alpha(Alpha0),beta(Beta1).
+  fluent(perm(ex_b(Alpha0,Beta1)), init) :- alpha(Alpha0),beta(Beta1).
+  event(viol(ex_b(Alpha0,Beta1))) :- alpha(Alpha0),beta(Beta1).
+  evtype(viol(ex_b(Alpha0,Beta1)), init, viol) :- alpha(Alpha0),beta(Beta1).
+  evinst(viol(ex_b(Alpha0,Beta1)),init) :- alpha(Alpha0),beta(Beta1).
+% Event: ex_a (type: ex)
+  event(ex_a(Alpha0)) :- alpha(Alpha0).
+  evtype(ex_a(Alpha0),init,ex) :- alpha(Alpha0).
+  evinst(ex_a(Alpha0),init) :- alpha(Alpha0).
+  ifluent(perm(ex_a(Alpha0)), init) :- alpha(Alpha0).
+  fluent(perm(ex_a(Alpha0)), init) :- alpha(Alpha0).
+  event(viol(ex_a(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(ex_a(Alpha0)), init, viol) :- alpha(Alpha0).
+  evinst(viol(ex_a(Alpha0)),init) :- alpha(Alpha0).
+%
+% null event for unknown events
+% Event: null (type: ex)
+  event(null).
+  evtype(null,init,ex).
+  evinst(null,init).
+  ifluent(perm(null), init).
+  fluent(perm(null), init).
+  event(viol(null)).
+  evtype(viol(null),init,viol).
+  evinst(viol(null),init).
+% Institutional events
+% Event: in_a (type: in)
+  event(in_a(Alpha0)) :- alpha(Alpha0).
+  evtype(in_a(Alpha0),init,inst) :- alpha(Alpha0).
+  evinst(in_a(Alpha0),init) :- alpha(Alpha0).
+  ifluent(pow(init,in_a(Alpha0)),init) :- alpha(Alpha0).
+  ifluent(perm(in_a(Alpha0)),init) :- alpha(Alpha0).
+  fluent(pow(init,in_a(Alpha0)),init) :- alpha(Alpha0).
+  fluent(perm(in_a(Alpha0)),init) :- alpha(Alpha0).
+  event(viol(in_a(Alpha0))) :- alpha(Alpha0).
+  evtype(viol(in_a(Alpha0)),init,viol) :- alpha(Alpha0).
+  evinst(viol(in_a(Alpha0)),init) :- alpha(Alpha0).
+% Event: in_b (type: in)
+  event(in_b(Alpha0,Alpha1)) :- alpha(Alpha0),alpha(Alpha1).
+  evtype(in_b(Alpha0,Alpha1),init,inst) :- alpha(Alpha0),alpha(Alpha1).
+  evinst(in_b(Alpha0,Alpha1),init) :- alpha(Alpha0),alpha(Alpha1).
+  ifluent(pow(init,in_b(Alpha0,Alpha1)),init) :- alpha(Alpha0),alpha(Alpha1).
+  ifluent(perm(in_b(Alpha0,Alpha1)),init) :- alpha(Alpha0),alpha(Alpha1).
+  fluent(pow(init,in_b(Alpha0,Alpha1)),init) :- alpha(Alpha0),alpha(Alpha1).
+  fluent(perm(in_b(Alpha0,Alpha1)),init) :- alpha(Alpha0),alpha(Alpha1).
+  event(viol(in_b(Alpha0,Alpha1))) :- alpha(Alpha0),alpha(Alpha1).
+  evtype(viol(in_b(Alpha0,Alpha1)),init,viol) :- alpha(Alpha0),alpha(Alpha1).
+  evinst(viol(in_b(Alpha0,Alpha1)),init) :- alpha(Alpha0),alpha(Alpha1).
+%
+% Violation events
+%
+%
+% Creation events
+%
+%
+% Dissolution events
+%
+%
+% dissolve events
+%
+%
+% inertial fluents
+%
+ifluent(flu_c(Alpha0,Alpha1),init) :-
+  alpha(Alpha0),alpha(Alpha1).
+fluent(flu_c(Alpha0,Alpha1),init) :-
+  alpha(Alpha0),alpha(Alpha1).
+
+ifluent(flu_b(Alpha0,Beta1),init) :-
+  alpha(Alpha0),beta(Beta1).
+fluent(flu_b(Alpha0,Beta1),init) :-
+  alpha(Alpha0),beta(Beta1).
+
+ifluent(flu_a(Alpha0),init) :-
+  alpha(Alpha0).
+fluent(flu_a(Alpha0),init) :-
+  alpha(Alpha0).
+
+%
+% noninertial fluents
+%
+%
+% violation fluents (to be implemented)
+
+%
+% obligation fluents
+%
+%
+% -------------------------------PART 2-------------------------------
+%
+%
+% generate rules
+%
+%
+% initiate rules
+%
+%
+% terminate rules
+%
+%
+% noninertial rules
+%
+%
+% -------------------------------PART 3-------------------------------
+%
+%
+% initially
+%
+% no creation event
+holdsat(live(init),init,I) :- start(I), inst(init).
+holdsat(perm(null),init,I) :- start(I), inst(init).
+% initially: perm(ex_a(Alpha))
+holdsat(perm(ex_a(Alpha)),init,I) :-
+   alpha(Alpha),
+   inst(init), start(I).
+% initially: perm(ex_b(Alpha,Beta))
+holdsat(perm(ex_b(Alpha,Beta)),init,I) :-
+   alpha(Alpha),
+   beta(Beta),
+   inst(init), start(I).
+% initially: perm(in_a(Alpha))
+holdsat(perm(in_a(Alpha)),init,I) :-
+   alpha(Alpha),
+   inst(init), start(I).
+% initially: pow(init,in_b(Alpha,Alpha))
+holdsat(pow(in_b(Alpha,Alpha)),init,I) :-
+   alpha(Alpha),
+   inst(init), start(I).
+% initially: flu_a(Alpha)
+holdsat(flu_a(Alpha),init,I) :-
+   alpha(Alpha),
+   inst(init), start(I).
+% initially: flu_b(Alpha,Beta)
+holdsat(flu_b(Alpha,Beta),init,I) :-
+   alpha(Alpha),
+   beta(Beta),
+   inst(init), start(I).
+% initially: flu_c(Alpha,Alpha)
+holdsat(flu_c(Alpha,Alpha),init,I) :-
+   alpha(Alpha),
+   inst(init), start(I).
+%
+% -------------------------------GROUNDING-------------------------------
+%
+% Alpha
+#program alpha(l).
+alpha(l).
+
+% Beta
+#program beta(l).
+beta(l).
+
+%
+% End of file
+%

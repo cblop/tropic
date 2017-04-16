@@ -1,0 +1,3 @@
+initially(flu_no,fluentchange)
+initially(flu_onearg(foo),fluentchange)
+initially(fluentchange, flu_twoargs(foo, foo))

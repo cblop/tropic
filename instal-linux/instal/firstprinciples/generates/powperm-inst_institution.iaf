@@ -1,0 +1,5 @@
+initially(perm(ex_lhs),generate)
+initially(perm(in_lhs),generate)
+initially(pow(in_lhs),generate)
+initially(perm(in_rhs),generate)
+initially(pow(in_rhs),generate)

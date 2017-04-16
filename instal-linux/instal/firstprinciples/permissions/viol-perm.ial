@@ -1,0 +1,6 @@
+institution basic;
+
+exogenous event a;
+violation event b;
+
+a generates b;

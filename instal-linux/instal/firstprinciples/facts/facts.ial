@@ -1,0 +1,13 @@
+institution fact;
+
+type Alpha;
+
+fluent in_fact(Alpha);
+obligation fluent obl(in_a(Alpha), in_b(Alpha), in_c(Alpha));
+
+inst event in_a(Alpha);
+inst event in_b(Alpha);
+inst event in_c(Alpha);
+
+exogenous event ex_a(Alpha);
+exogenous event ex_b(Alpha);

@@ -1,0 +1,23 @@
+institution fact;
+
+type Alpha;
+
+fluent in_fact(Alpha);
+obligation fluent obl(in_a(Alpha), in_b(Alpha), in_c(Alpha));
+
+inst event in_a(Alpha);
+inst event in_b(Alpha);
+inst event in_c(Alpha);
+
+exogenous event ex_a(Alpha);
+exogenous event ex_b(Alpha);
+
+inst event kill_in(Alpha);
+exogenous event kill(Alpha);
+initially perm(kill_in(Alpha));
+initially pow(kill_in(Alpha));
+initially perm(kill(Alpha));
+
+kill(A) generates kill_in(A);
+kill_in(A) terminates in_fact(A), perm(ex_a(A)), pow(in_a(A)), perm(in_a(A)), obl(in_a(A), in_b(A), in_c(A));
+
