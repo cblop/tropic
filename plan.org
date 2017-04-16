@@ -5,11 +5,18 @@
    CLOSED: [2017-04-11 Tue 11:08]
 ** DONE test2: why only null event answer set?
    CLOSED: [2017-04-11 Tue 10:35]
-** TODO test3: blank after "if": thinks Hero is an object
-** TODO declarations
-** TODO add fluents
+** DONE test3: blank after "if": thinks Hero is an object
+   CLOSED: [2017-04-16 Sun 10:54]
+** DONE declarations
+   CLOSED: [2017-04-16 Sun 10:54]
+** TODO add fluents to code gen
 ** TODO replace "when" with "if" (think about it first, though)
-** TODO stop it from wrapping single events/fluents into a sequence
+** DONE stop it from wrapping single events/fluents into a sequence
+   CLOSED: [2017-04-16 Sun 10:54]
+Appears to be done in the data structure generation stage
 ** TODO generate bridge institutions
-** TODO support multiple insts
+** DONE support multiple insts
+   CLOSED: [2017-04-16 Sun 10:55]
 ** TODO what us up with argument order?
+Must be happening in the instal.clj code generation stage
+** TODO support simultaneous fluents holding

@@ -279,6 +279,7 @@
 (parse-trope test2)
 (trope-map test2)
 (st-map "test2" [test2] charlist objlist placelist "")
+(map :events (:tropes (st-map "test2" [test2] charlist objlist placelist "")))
 
 (parse-full-trope test2)
 (parse-trope test2)
@@ -299,6 +300,7 @@
 (parse-full-trope test3)
 (parse-trope test3)
 (st-map "test3" [test3] charlist objlist placelist "")
+(map :events (:tropes (st-map "test3" [test3] charlist objlist placelist "")))
 (test-story [test3] charlist objlist placelist "lukeSkywalker" "test3" 5)
 
 ;; OBLIGATIONS -------------------------------------------------------------
@@ -312,9 +314,9 @@
     ]))
 
 
-(parse-full-trope test4)
 (parse-trope test4)
 (st-map "test4" [test4] charlist objlist placelist "")
+(map :events (:tropes (st-map "test4" [test4] charlist objlist placelist "")))
 (test-story [test4] charlist objlist placelist "lukeSkywalker" "test4" 5)
 
 (def test5
@@ -327,10 +329,9 @@
     "    Otherwise, the Villain may kill the Hero"
     ]))
 
-
-(parse-full-trope test5)
 (parse-trope test5)
 (st-map "test5" [test5] charlist objlist placelist "")
+(map :events (:tropes (st-map "test5" [test5] charlist objlist placelist "")))
 
 (def test6
   (join-strings
@@ -343,10 +344,9 @@
     "  The Hero must go to the Land of Adventure before the Villain kills the Mentor"
     ]))
 
-(parse-full-trope test6)
 (parse-trope test6)
 (st-map "test6" [test6] charlist objlist placelist "")
-(:events (first (:tropes (st-map "test6" [test6] charlist objlist placelist ""))))
+(map :events (:tropes (st-map "test6" [test6] charlist objlist placelist "")))
 
 (def test7
   (join-strings
@@ -359,10 +359,9 @@
     "    Otherwise, the Villain may kill the Hero"
     ]))
 
-(parse-full-trope test7)
 (parse-trope test7)
 (st-map "test7" [test7] charlist objlist placelist "")
-(:events (first (:tropes (st-map "test7" [test7] charlist objlist placelist ""))))
+(map :events (:tropes (st-map "test7" [test7] charlist objlist placelist "")))
 
 ;; SEQUENCING ------------------------------------------------------------------------
 (def test8
@@ -377,13 +376,9 @@
     "  Then the Hero may return Home"
     ]))
 
-(parse-full-trope test8)
-(make-defs-map (parse-defs test8))
-
 (parse-trope test8)
 (st-map "test8" [test8] charlist objlist placelist "")
-(:events (first (:tropes (st-map "test8" [test8] charlist objlist placelist ""))))
-
+(map :events (:tropes (st-map "test8" [test8] charlist objlist placelist "")))
 
 ;; BRANCHING --------------------------------------------------------------------------
 (def test9
@@ -396,7 +391,6 @@
     "    Or the Hero may kill the Villain"
     ]))
 
-(parse-full-trope test9)
 (parse-trope test9)
 (st-map "test9" [test9] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test9" [test9] charlist objlist placelist ""))))
@@ -415,7 +409,6 @@
     "    Or the Hero may visit the Mentor"
     ]))
 
-(parse-full-trope test10)
 (parse-trope test10)
 (st-map "test10" [test10] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test10" [test10] charlist objlist placelist ""))))
@@ -433,7 +426,6 @@
     "    If the Villain goes to the Land of Adventure"
     ]))
 
-(parse-full-trope test11)
 (parse-trope test11)
 (st-map "test11" [test11] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test11" [test11] charlist objlist placelist ""))))
@@ -450,7 +442,6 @@
     "    If the Villain is at the Land of Adventure"
     ]))
 
-(parse-full-trope test12)
 (parse-trope test12)
 (st-map "test12" [test12] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test12" [test12] charlist objlist placelist ""))))
@@ -464,7 +455,9 @@
     "  The Hero is at Home"
     ]))
 
-(parse-full-trope test13)
+(parse-trope test13)
+(st-map "test13" [test13] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test13" [test13] charlist objlist placelist ""))))
 
 (def test14
   (join-strings
@@ -477,7 +470,9 @@
     "  The Hero is at Home"
     ]))
 
-(parse-full-trope test14)
+(parse-trope test14)
+(st-map "test14" [test14] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test14" [test14] charlist objlist placelist ""))))
 
 (def test15
   (join-strings
@@ -491,7 +486,9 @@
     "  Then the Villain is at the Land of Adventure"
     ]))
 
-(parse-full-trope test15)
+(parse-trope test15)
+(st-map "test15" [test15] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test15" [test15] charlist objlist placelist ""))))
 
 (def test16
   (join-strings
@@ -504,7 +501,9 @@
     "  Then the Villain has a Weapon"
     ]))
 
-(parse-full-trope test16)
+(parse-trope test16)
+(st-map "test16" [test16] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test16" [test16] charlist objlist placelist ""))))
 
 ;; EMBEDDING TROPES ------------------------------------------------------------------------------------
 (def test17
@@ -516,7 +515,9 @@
     "  Then the \"Quest\" trope happens"
     ]))
 
-(parse-full-trope test17)
+(parse-trope test17)
+(st-map "test17" [test17] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test17" [test17] charlist objlist placelist ""))))
 
 (def charlist
   [{:label "Luke Skywalker" :role "Hero"}
