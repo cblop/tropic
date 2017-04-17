@@ -244,6 +244,19 @@
 
 ;; PERMISSIONS------------------------------------------------------------
 
+(def test-hj
+  (join-strings
+   ["\"The Heros Journey\" is a trope where:"
+    "  The Hero is a role"
+    "  The Villain is a role"
+    "  Away is a place"
+    "  Home is a place"
+    "  The Hero goes Home"
+    "  Then the Hero goes Away"]))
+
+(parse-trope test-hj)
+(trope-map test-hj)
+
 (def test1
   (join-strings
    ["\"Test 1\" is a trope where:"
@@ -384,6 +397,7 @@
 (parse-trope test8)
 (st-map "test8" [test8] charlist objlist placelist "")
 (map :events (:tropes (st-map "test8" [test8] charlist objlist placelist "")))
+(test-story [test8] charlist objlist placelist "lukeSkywalker" "test8" 5)
 
 ;; BRANCHING --------------------------------------------------------------------------
 (def test9
@@ -399,6 +413,7 @@
 (parse-trope test9)
 (st-map "test9" [test9] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test9" [test9] charlist objlist placelist ""))))
+(test-story [test9] charlist objlist placelist "lukeSkywalker" "test9" 5)
 
 (def test10
   (join-strings
@@ -417,6 +432,7 @@
 (parse-trope test10)
 (st-map "test10" [test10] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test10" [test10] charlist objlist placelist ""))))
+(test-story [test10] charlist objlist placelist "lukeSkywalker" "test10" 5)
 
 
 ;; CONDITIONALS --------------------------------------------------------------------------------
@@ -434,6 +450,7 @@
 (parse-trope test11)
 (st-map "test11" [test11] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test11" [test11] charlist objlist placelist ""))))
+(test-story [test11] charlist objlist placelist "lukeSkywalker" "test11" 5)
 
 (def test12
   (join-strings
@@ -450,6 +467,7 @@
 (parse-trope test12)
 (st-map "test12" [test12] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test12" [test12] charlist objlist placelist ""))))
+(test-story [test12] charlist objlist placelist "lukeSkywalker" "test12" 5)
 
 ;; FLUENTS ---------------------------------------------------------------------------------------
 (def test13
@@ -463,6 +481,7 @@
 (parse-trope test13)
 (st-map "test13" [test13] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test13" [test13] charlist objlist placelist ""))))
+(test-story [test13] charlist objlist placelist "lukeSkywalker" "test13" 5)
 
 (def test14
   (join-strings
@@ -520,9 +539,22 @@
     "  Then the \"Quest\" trope happens"
     ]))
 
+(def test17a
+  (join-strings
+   ["\"Quest\" is a trope where:"
+    "  The Hero is a role"
+    "  The Land of Adventure is a place"
+    "  Home is a place"
+    "  The Hero goes to the Land of Adventure"
+    "  Then the Hero goes Home"
+    ]))
+
 (parse-trope test17)
 (st-map "test17" [test17] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test17" [test17] charlist objlist placelist ""))))
+(test-story [test17a] charlist objlist placelist "lukeSkywalker" "test17a" 5)
+(test-story [test17] charlist objlist placelist "lukeSkywalker" "test17" 5)
+(test-story [test17 test17a] charlist objlist placelist "lukeSkywalker" "test17b" 5)
 
 (def charlist
   [{:label "Luke Skywalker" :role "Hero"}

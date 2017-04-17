@@ -14,7 +14,7 @@
 (def ARCH (if (= (System/getProperty "os.name") "Mac OS X") "instal"
                (if (= (System/getProperty "os.arch") "amd64") "instal-linux" "instal-arm")))
 
-(println (prn-str ARCH))
+;; (println (prn-str ARCH))
 
 (defn random-character []
   "Random Character")
@@ -172,6 +172,9 @@
         parsed (make-map (parse-trope trope))]
     {:label (:label defs)
      :events (:events (:trope parsed))
+     :roles (:roles defs)
+     :objects (:objects defs)
+     :locations (:places defs)
      })
   ;; also need: chars, obj, places?
   )

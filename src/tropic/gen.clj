@@ -104,7 +104,7 @@
                                                                      {:role (first chars)})
                                                                    )))
     :item (partial param-map :object)
-    :fverb (fn [& args] {:verb (convert-verb (first args))})
+    :fverb (fn [& args] {:verb (first args)})
     :place (partial param-map :place)
     :conditional (fn [& args] {:if (apply merge args)})
     :outcome (fn [& args] {:then (first args)})

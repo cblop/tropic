@@ -224,7 +224,8 @@ or STRING to string"
    "fluent phase(Trope, Phase);"
    "fluent place(PlaceName, Place);"
    "fluent object(ObjectName, Object);"
-   "fluent at(Agent, Place);\n"])
+   ;; "fluent at(Agent, Place);
+   "\n"])
 
 
 (defn make-unique [stuff]
@@ -381,7 +382,7 @@ or STRING to string"
         types (map ev-types all)
         strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
         ]
-    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) )) ["exogenous event noDeadline;"])
+    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) )) ["exogenous event start;" "exogenous event noDeadline;"])
     ))
     ;; (prn-str types)
   ;; ))
@@ -527,13 +528,15 @@ or STRING to string"
         os (map stypes oparams)
         subss (map stypes subparams)
         finstr (fn [x ys] (str "inst event " x "(" (reduce str (interpose ", " ys)) ")" ";"))
+        finstr-b (fn [x] (str "inst event " x ";"))
         instr (str "inst event " nm "(" (reduce str (interpose ", " types)) ")" ";")
         sinstrs (map finstr snms ss)
         oinstrs (map (fn [xs ys] (if (empty? ys) "" (finstr xs ys))) onms os)
-        subinstrs (map #(finstr (inst-start-name (:label %1)) %2) subs subss)
+        ;; subinstrs (map #(finstr (inst-start-name (:label %1)) %2) subs subss)
+        subinstrs (map #(finstr-b (inst-start-name (:label %))) subs)
         ievs (get-all-events trope)
         ]
-    (concat (cons header (conj (into [] (set (concat sinstrs oinstrs subinstrs ievs))) instr)) ["inst event intNoDeadline;"])))
+    (concat (cons header (conj (into [] (set (concat sinstrs oinstrs subinstrs ievs))) instr)) ["inst event intStart;" "inst event intNoDeadline;"])))
 
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:label trope)))]))
@@ -588,13 +591,13 @@ or STRING to string"
 
 (defn subs-triggers [trope tropes]
   (map-indexed (fn [i e]
-                 (if-let [sub (:subtrope e)]
-                   (let [subtrope (first (filter #(= (:label %) (or (str "The " sub) sub)) tropes))]
-                     (if (> i 0)
-                       {:subtrope subtrope
-                        :phase (nth PHASES (dec i))
-                        :trigger (nth (:events trope) (dec i))}
-                       {:subtrope subtrope})))) (:events trope)))
+                 (let [sub (:subtrope e)
+                       subtrope (first (filter #(or (= (:label %) (str "The " sub)) (= (:label %) sub)) tropes))]
+                   (if (> i 0)
+                     {:subtrope subtrope
+                      :phase (nth PHASES (dec i))
+                      :trigger (nth (:events trope) (dec i))}
+                     {:subtrope subtrope}))) (:events trope)))
 
 (defn generates [trope tropes]
   (let [params (get-all-params trope)
@@ -614,30 +617,40 @@ or STRING to string"
         ename (event-name (:label trope))
         events (extract-ors (remove :obligation (:events trope)))
         wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
-        ostrs (into [] (set (map #(event-str % oparams) oevs)))
+        ostrs (remove #(= "()" %) (into [] (set (map #(event-str % oparams) oevs))))
         gmake (fn [iname ev cnds] (if-not (= "()" ev) (str ev " generates\n" WS iname " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";")))
         imake (fn [ev cnds] (if-not (= "()" ev) (str ev " generates\n" WS (inst-name ev) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";")))
         estrs (map #(event-str % params) events)
         pstrs (map #(param-str % params) events)
+        ;; opstrs (map #(param-str % oparams) oevs)
         wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
-        oifs (map #(param-str % oparams) oevs)
+        oifs (remove #(= "()" %) (map #(param-str % oparams) oevs))
+        ;; smake (fn [sub]
+        ;;         (if (:subtrope sub)
+        ;;           (let [pms (get-all-params (assoc trope :events (concat (:events trope) (:events (:subtrope sub)))))
+        ;;                 int (event-name (:label trope))
+        ;;                 ]
+        ;;             (gmake (str (inst-start-name (:label (:subtrope sub))) (param-brackets (first (:events (:subtrope sub))) pms)) (event-str (:trigger sub) pms) (concat (param-str (first (:events (:subtrope sub))) pms) (param-str (:trigger sub) pms) [(str "phase(" int ", " "phase" (:phase sub) ")")]))
+        ;;             )))
         smake (fn [sub]
                 (if (:subtrope sub)
                   (let [pms (get-all-params (assoc trope :events (concat (:events trope) (:events (:subtrope sub)))))
                         int (event-name (:label trope))
                         ]
-                    (gmake (str (inst-start-name (:label (:subtrope sub))) (param-brackets (first (:events (:subtrope sub))) pms)) (event-str (:trigger sub) pms) (concat (param-str (first (:events (:subtrope sub))) pms) (param-str (:trigger sub) pms) [(str "phase(" int ", " "phase" (:phase sub) ")")])))))
+                    (gmake (str (inst-start-name (:label (:subtrope sub)))) (event-str (:trigger sub) pms) (concat (param-str (:trigger sub) pms) [(str "phase(" int ", " "phase" (:phase sub) ")")]))
+                    )))
         gen-subs (remove nil? (map smake subs))
         gen-a (into [] (set (map gmake (repeat inst) estrs pstrs)))
         gen-i (into [] (set (map imake estrs pstrs)))
+        p (println "OS:")
+        p (println ostrs)
+        p (println oifs)
         gen-o (into [] (set (map imake ostrs oifs)))
         gen-s (map gmake wnames wstrs wifs)
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
-        p (println "Gen-a: ")
-        p (println params)
         ]
     ;; not sure why I had gen-d (obligations) in there
-    (concat [header] gen-subs gen-a gen-s gen-i gen-o ["\n"])
+    (concat [header] gen-subs gen-a gen-s gen-i gen-o ["\nstart generates intStart;\n" "\n"])
     ))
 
 (defn bridge [tropes]
@@ -649,7 +662,8 @@ or STRING to string"
         bmake (fn [strope]
                 (let [params (get-all-params strope)
                       inst (str (inst-start-name (:label strope))
-                                (param-brackets (first (:events strope)) params))
+                                ;; (param-brackets (first (:events strope)) params)
+                                )
                       fevent (first (:events strope))
                       ex (if (:obligation fevent) (str "obl(" (event-str (:obligation fevent) params) ", " (event-str (:deadline (:obligation fevent)) params) ", " (viol-name fevent) ")")
                              (str "perm(" (event-str fevent params) ")"))
@@ -667,16 +681,17 @@ or STRING to string"
         cmake (fn [strope]
                 (let [params (get-all-params strope)
                       fevent (first (:events strope))
+                      types (ev-types fevent)
                       ex (if (:obligation fevent) (str "obl(" (event-str (:obligation fevent) params) ", " (event-str (:deadline (:obligation fevent)) params) ", " (viol-name fevent) ")")
-                             (str "perm(" (event-str fevent params) ")"))]
-                  (str "cross fluent ipow(Trope, " ex ", Trope);")))
+                             (str (event-name (:verb fevent)) "(" (apply str (interpose ", " types)) ")"))]
+                  (str "cross fluent gpow(" (event-name (:label (first tropes))) ", start, "(event-name (:label (second tropes))) ");")));")))
         imake (fn [trope]
                 (let [subs (get-subtropes trope tropes)
                       iname (event-name (:label trope))
                       enames (map #(if (:obligation (first (:events %))) (obl (first (:events %)) (get-all-params %)) (perm (event-str (first (:events %)) (get-all-params %)))) subs)
                       snames (map #(event-name (:label %)) subs)
                       ess (map vector enames snames)
-                      is (map #(str "initially ipow (" iname ", " (first %) ", " (second %) ");\n") ess)
+                      is (map #(str "initially gpow (" iname ",  start, " (second %) ");\n") ess)
                       ]
                   (apply str (interpose "\n" is))))
         ;; imake (fn [strope])
@@ -778,7 +793,8 @@ or STRING to string"
     ;; (concat role-list place-list)
     ;; roles
     ;; (map #(event-name (:class %)) instances)
-    [header (str first-perms powstrs permstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
+    ;; removed first-perms
+    [header (str powstrs permstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
     ;; (map :class instances)
     ))
 
@@ -810,6 +826,15 @@ or STRING to string"
         conds (map #(param-str % params) pevs)
         ]
     {:names vnames :events [evs] :conds conds}))
+
+(defn int-start [trope]
+  (let [params (get-all-params trope)
+        fev (first (:events trope))
+        fevent (if (:or fev) (first (:or fev)) fev)
+        fperm (str (norm-str fevent params) " if " (apply str (interpose ", " (param-str fevent params))))
+        first-perm (str "intStart initiates\n    " fperm ";\n")
+        ]
+    first-perm))
 
 (defn initiates [trope]
   (let [params (get-all-params trope)
@@ -848,7 +873,7 @@ or STRING to string"
         ;; term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
         term-a (map tmake (repeat inst) (into [] (map vector phases (cons efirst norms))) tvec)
         ]
-    (concat [header] init-a init-s init-v ["\n"] [term-header] term-a term-o ["\n"])
+    (concat [header] init-a init-s init-v [(int-start trope) "\n"] [term-header] term-a term-o ["\n"])
     ;; (concat [header] init-a init-s init-v ["\n"])
     ))
 

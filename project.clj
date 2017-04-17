@@ -1,4 +1,4 @@
-(defproject tropic "0.7.3"
+(defproject tropic "0.7.8"
   :description "DSL for interactive narrative"
   :url "http://mthompson.org/tropical"
   :license {:name "Eclipse Public License"
@@ -14,7 +14,7 @@
                  [clj-wordnet "0.1.0"]
                  ;; [lingo "0.2.0"o
                  [com.rpl/specter "0.9.0"]]
-  :resource-paths ["lib/simplenlg-v4.4.3.jar"]
+  :resource-paths ["lib/simplenlg-v4.4.3.jar" "dict"]
   ;; :aot [tropic.core]
   ;; :aot :all
   :repl-options {

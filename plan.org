@@ -9,19 +9,20 @@
    CLOSED: [2017-04-16 Sun 10:54]
 ** DONE declarations
    CLOSED: [2017-04-16 Sun 10:54]
-** TODO put inst events in right place so no redundancies are generated
-** TODO add fluents to code gen
-** TODO replace "when" with "if" (think about it first, though)
+** DONE put inst events in right place so no redundancies are generated
+   CLOSED: [2017-04-17 Mon 09:08]
+** DONE if params missing for generation on violation events
+   CLOSED: [2017-04-17 Mon 10:27]
 ** DONE stop it from wrapping single events/fluents into a sequence
    CLOSED: [2017-04-16 Sun 10:54]
 Appears to be done in the data structure generation stage
-** TODO one obligation doesn't work (see test 4, test 5)
+** DONE one obligation doesn't work (see test 4, test 5)
+   CLOSED: [2017-04-17 Mon 10:41]
 ** TODO generate bridge institutions
-** DONE support multiple insts
-   CLOSED: [2017-04-16 Sun 10:55]
 ** TODO what us up with argument order?
 Must be happening in the instal.clj code generation stage
-** TODO support simultaneous fluents holding
+** DONE support multiple insts
+   CLOSED: [2017-04-16 Sun 10:55]
 ** DONE Make obls great again
    CLOSED: [2017-04-17 Mon 08:23]
 *** DONE declare inst event for every external one
@@ -30,3 +31,15 @@ Must be happening in the instal.clj code generation stage
     CLOSED: [2017-04-17 Mon 08:16]
 *** DONE convert obl event args to inst ones
     CLOSED: [2017-04-17 Mon 08:23]
+** TODO add fluents to code gen
+** TODO strip "The" from roles in solver.clj
+** TODO make start event, sequence tropes somehow
+*** TODO remove "initially" permission
+*** TODO insert an ext event called "start" that initialises that perm instead
+*** TODO put the start event in a .iaq file, based on starting tropes specified
+** TODO add subtropes to interface/solver
+*** TODO put subtropes in separate argument array
+(Actually, the other tropes will emerge as a "starting trope" checkbox in the interface)
+*** TODO add subtrope to @our-tropes in storybuilder when trope is selected
+("begin with this trope" won't be checked by default)
+** TODO replace "when" with "if" (think about it first, though)
