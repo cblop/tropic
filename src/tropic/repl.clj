@@ -269,9 +269,9 @@
 
 (parse-trope test1)
 (trope-map test1)
-(st-map "test1" [test1] charlist objlist placelist "")
-(:events (first (:tropes (st-map "test1" [test1] charlist objlist placelist ""))))
-(test-story [test1] charlist objlist placelist "lukeSkywalker" "test1" 5)
+(st-map "test1" [test1] [test1] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test1" [test1] [test1] charlist objlist placelist ""))))
+(test-story [test1] [test1] charlist objlist placelist "lukeSkywalker" "test1" 5)
 
 (parse-defs test1)
 (make-defs-map (parse-defs test1))
@@ -630,8 +630,8 @@
   ([verb player obj-a obj-b] {:verb verb :player player :object-a obj-a :object-b obj-b}))
 
 
-(defn test-story [ts chars objs places player out lookahead]
-  (let [story-map (st-map out ts chars objs places player)]
+(defn test-story [ts ss chars objs places player out lookahead]
+  (let [story-map (st-map out ts ss chars objs places player)]
     (make-story story-map out lookahead 100)))
 
 (parse-trope heros-journey)

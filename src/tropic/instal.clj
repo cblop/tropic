@@ -382,7 +382,7 @@ or STRING to string"
         types (map ev-types all)
         strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
         ]
-    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) )) ["exogenous event start;" "exogenous event noDeadline;"])
+    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) )) ["exogenous event start(Trope);" "exogenous event noDeadline;"])
     ))
     ;; (prn-str types)
   ;; ))
@@ -650,7 +650,7 @@ or STRING to string"
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
         ]
     ;; not sure why I had gen-d (obligations) in there
-    (concat [header] gen-subs gen-a gen-s gen-i gen-o ["\nstart generates intStart;\n" "\n"])
+    (concat [header] gen-subs gen-a gen-s gen-i gen-o [(str "\nstart(" (event-name (:label trope))  ") generates intStart;\n") "\n"])
     ))
 
 (defn bridge [tropes]
@@ -787,6 +787,9 @@ or STRING to string"
         powstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") powers))
         permstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") perms))
         ;; powstrs ""
+
+        startstrs (map #(str "perm(start(" (event-name (:label %)) "))") (:tropes hmap))
+        intstartstrs ["pow(intStart)" "perm(intStart)"]
         ]
 
     ;; (concat rolestrs placestrs)
@@ -794,7 +797,7 @@ or STRING to string"
     ;; roles
     ;; (map #(event-name (:class %)) instances)
     ;; removed first-perms
-    [header (str powstrs permstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs))) ";\n")]
+    [header (str powstrs permstrs "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs intstartstrs startstrs))) ";\n")]
     ;; (map :class instances)
     ))
 
