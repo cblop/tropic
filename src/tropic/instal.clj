@@ -161,7 +161,7 @@ or STRING to string"
                     ;; (reduce str (param-str params))
                     ))
         dead (if (nil? deadline) "intNoDeadline"
-                 (str (:verb deadline) "(" (->> deadline
+                 (str (inst-name (:verb deadline)) "(" (->> deadline
                                                 (ev-types)
                                                 (interpose ", ")
                                                 (reduce str)
@@ -180,7 +180,7 @@ or STRING to string"
                     ;; (param-str params)
                     ))
         dead (if (nil? deadline) "intNoDeadline"
-                 (event-str deadline params))
+                 (inst-name (event-str deadline params)))
         viol (if (nil? violation) "noViolation"
                  (viol-name {:obligation obligation})
                      ;; (param-str params)
@@ -380,9 +380,8 @@ or STRING to string"
         all (extract-ifs (extract-ors fall))
         types (map ev-types all)
         strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
-        istrng (fn [x y] (if (:verb x) (str "inst event " (inst-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
         ]
-    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) (into [] (set (map (fn [x y] (istrng x y)) all types))))) ["exogenous event noDeadline;" "inst event intNoDeadline;"])
+    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) )) ["exogenous event noDeadline;"])
     ))
     ;; (prn-str types)
   ;; ))
@@ -479,6 +478,24 @@ or STRING to string"
                         nil) (:events trope))]
     (remove nil? stropes)))
 
+(defn get-all-events [trope]
+  (let [
+        params (get-params trope)
+        es (remove :obligation (:events trope))
+        evs (map #(or (:permission %) %) es)
+        deads (remove nil? (map #(-> % :obligation :deadline) (:events trope)))
+        obls (remove nil? (map :obligation (:events trope)))
+        events (concat evs obls deads)
+        situations (map :when (:situations trope))
+        sperms (mapcat #(map :permission (filter :permission %)) (map :norms (:situations trope)))
+        fall (concat events situations sperms)
+        all (extract-ifs (extract-ors fall))
+        types (map ev-types all)
+        istrng (fn [x y] (if (:verb x) (str "inst event " (inst-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
+        ievs (into [] (set (map (fn [x y] (istrng x y)) all types)))]
+    ievs)
+  )
+
 (defn inst-events [trope tropes]
   (let [header (str "\n% INST EVENTS: " (reduce str (:label trope)) " ----------")
         nm (inst-name (:label trope))
@@ -505,6 +522,7 @@ or STRING to string"
                                  (take (count (:places x)) (repeat "PlaceName"))
                                  (take (count (:quests x)) (repeat "Quest"))
                                  )))
+        istrng (fn [x y] (if (:verb x) (str "inst event " (inst-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
         ss (map stypes sparams)
         os (map stypes oparams)
         subss (map stypes subparams)
@@ -513,8 +531,9 @@ or STRING to string"
         sinstrs (map finstr snms ss)
         oinstrs (map (fn [xs ys] (if (empty? ys) "" (finstr xs ys))) onms os)
         subinstrs (map #(finstr (inst-start-name (:label %1)) %2) subs subss)
+        ievs (get-all-events trope)
         ]
-    (cons header (conj (concat sinstrs oinstrs subinstrs) instr))))
+    (concat (cons header (conj (into [] (set (concat sinstrs oinstrs subinstrs ievs))) instr)) ["inst event intNoDeadline;"])))
 
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:label trope)))]))

@@ -9,6 +9,7 @@
    CLOSED: [2017-04-16 Sun 10:54]
 ** DONE declarations
    CLOSED: [2017-04-16 Sun 10:54]
+** TODO put inst events in right place so no redundancies are generated
 ** TODO add fluents to code gen
 ** TODO replace "when" with "if" (think about it first, though)
 ** DONE stop it from wrapping single events/fluents into a sequence
@@ -21,9 +22,11 @@ Appears to be done in the data structure generation stage
 ** TODO what us up with argument order?
 Must be happening in the instal.clj code generation stage
 ** TODO support simultaneous fluents holding
-** Make obls great again
+** DONE Make obls great again
+   CLOSED: [2017-04-17 Mon 08:23]
 *** DONE declare inst event for every external one
     CLOSED: [2017-04-17 Mon 07:59]
 *** DONE generate inst event for every external one
     CLOSED: [2017-04-17 Mon 08:16]
-*** TODO convert obl event args to inst ones
+*** DONE convert obl event args to inst ones
+    CLOSED: [2017-04-17 Mon 08:23]

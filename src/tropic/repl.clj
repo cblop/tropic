@@ -366,6 +366,7 @@
 (parse-trope test7)
 (st-map "test7" [test7] charlist objlist placelist "")
 (map :events (:tropes (st-map "test7" [test7] charlist objlist placelist "")))
+(test-story [test7] charlist objlist placelist "lukeSkywalker" "test7" 5)
 
 ;; SEQUENCING ------------------------------------------------------------------------
 (def test8
