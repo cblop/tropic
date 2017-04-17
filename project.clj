@@ -11,6 +11,7 @@
                  ;; [damionjunk/nlp  "0.3.0"]
                  [me.raynes/conch "0.8.0"]
                  [org.clojure/tools.cli "0.3.5"]
+                 [clj-wordnet "0.1.0"]
                  ;; [lingo "0.2.0"o
                  [com.rpl/specter "0.9.0"]]
   :resource-paths ["lib/simplenlg-v4.4.3.jar"]

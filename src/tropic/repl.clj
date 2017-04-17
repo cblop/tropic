@@ -257,6 +257,8 @@
 (parse-trope test1)
 (trope-map test1)
 (st-map "test1" [test1] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test1" [test1] charlist objlist placelist ""))))
+(test-story [test1] charlist objlist placelist "lukeSkywalker" "test1" 5)
 
 (parse-defs test1)
 (make-defs-map (parse-defs test1))
@@ -279,7 +281,8 @@
 (parse-trope test2)
 (trope-map test2)
 (st-map "test2" [test2] charlist objlist placelist "")
-(map :events (:tropes (st-map "test2" [test2] charlist objlist placelist "")))
+(:events (first (:tropes (st-map "test2" [test2] charlist objlist placelist ""))))
+(test-story [test2] charlist objlist placelist "lukeSkywalker" "test2" 5)
 
 (parse-full-trope test2)
 (parse-trope test2)
@@ -297,7 +300,6 @@
     "    Or the Villain may escape"
     ]))
 
-(parse-full-trope test3)
 (parse-trope test3)
 (st-map "test3" [test3] charlist objlist placelist "")
 (map :events (:tropes (st-map "test3" [test3] charlist objlist placelist "")))
@@ -332,6 +334,7 @@
 (parse-trope test5)
 (st-map "test5" [test5] charlist objlist placelist "")
 (map :events (:tropes (st-map "test5" [test5] charlist objlist placelist "")))
+(test-story [test5] charlist objlist placelist "lukeSkywalker" "test5" 5)
 
 (def test6
   (join-strings
@@ -347,6 +350,7 @@
 (parse-trope test6)
 (st-map "test6" [test6] charlist objlist placelist "")
 (map :events (:tropes (st-map "test6" [test6] charlist objlist placelist "")))
+(test-story [test6] charlist objlist placelist "lukeSkywalker" "test6" 5)
 
 (def test7
   (join-strings

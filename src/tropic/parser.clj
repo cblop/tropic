@@ -78,7 +78,7 @@
          <whitespace+ 'Or '> (fluent | event | norms)"
                   "if =
          <whitespace+ 'If '> (fluent | event | norms)"
-                  "action = !fverb verb [sp [particle sp] (character | object | place)] (crlf? | [sp particle? (role-b | object-b | place-b)] crlf?)"
+                  "action = !fverb verb [sp [particle sp] (character | object | place)] (crlf? | [sp particle? (character | object | place)] crlf?)"
                   "event = character sp action"
                   "<particle> = <'a' | 'at' | 'will' | 'of' | 'to'>"
                   "norms = permission | rempermission | obligation"

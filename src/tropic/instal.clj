@@ -148,7 +148,7 @@ or STRING to string"
                    (vals)
                    )
         name (cap-first (event-name (reduce str (interpose " " vstuff))))]
-    (str "viol" (reduce str name) "(Identity)")))
+    (str "viol" (reduce str name) "")))
 
 (defn obl-p [{:keys [obligation]} params]
   (let [deadline (:deadline obligation)
@@ -160,16 +160,16 @@ or STRING to string"
                     (reduce str)
                     ;; (reduce str (param-str params))
                     ))
-        dead (if (nil? deadline) "noDeadline(Identity)"
+        dead (if (nil? deadline) "intNoDeadline"
                  (str (:verb deadline) "(" (->> deadline
                                                 (ev-types)
                                                 (interpose ", ")
                                                 (reduce str)
                                                 ;; (reduce str (param-str params))
                                                 ) ")"))
-        viol (if (nil? violation) "noViolation(Identity)"
+        viol (if (nil? violation) "noViolation"
                  (viol-name {:obligation obligation}))]
-    (str "obl(" (:verb obligation) "(" obl "), " dead ", " viol ");")))
+    (str "obl(" (inst-name (:verb obligation)) "(" obl "), " dead ", " viol ");")))
 
 (defn obl [{:keys [obligation]} params]
   (let [deadline (:deadline obligation)
@@ -179,14 +179,14 @@ or STRING to string"
                     (event-str params)
                     ;; (param-str params)
                     ))
-        dead (if (nil? deadline) "noDeadline(Identity)"
+        dead (if (nil? deadline) "intNoDeadline"
                  (event-str deadline params))
-        viol (if (nil? violation) "noViolation(Identity)"
+        viol (if (nil? violation) "noViolation"
                  (viol-name {:obligation obligation})
                      ;; (param-str params)
                      )
         ]
-            (str "obl(" obl ", " dead ", " viol ")")))
+    (str "obl(" (inst-name obl) ", " dead ", " viol ")")))
 
 (defn unify-params [params roles objects]
   (let [m (meta params)
@@ -379,8 +379,10 @@ or STRING to string"
         fall (concat events situations sperms)
         all (extract-ifs (extract-ors fall))
         types (map ev-types all)
-        strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))]
-    (concat (cons header (into [] (set (map (fn [x y] (strng x y)) all types)))) ["exogenous event noDeadline(Identity);"])
+        strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
+        istrng (fn [x y] (if (:verb x) (str "inst event " (inst-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
+        ]
+    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) (into [] (set (map (fn [x y] (istrng x y)) all types))))) ["exogenous event noDeadline;" "inst event intNoDeadline;"])
     ))
     ;; (prn-str types)
   ;; ))
@@ -390,7 +392,7 @@ or STRING to string"
   (let [header (str "\n% VIOLATION EVENTS: " (namify (:label trope)) " ----------")
         viols (filter :obligation (:events trope))
         strng (fn [x] (str "violation event " (viol-name x)";"))]
-    (concat (cons header (into [] (set (map strng viols)))) ["violation event noViolation(Identity);"])))
+    (concat (cons header (into [] (set (map strng viols)))) ["violation event noViolation;"])))
 
 (defn get-param-obls [trope]
   (let [
@@ -595,6 +597,7 @@ or STRING to string"
         wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
         ostrs (into [] (set (map #(event-str % oparams) oevs)))
         gmake (fn [iname ev cnds] (if-not (= "()" ev) (str ev " generates\n" WS iname " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";")))
+        imake (fn [ev cnds] (if-not (= "()" ev) (str ev " generates\n" WS (inst-name ev) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";")))
         estrs (map #(event-str % params) events)
         pstrs (map #(param-str % params) events)
         wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
@@ -607,13 +610,15 @@ or STRING to string"
                     (gmake (str (inst-start-name (:label (:subtrope sub))) (param-brackets (first (:events (:subtrope sub))) pms)) (event-str (:trigger sub) pms) (concat (param-str (first (:events (:subtrope sub))) pms) (param-str (:trigger sub) pms) [(str "phase(" int ", " "phase" (:phase sub) ")")])))))
         gen-subs (remove nil? (map smake subs))
         gen-a (into [] (set (map gmake (repeat inst) estrs pstrs)))
+        gen-i (into [] (set (map imake estrs pstrs)))
+        gen-o (into [] (set (map imake ostrs oifs)))
         gen-s (map gmake wnames wstrs wifs)
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
         p (println "Gen-a: ")
         p (println params)
         ]
     ;; not sure why I had gen-d (obligations) in there
-    (concat [header] gen-subs gen-a gen-s ["\n"])
+    (concat [header] gen-subs gen-a gen-s gen-i gen-o ["\n"])
     ))
 
 (defn bridge [tropes]

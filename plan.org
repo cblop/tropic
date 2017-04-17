@@ -14,9 +14,16 @@
 ** DONE stop it from wrapping single events/fluents into a sequence
    CLOSED: [2017-04-16 Sun 10:54]
 Appears to be done in the data structure generation stage
+** TODO one obligation doesn't work (see test 4, test 5)
 ** TODO generate bridge institutions
 ** DONE support multiple insts
    CLOSED: [2017-04-16 Sun 10:55]
 ** TODO what us up with argument order?
 Must be happening in the instal.clj code generation stage
 ** TODO support simultaneous fluents holding
+** Make obls great again
+*** DONE declare inst event for every external one
+    CLOSED: [2017-04-17 Mon 07:59]
+*** DONE generate inst event for every external one
+    CLOSED: [2017-04-17 Mon 08:16]
+*** TODO convert obl event args to inst ones

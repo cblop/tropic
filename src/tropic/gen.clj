@@ -1,6 +1,12 @@
 (ns tropic.gen
   (:require [clojure.string :as str]
+            [clj-wordnet.core :refer [make-dictionary]]
             [instaparse.core :as insta]))
+
+(def wordnet (make-dictionary "dict/"))
+
+(defn convert-verb [word]
+  (:lemma (first (wordnet word :verb))))
 
 (defn copy-meta
   [old new]
@@ -69,42 +75,54 @@
 
 (defn make-map [ptree]
   (insta/transform
-   {:verb (partial param-map :verb)
+   {
+    :character (partial param-map :role)
+    :verb (fn [& args] {:verb (convert-verb (first args))})
+    :permission (fn [& args] (let [chars (get-by-key :role args)] (merge
+                                                                   (dissoc (apply merge args) :role)
+                                                             (if (> (count chars) 1)
+                                                               {:role-a (first chars)
+                                                                :role-b (second chars)})
+                                                             (if (= (count chars) 1)
+                                                               {:role (first chars)})
+                                                             )))
+
+    :action (fn [& args] (let [chars (get-by-key :role args)] (merge
+                                                              (dissoc (apply merge args) :role)
+                                                              (if (> (count chars) 1)
+                                                                {:role-a (first chars)
+                                                                 :role-b (second chars)})
+                                                              (if (= (count chars) 1)
+                                                                {:role (first chars)})
+                                                              )))
+    :event (fn [& args] (let [chars (get-by-key :role args)] (merge
+                                                                   (dissoc (apply merge args) :role)
+                                                                   (if (> (count chars) 1)
+                                                                     {:role-a (first chars)
+                                                                      :role-b (second chars)})
+                                                                   (if (= (count chars) 1)
+                                                                     {:role (first chars)})
+                                                                   )))
     :item (partial param-map :object)
-    :move (fn [& args] {:verb "go" :place (first (get-by-key :place args))})
-    :mverb (partial param-map :mverb)
-    :pverb (partial param-map :verb)
+    :fverb (fn [& args] {:verb (convert-verb (first args))})
     :place (partial param-map :place)
     :conditional (fn [& args] {:if (apply merge args)})
     :outcome (fn [& args] {:then (first args)})
     :adjective (partial param-map :adjective)
     :object (partial param-map :object)
     :fluent (partial merge)
-    :character (partial param-map :role)
     :sequence (fn [& args] {:events (into [] (remove-blank args))})
     :or (partial param-map :or)
     :if (partial param-map :if)
-    :situation (fn [& args] (first args))
-    :situationdef (fn [& args] {:situation {:when (first args) :norms (into [] (map first (rest args)))}})
     :consequence (fn [& args] (hash-map :consequence (apply merge args)))
-    :permission (fn [& args] (hash-map :permission (apply merge args)))
     :rempermission (fn [& args] (hash-map :rempermission (apply merge args)))
     :deadline (fn [& args] (hash-map :deadline (:consequence (first args))))
     :violation (fn [& args] (hash-map :violation (first (first args))))
-    :visit (fn [& args] (hash-map :verb (first args) :place (:object (second args))))
-    :give (fn [& args] (let [chars (get-by-key :role args)] {:verb "give" :from (first chars) :to (second chars) :object (first (get-by-key :object args))}))
-    :sell (fn [& args] (let [chars (get-by-key :role args)] {:verb "give" :from (first chars) :to (second chars) :object (first (get-by-key :object args))}))
-    :meet (fn [& args] (let [chars (get-by-key :role args)] {:verb "meet" :role-a (first chars) :role-b (second chars)}))
-    :kill (fn [& args] (let [chars (get-by-key :role args)] {:verb "kill" :role-a (first chars) :role-b (second chars)}))
-    :pay (fn [& args] (let [chars (get-by-key :role args)] {:verb "pay" :role-b (first chars)}))
     :task (partial merge)
     :norms (fn [& args] (first args))
     :obligation (fn [& args] {:obligation (apply merge args)})
-    :event (partial merge)
-    :action (partial merge)
-    :tverb (fn [& args] (let [chars (get-by-key :role args) objs (get-by-key :object args)] {:verb (first (get-by-key :verb args)) :role-a (first chars) :role-b (second chars) :object (first objs)}))
-    :bverb (fn [& args] (let [chars (get-by-key :role args)] {:verb (first (get-by-key :verb args)) :role-b (first chars) :object (first (get-by-key :object args))}))
-    :cverb (fn [& args] (let [char (first (get-by-key :role args)) obj (first (get-by-key :object args))] (merge {:verb (make-string (filter string? args))} (if (nil? char) {:object obj} {:role-b char}))))
+    ;; :event (partial merge)
+    ;; :action (partial merge)
     :happens (partial merge)
     :block (fn [& args] {:block (:subtrope (first args))})
     ;; :trope (fn [& args] {:trope {:roles (walk-get-key :role args)}})
