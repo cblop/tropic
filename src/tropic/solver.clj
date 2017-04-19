@@ -57,12 +57,16 @@
 (defn make-bridge [hmap id]
   (bridge-file (:tropes hmap) (str "resources/" id "/" id "-bridge.ial")))
 
+(defn start-event [trope]
+  (str "observed(start(" trope "))\n"))
+
 (defn make-query [event id]
   ;; (spit (str "resources/" id "/query-" id ".iaq") (events-to-text events) :append false)
-  (spit (str "resources/" id "/query-" id ".iaq") (start-event event))
+  (spit (str "resources/" id "/query-" id ".iaq") (start-event event) :append true)
   )
 
 (defn make-start-query [tropes id]
+  (spit (str "resources/" id "/query-" id ".iaq") "" :append false)
   (doseq [t tropes]
     (make-query t id)))
 
@@ -112,9 +116,10 @@
      (make-domain hmap id)
      (make-instal hmap id)
      (make-bridge hmap id)
-     (make-start-query (:starters hmap) id)
+     ;; (make-start-query (:starters hmap) id)
      ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
-     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) (str "-n " limit) "-q" query "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
+     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
+           ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
            ;; p (spit (str "resources/" id "/command.txt") (apply str (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")])))
            t-output (apply sh ["python3" (str ARCH "/instaltrace.py") "-j" (str "resources/" id "/json/") "-x" (str "resources/" id "/traces")])
            tracedir (clojure.java.io/file (str "resources/" id "/traces"))
@@ -132,9 +137,6 @@
           :sets sets
           :text "Welcome to the world of adventure!"}))
      )))
-
-(defn start-event [trope]
-  (str "observed(start(" trope "))"))
 
 (defn event-to-text [{:keys [player verb object-a object-b]}]
   (str "observed(" verb "(" player (if object-a (str "," object-a (if object-b (str "," object-b)) ")")) ")"))
@@ -191,7 +193,8 @@
 
 (defn st-map [name tropes starts chars objs places player]
   (let [trps (map trope-map tropes)
-        sts (map #(event-name (:label (make-defs-map (parse-defs %)))) starts)
+        ;; sts (map #(event-name (:label (make-defs-map (parse-defs %)))) starts)
+        sts (map #(event-name %) starts)
         role-pairs (map #(hash-map :class (:role %) :iname (:label %)) chars)
         obj-pairs (map #(hash-map :class (:type %) :iname (:label %)) objs)
         place-pairs (map #(hash-map :class (:location %) :iname (:label %)) places)

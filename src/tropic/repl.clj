@@ -271,7 +271,7 @@
 (trope-map test1)
 (st-map "test1" [test1] [test1] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test1" [test1] [test1] charlist objlist placelist ""))))
-(test-story [test1] [test1] charlist objlist placelist "lukeSkywalker" "test1" 5)
+(test-story [test1] ["test1"] charlist objlist placelist "lukeSkywalker" "test1" 5)
 
 (parse-defs test1)
 (make-defs-map (parse-defs test1))
@@ -554,7 +554,7 @@
 (:events (first (:tropes (st-map "test17" [test17] charlist objlist placelist ""))))
 (test-story [test17a] charlist objlist placelist "lukeSkywalker" "test17a" 5)
 (test-story [test17] charlist objlist placelist "lukeSkywalker" "test17" 5)
-(test-story [test17 test17a] charlist objlist placelist "lukeSkywalker" "test17b" 5)
+(test-story [test17 test17a] ["test17" "test17a"] charlist objlist placelist "lukeSkywalker" "test17b" 5)
 
 (def charlist
   [{:label "Luke Skywalker" :role "Hero"}

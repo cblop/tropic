@@ -1,4 +1,4 @@
-(defproject tropic "0.7.9"
+(defproject tropic "0.8.6"
   :description "DSL for interactive narrative"
   :url "http://mthompson.org/tropical"
   :license {:name "Eclipse Public License"
