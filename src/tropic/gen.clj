@@ -8,6 +8,9 @@
 (defn convert-verb [word]
   (:lemma (first (wordnet word :verb))))
 
+(defn camel-case [verb]
+  )
+
 (defn copy-meta
   [old new]
   (with-meta new (meta old)))
@@ -77,7 +80,7 @@
   (insta/transform
    {
     :character (partial param-map :role)
-    :verb (fn [& args] {:verb (convert-verb (first args))})
+    :verb (fn [& args] {:verb (convert-verb (apply str (interpose " " args)))})
     :permission (fn [& args] (let [chars (get-by-key :role args)] (merge
                                                                    (dissoc (apply merge args) :role)
                                                              (if (> (count chars) 1)
@@ -109,6 +112,7 @@
     :conditional (fn [& args] {:if (apply merge args)})
     :outcome (fn [& args] {:then (first args)})
     :adjective (partial param-map :adjective)
+    ;; :whitespace (fn [& args] :whitespace)
     :object (partial param-map :object)
     :fluent (partial merge)
     :sequence (fn [& args] {:events (into [] (remove-blank args))})

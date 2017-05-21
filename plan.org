@@ -20,8 +20,6 @@ Appears to be done in the data structure generation stage
    CLOSED: [2017-04-17 Mon 10:41]
 ** DONE generate bridge institutions
    CLOSED: [2017-04-17 Mon 19:44]
-** TODO what us up with argument order?
-Must be happening in the instal.clj code generation stage
 ** DONE support multiple insts
    CLOSED: [2017-04-16 Sun 10:55]
 ** DONE Make obls great again
@@ -32,8 +30,6 @@ Must be happening in the instal.clj code generation stage
     CLOSED: [2017-04-17 Mon 08:16]
 *** DONE convert obl event args to inst ones
     CLOSED: [2017-04-17 Mon 08:23]
-** TODO add fluents to code gen
-** TODO strip "The" from roles in solver.clj
 ** DONE make start event, sequence tropes somehow
    CLOSED: [2017-04-17 Mon 19:44]
 *** DONE remove "initially" permission
@@ -42,9 +38,20 @@ Must be happening in the instal.clj code generation stage
     CLOSED: [2017-04-17 Mon 19:44]
 *** DONE put the start event in a .iaq file, based on starting tropes specified
     CLOSED: [2017-04-17 Mon 19:44]
+** TODO add fluents to code gen
+** TODO what is up with argument order?
+Must be happening in the instal.clj code generation stage
+** TODO strip "The" from roles in solver.clj
+** TODO get it working with multiple tropes at once
+** TODO obls have no effect on the visualisation: change this
+** DONE add support for multi-word verbs
+   CLOSED: [2017-05-12 Fri 09:37]
+** TODO add support for continuing branches after "or" rule
 ** TODO add subtropes to interface/solver
 *** TODO put subtropes in separate argument array
 (Actually, the other tropes will emerge as a "starting trope" checkbox in the interface)
 *** TODO add subtrope to @our-tropes in storybuilder when trope is selected
 ("begin with this trope" won't be checked by default)
+** TODO rename tropes so that they don't clash with char/item/object names
+** TODO how can we get better error messages?
 ** TODO replace "when" with "if" (think about it first, though)

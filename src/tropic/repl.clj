@@ -21,13 +21,41 @@
 (defn join-strings [strs]
   (apply str (interpose "\n" strs)))
 
+(def branching
+  (join-strings
+   ["\"Branches\" is a trope where:"
+    "  The Hero is a role"
+    "  The Villain is a role"
+    "  Home is a place"
+    "  Away is a place"
+    "  The Hero goes Home"
+    "  Then the Hero goes Away"
+    "    Or the Hero kills the Villain"
+    "    Then the Hero goes Home"]))
+
+(parse-trope branching)
+(make-map (parse-trope branching))
+
+
+(def multi-verb
+  (join-strings
+   ["\"Branches\" is a trope where:"
+    "  The Hero is a role"
+    "  The Villain is a role"
+    "  Home is a place"
+    "  Away is a place"
+    "  The Hero goes Home"
+    "  Then the Hero gives up"]))
+
+(parse-trope multi-verb)
+(make-map (parse-trope multi-verb))
+
 ;; SUBLEASE ------------------------------------------------------
 (def lease
   (join-strings
    ["\"Lease\" is a policy where:"
     "  The Lessor leases the Thing to the Lessee"
     "  The \"Maintenance of Confidence\" policy applies"]))
-
 
 (parse-trope lease)
 (make-map (parse-trope lease))
@@ -254,8 +282,21 @@
     "  The Hero goes Home"
     "  Then the Hero goes Away"]))
 
-(parse-trope test-hj)
-(trope-map test-hj)
+
+(def test-mac
+  (join-strings
+   ["\"The Macguffin\" is a trope where:"
+    "  The Hero is a role"
+    "  The Thing is an object"
+    "  Home is a place"
+    "  The Hero finds the Thing"
+    "  Then the Hero gives up"
+    ]))
+
+(parse-trope test-mac)
+(trope-map test-mac)
+(st-map "test-mac" [test-mac] ["The Macguffin"] charlist objlist placelist "")
+(test-story [test-mac] ["The Macguffin"] charlist objlist placelist "lukeSkywalker" "macguffin" 5)
 
 (def test1
   (join-strings
@@ -413,7 +454,7 @@
 (parse-trope test9)
 (st-map "test9" [test9] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test9" [test9] charlist objlist placelist ""))))
-(test-story [test9] charlist objlist placelist "lukeSkywalker" "test9" 5)
+(test-story [test9 test10] ["test9"] charlist objlist placelist "lukeSkywalker" "test9" 5)
 
 (def test10
   (join-strings
@@ -450,7 +491,7 @@
 (parse-trope test11)
 (st-map "test11" [test11] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test11" [test11] charlist objlist placelist ""))))
-(test-story [test11] charlist objlist placelist "lukeSkywalker" "test11" 5)
+(test-story [test11] ["test11"] charlist objlist placelist "lukeSkywalker" "test11" 5)
 
 (def test12
   (join-strings
@@ -553,7 +594,7 @@
 (st-map "test17" [test17] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test17" [test17] charlist objlist placelist ""))))
 (test-story [test17a] charlist objlist placelist "lukeSkywalker" "test17a" 5)
-(test-story [test17] charlist objlist placelist "lukeSkywalker" "test17" 5)
+(test-story [test17] ["test17"] charlist objlist placelist "lukeSkywalker" "test17" 5)
 (test-story [test17 test17a] ["test17" "test17a"] charlist objlist placelist "lukeSkywalker" "test17b" 5)
 
 (def charlist

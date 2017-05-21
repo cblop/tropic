@@ -786,7 +786,7 @@ or STRING to string"
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
         powers (map powfn (:tropes hmap))
         perms (map permfn (:tropes hmap))
-        active (if (some #(= (event-name (:label (first (:tropes hmap)))) %) (:starters hmap)) "active,\n    " "")
+        active (if (some #(= (event-name (:label (first (:tropes hmap)))) %) (:starters hmap)) "active,\n    perm(start(test9)),\n    pow(intStart),\n    perm(intStart),\n    " "")
 
         first-perms (reduce str (map #(str "initially\n    " (reduce str %) ";\n") fperms))
         ;; first-perms ""

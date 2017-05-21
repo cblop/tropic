@@ -90,7 +90,7 @@
                   (str "object = " (if (seq os) os "'nil'"))
                   "subtrope = <'\"'> words <'\"'>"
                   "label = <'\"'> words <'\"'>"
-                  "verb = word"
+                  "verb = words"
                   "rempermission = character <' may not '> action crlf?"
                   "permission = character <' may '> action crlf?"
                   "obligation = character <' must '> action (<' before '> deadline)? (<crlf whitespace+ 'Otherwise, '> <'the '?> violation)? <'.'?> crlf?"
