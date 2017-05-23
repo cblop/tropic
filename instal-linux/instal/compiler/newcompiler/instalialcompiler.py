@@ -630,7 +630,7 @@ class InstalCompiler(object):
                 p[1][2]) + ')'
         elif p[0] in ["tpow", "ipow", "gpow"]:
             r = p[0] + '(' + p[1][0] + ',' + \
-                self.term2string(p[1][1]) + ',' + p[1][2] + ')'
+                self.extendedterm2string(p[1][1]) + ',' + p[1][2] + ')'
         else:
             r = self.term2string(p)
         return r

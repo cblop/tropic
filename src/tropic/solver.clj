@@ -1,6 +1,6 @@
 (ns tropic.solver
   (:require
-   [tropic.instal :refer [event-name instal-file bridge-file]]
+   [tropic.instal :refer [event-name instal-file bridge-files get-subtropes]]
    [clojure.java.io :as io]
    [tropic.gen :refer [make-map make-inst-map make-defs-map]]
    [tropic.parser :refer [parse-trope parse-char parse-object parse-place parse-defs]]
@@ -55,7 +55,7 @@
   (dorun (map #(instal-file (assoc hmap :tropes [%]) (:tropes hmap) (str "resources/" id "/" id "-" (event-name (:label %)) ".ial")) (:tropes hmap))))
 
 (defn make-bridge [hmap id]
-  (bridge-file (:tropes hmap) (str "resources/" id "/" id "-bridge.ial")))
+  (bridge-files (:tropes hmap) (str "resources/" id "/")))
 
 (defn start-event [trope]
   (str "observed(start(" trope "))\n"))
@@ -105,10 +105,15 @@
         debug2 (str "resources/" id "/debug2-" id ".lp")
         constraint "resources/constraint.lp"
         query (str "resources/" id "/query-" id ".iaq")
+        bridgefiles (apply concat (for [trope (:tropes hmap)]
+                                    (let [subtropes (into [] (set (get-subtropes trope (:tropes hmap))))]
+                                      (for [subtrope subtropes]
+                                        (event-name (str (:label trope) " " (:label subtrope)))))))
         ]
    (do
      (delete-json id)
      (delete-traces id)
+     (println bridgefiles)
      (println (str "Architecture: " ARCH))
      (.mkdir (java.io.File. (str "resources/" id)))
      (.mkdir (java.io.File. (str "resources/" id "/json")))
@@ -116,9 +121,9 @@
      (make-domain hmap id)
      (make-instal hmap id)
      (make-bridge hmap id)
-     (make-start-query (:starters hmap) id)
+     ;; (make-start-query (:starters hmap) id)
      ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
-     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) (str "-n " limit) (str "-q" query) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
+     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (seq bridgefiles) ["-b" (apply str (map #(str "resources/" id "/" % "-bridge.ial") bridgefiles))]) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
            ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
            ;; p (spit (str "resources/" id "/command.txt") (apply str (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")])))
            t-output (apply sh ["python3" (str ARCH "/instaltrace.py") "-j" (str "resources/" id "/json/") "-x" (str "resources/" id "/traces")])

@@ -112,7 +112,7 @@ class InstalParser(object):
         self.names["sink"] = p[2]
 
     def p_cross_fluent_declaration_gpow(self, p):
-        """ cross_fluent_declaration : CROSS FLUENT GPOW LPAR NAME COMMA typed_term COMMA NAME RPAR SEMI
+        """ cross_fluent_declaration : CROSS FLUENT GPOW LPAR NAME COMMA fluent COMMA NAME RPAR SEMI
         """
         self.cross_generation_fluents = [
             [p[5], p[7], p[9]]] + self.cross_generation_fluents
@@ -121,7 +121,7 @@ class InstalParser(object):
 
     def p_cross_fluent_declaration_tpow(self, p):
         """
-            cross_fluent_declaration : CROSS FLUENT TPOW LPAR NAME COMMA typed_term COMMA NAME RPAR SEMI
+            cross_fluent_declaration : CROSS FLUENT TPOW LPAR NAME COMMA fluent COMMA NAME RPAR SEMI
         """
 
         self.cross_termination_fluents = [
@@ -130,7 +130,7 @@ class InstalParser(object):
 
     def p_cross_fluent_declaration_ipow(self, p):
         """
-            cross_fluent_declaration : CROSS FLUENT IPOW LPAR NAME COMMA typed_term COMMA NAME RPAR SEMI
+            cross_fluent_declaration : CROSS FLUENT IPOW LPAR NAME COMMA fluent COMMA NAME RPAR SEMI
         """
 
         self.cross_initiation_fluents = [

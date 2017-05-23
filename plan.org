@@ -38,6 +38,10 @@ Appears to be done in the data structure generation stage
     CLOSED: [2017-04-17 Mon 19:44]
 *** DONE put the start event in a .iaq file, based on starting tropes specified
     CLOSED: [2017-04-17 Mon 19:44]
+** DONE bridges: just generate the ones we want (subtropes)
+   CLOSED: [2017-05-22 Mon 12:28]
+** TODO bridges: switch back to using perms rather than start events
+We _have_ to do this, because any start event will trigger a violation in other institutions. As it _always_ happens, there will _always_ be a violation.
 ** TODO add fluents to code gen
 ** TODO what is up with argument order?
 Must be happening in the instal.clj code generation stage

@@ -44,14 +44,6 @@ or STRING to string"
   [iname]
   (str "int" (cap-first (event-name iname))))
 
-(defn inst-start-name
-  [iname]
-  (str "intStart" (cap-first (event-name iname))))
-
-(defn inst-stop-name
-  [iname]
-  (str "intStop" (cap-first (event-name iname))))
-
 (defn get-letter [s params]
   (second (first (filter #(= s (first %)) params))))
 
@@ -69,10 +61,9 @@ or STRING to string"
         ostrs (map #(format "object" %) (map vector (map #(get-letter % (:objects params)) objects) objects))
         pstrs (map #(format "place" %) (map vector (map #(get-letter % (:places params)) places) places))
         qstrs (map #(format "quest" %) (map vector (map #(get-letter % (:quests params)) quests) quests))
-        active "active"
         ]
     ;; put them in a nice list for processing
-    (mapcat flatten [[active] rstrs ostrs pstrs qstrs])
+    (mapcat flatten [rstrs ostrs pstrs qstrs])
     ))
 
 (defn param-brackets
@@ -225,7 +216,6 @@ or STRING to string"
    "fluent phase(Trope, Phase);"
    "fluent place(PlaceName, Place);"
    "fluent object(ObjectName, Object);"
-   "fluent active;"
    ;; "fluent at(Agent, Place);
    "\n"])
 
@@ -538,7 +528,7 @@ or STRING to string"
         subinstrs (map #(finstr-b (inst-start-name (:label %))) subs)
         ievs (get-all-events trope)
         ]
-    (concat (cons header (conj (into [] (set (concat sinstrs oinstrs subinstrs ievs))) instr)) ["inst event intStart;" "inst event intNoDeadline;"])))
+    (concat (cons header (conj (into [] (set (concat sinstrs oinstrs subinstrs ievs))) instr)) ["inst event intNoDeadline;"])))
 
 (defn terminates [trope roles objects]
   (let [inst (str (inst-name (:label trope)))]))
@@ -653,15 +643,17 @@ or STRING to string"
         ]
     ;; not sure why I had gen-d (obligations) in there
     ;; what the hell was gen-i about?
-    (concat [header] gen-subs gen-a gen-s gen-o [(str "\nstart(" (event-name (:label trope))  ") generates intStart;\n") "\n"])
+    (concat [header] gen-subs gen-a gen-s gen-o)
     ))
 
 
 (defn bridge [tropes]
   (let [;; ievents (subs-triggers tropes)
+        p (println tropes)
         source (str "source " (event-name (:label (first tropes))) ";")
         sink (str "sink " (event-name (:label (second tropes))) ";")
-        subtropes (into [] (set (mapcat #(get-subtropes % tropes) tropes)))
+        ;; subtropes (into [] (set (mapcat #(get-subtropes % tropes) tropes)))
+        subtropes [(second tropes)]
         blocked-tropes (into [] (set (mapcat #(get-blocked-tropes % tropes) tropes)))
         bmake (fn [strope]
                 (let [params (get-all-params strope)
@@ -672,8 +664,8 @@ or STRING to string"
                       ex (if (:obligation fevent) (str "obl(" (event-str (:obligation fevent) params) ", " (event-str (:deadline (:obligation fevent)) params) ", " (viol-name fevent) ")")
                              (str "perm(" (event-str fevent params) ")"))
                       cnds (param-str fevent params)]
-                  ;; (str inst " xinitiates\n" WS ex " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")
-                  (str inst " xinitiates active;\n\n")
+                  (str inst " xinitiates\n" WS ex " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")
+                  ;; (str inst " xinitiates active;\n\n")
                   ))
 
         tmake (fn [strope]
@@ -684,27 +676,31 @@ or STRING to string"
                       ex (event-str fevent params)
                       cnds (param-str fevent params)]
                   (str inst " xterminates\n" WS "perm(" ex ")" " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")))
+
         cmake (fn [strope]
                 (let [params (get-all-params strope)
                       fevent (first (:events strope))
                       types (ev-types fevent)
                       ex (if (:obligation fevent) (str "obl(" (event-str (:obligation fevent) params) ", " (event-str (:deadline (:obligation fevent)) params) ", " (viol-name fevent) ")")
-                             (str (event-name (:verb fevent)) "(" (apply str (interpose ", " types)) ")"))]
-                  (str "cross fluent ipow(" (event-name (:label (first tropes))) ", active, "(event-name (:label (second tropes))) ");")));")))
-        imake (fn [trope]
-                (let [subs (get-subtropes trope tropes)
+                             (str "perm(" (event-name (:verb fevent)) "(" (apply str (interpose ", " types)) "))"))]
+                  (str "cross fluent ipow(" (event-name (:label (first tropes))) ", " ex ", "(event-name (:label (second tropes))) ");")));")))
+
+        imake (fn [ts]
+                (let [trope (first ts)
+                      subs [(second ts)]
                       iname (event-name (:label trope))
                       enames (map #(if (:obligation (first (:events %))) (obl (first (:events %)) (get-all-params %)) (perm (event-str (first (:events %)) (get-all-params %)))) subs)
                       snames (map #(event-name (:label %)) subs)
                       ess (map vector enames snames)
-                      is (map #(str "initially ipow (" iname ",  active, " (second %) ");\n") ess)
+                      is (map #(str "initially ipow (" iname ",  " (first enames) ", " (second %) ");\n") ess)
                       ]
                   (apply str (interpose "\n" is))))
         ;; imake (fn [strope])
-        bridges (apply str (map bmake subtropes))
+        ;; bridges (apply str (map bmake subtropes))
+        bridges (bmake (second tropes))
         blocked (apply str (map tmake blocked-tropes))
         crosses (apply str (map cmake subtropes))
-        inits (apply str (map imake tropes))
+        inits (imake tropes)
         ]
     (apply str (concat source ["\n\n"] sink ["\n\n"] crosses ["\n\n"] bridges ["\n\n"] blocked ["\n\n"] inits))))
 
@@ -786,17 +782,17 @@ or STRING to string"
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
         powers (map powfn (:tropes hmap))
         perms (map permfn (:tropes hmap))
-        active (if (some #(= (event-name (:label (first (:tropes hmap)))) %) (:starters hmap)) "active,\n    perm(start(test9)),\n    pow(intStart),\n    perm(intStart),\n    " "")
+        ;; active (if (some #(= (event-name (:label (first (:tropes hmap)))) %) (:starters hmap)) (str "active,\n    perm(start(" (event-name (:label (first (:tropes hmap)))) ")),\n    pow(intStart),\n    perm(intStart),\n    ") "")
 
-        first-perms (reduce str (map #(str "initially\n    " (reduce str %) ";\n") fperms))
+        first-perms (if (some #(= (event-name (:label (first (:tropes hmap)))) %) (:starters hmap)) (reduce str (map #(str "initially\n    " (reduce str %) ";\n") fperms)) "")
         ;; first-perms ""
 
         powstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") powers))
         permstrs (reduce str (map #(str "initially\n    " (reduce str %) ";\n") perms))
         ;; powstrs ""
 
-        startstrs (map #(str "perm(start(" (event-name (:label %)) "))") (:tropes hmap))
-        intstartstrs ["pow(intStart)" "perm(intStart)"]
+        ;; startstrs (map #(str "perm(start(" (event-name (:label %)) "))") (:tropes hmap))
+        ;; intstartstrs ["pow(intStart)" "perm(intStart)"]
         ]
 
     ;; (concat rolestrs placestrs)
@@ -804,7 +800,7 @@ or STRING to string"
     ;; roles
     ;; (map #(event-name (:class %)) instances)
     ;; removed first-perms
-    [header (str powstrs permstrs first-perms "initially\n    " active (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs)))";\n")]
+    [header (str powstrs permstrs first-perms "initially\n    " (reduce str (interpose ",\n    " (concat wpnames opnames phasestrs rolestrs placestrs objstrs)))";\n")]
     ;; (map :class instances)
     ))
 
@@ -836,15 +832,6 @@ or STRING to string"
         conds (map #(param-str % params) pevs)
         ]
     {:names vnames :events [evs] :conds conds}))
-
-(defn int-start [trope]
-  (let [params (get-all-params trope)
-        fev (first (:events trope))
-        fevent (if (:or fev) (first (:or fev)) fev)
-        fperm (str (norm-str fevent params) " if " (apply str (interpose ", " (param-str fevent params))))
-        first-perm (str "intStart initiates\n    " fperm ";\n")
-        ]
-    first-perm))
 
 (defn initiates [trope]
   (let [params (get-all-params trope)
@@ -882,8 +869,9 @@ or STRING to string"
         term-o (map tmake (:names obls) [(:evs obls)] (:conds obls))
         ;; term-a (map tmake (repeat inst) (cons [(first phases)] (conj (into [] (map vector (rest phases) norms)) [(last phases)])) tvec)
         term-a (map tmake (repeat inst) (into [] (map vector phases (cons efirst norms))) tvec)
-        term-start [(str "intStart terminates perm(start(" (event-name (:label trope)) ")), perm(intStart), pow(intStart);\n")]]
-    (concat [header] init-a init-s init-v [(int-start trope) "\n"] [term-header] term-a term-o term-start ["\n"])
+        ;; term-start [(str "intStart terminates perm(start(" (event-name (:label trope)) ")), perm(intStart), pow(intStart);\n")]
+        ]
+    (concat [header] init-a init-s init-v [term-header] term-a term-o ["\n"])
     ;; (concat [header] init-a init-s init-v ["\n"])
     ))
 
@@ -916,23 +904,52 @@ or STRING to string"
     (spit output (instal hmap tropes))
     "true"))
 
+;; (defn make-bridge [tropes]
+;;   (if (> (count tropes) 1)
+;;     (for [trope tropes]
+;;       (let [subtropes (into [] (set (get-subtropes trope)))]
+;;         (for [subtrope subtropes]
+;;           (let [bridge-name (event-name (str "bridge " (:label trope) " " (:label subtrope)))
+;;                 bridge-dec [(str "bridge " bridge-name ";\n")]
+;;                 bridge-text (bridge [trope subtrope])]))
+;;         (apply str (interpose "\n" (concat bridge-name ["\n"] [bridge-text])))
+;;         ))
+;;     ""
+;;     ))
+
 (defn make-bridge [tropes]
-  (if (> (count tropes) 1)
-    (let [bridge-name ["bridge tropeBridge;\n"]
-          bridge-text (bridge tropes)
-          insts (mapcat #(inst-events % tropes) tropes)
-          exts (mapcat external-events tropes)
-          viols (mapcat viol-events tropes)]
-      ;; (apply str (interpose "\n" (concat bridge-name types fluents ["\n"] insts ["\n"] exts ["\n"] viols ["\n"] [bridge-text])))
-      (apply str (interpose "\n" (concat bridge-name ["\n"] [bridge-text])))
-      )
-    ""
-    ))
+  (let [
+        bridge-name [(str "bridge " (event-name (str (:label (first tropes)) " " (:label (second tropes)))) ";\n")]
+        bridge-text (bridge tropes)
+        insts (mapcat #(inst-events % tropes) tropes)
+        exts (mapcat external-events tropes)
+        viols (mapcat viol-events tropes)]
+    ;; (apply str (interpose "\n" (concat bridge-name types fluents ["\n"] insts ["\n"] exts ["\n"] viols ["\n"] [bridge-text])))
+    (apply str (interpose "\n" (concat bridge-name ["\n"] [bridge-text])))
+    )
+  ;; ""
+  )
 
 (defn bridge-file [tropes output]
     (do
       (spit output (make-bridge tropes))
       "true"))
+
+(defn bridge-files [tropes output]
+  (println "hey")
+  (println (prn-str tropes))
+  (doseq [trope tropes]
+    (do
+      (println (prn-str trope))
+      (let [subtropes (into [] (set (get-subtropes trope tropes)))]
+        (println (str "BRIDGE: " (prn-str subtropes)))
+        (doseq [subtrope subtropes]
+          (let [bridge-name (event-name (str (:label trope) " " (:label subtrope)))]
+            ;; (spit (str output bridge-name ".ial") (make-bridge [trope subtrope]))
+            (println (str "SUBTROPE: " (prn-str subtrope)))
+            (bridge-file [trope subtrope] (str output bridge-name "-bridge.ial"))
+            )))))
+  )
 
 ;; (defn instal-file [input output]
 ;;   (let [text (slurp input)

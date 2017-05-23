@@ -3,7 +3,7 @@
             [tropic.gen :refer [make-map make-inst-map make-defs-map]]
             [tropic.parser :refer [parse-trope parse-defs parse-char parse-object parse-place trope-parser-fn]]
             [tropic.text-parser :refer [trace-to-prose trace-to-map query-transform lawyer-talk explain query-parse]]
-            [tropic.instal :refer [instal instal-file external-events initially get-all-params generates]]))
+            [tropic.instal :refer [instal instal-file external-events initially get-all-params generates get-subtropes]]))
 
 (external-events {:characters [{:role "Hero", :label "Luke Skywalker", :id "586d153259111a0f09895659"} {:role "Villain", :label "Darth Vader", :id "586d153259111a0f0989565a"}], :objects [], :places [{:location "Away", :label "Space", :id "582487a35d2a0108a93fd8fa"} {:location "Home", :label "Tatooine", :id "582487a35d2a0108a93fd8fe"}], :subverted false, :events [{:role "Hero", :verb "go", :place "Home"} {:or [{:role "Hero", :verb "go", :place "Away"} {:role "Hero", :verb "kill", :role-b "Villain"}]}], :label "The Hero's Journey", :id "58806384a7986c11cd473ee5"})
 
@@ -357,7 +357,7 @@
 (parse-trope test3)
 (st-map "test3" [test3] charlist objlist placelist "")
 (map :events (:tropes (st-map "test3" [test3] charlist objlist placelist "")))
-(test-story [test3] charlist objlist placelist "lukeSkywalker" "test3" 5)
+(test-story [test3] ["test3"] charlist objlist placelist "lukeSkywalker" "test3" 5)
 
 ;; OBLIGATIONS -------------------------------------------------------------
 
@@ -448,13 +448,14 @@
     "  The Villain is a role"
     "  The Land of Adventure is a place"
     "  The Hero may go to the Land of Adventure"
+    "  Then the Hero may give up"
     "    Or the Hero may kill the Villain"
     ]))
 
 (parse-trope test9)
-(st-map "test9" [test9] charlist objlist placelist "")
+(st-map "test9" [test9] ["test9"] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test9" [test9] charlist objlist placelist ""))))
-(test-story [test9 test10] ["test9"] charlist objlist placelist "lukeSkywalker" "test9" 5)
+(test-story [test9] ["test9"] charlist objlist placelist "lukeSkywalker" "test9" 5)
 
 (def test10
   (join-strings
@@ -465,15 +466,16 @@
     "  The Land of Adventure is a place"
     "  Home is a place"
     "  The Hero may go to the Land of Adventure"
-    "    Or the Hero may go Home"
+    "  Then the Hero may go Home"
     "    Or the Hero may kill the Villain"
     "    Or the Hero may visit the Mentor"
+    "    Or the Villain may kill the Mentor"
     ]))
 
 (parse-trope test10)
-(st-map "test10" [test10] charlist objlist placelist "")
+(st-map "test10" [test10] ["test10"] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test10" [test10] charlist objlist placelist ""))))
-(test-story [test10] charlist objlist placelist "lukeSkywalker" "test10" 5)
+(test-story [test9 test10] ["test10"] charlist objlist placelist "lukeSkywalker" "test10" 5)
 
 
 ;; CONDITIONALS --------------------------------------------------------------------------------
@@ -554,6 +556,7 @@
 (parse-trope test15)
 (st-map "test15" [test15] charlist objlist placelist "")
 (:events (first (:tropes (st-map "test15" [test15] charlist objlist placelist ""))))
+(test-story [test15] ["test15"] charlist objlist placelist "lukeSkywalker" "test15" 5)
 
 (def test16
   (join-strings
@@ -591,11 +594,13 @@
     ]))
 
 (parse-trope test17)
-(st-map "test17" [test17] charlist objlist placelist "")
-(:events (first (:tropes (st-map "test17" [test17] charlist objlist placelist ""))))
-(test-story [test17a] charlist objlist placelist "lukeSkywalker" "test17a" 5)
+(st-map "test17" [test17] ["test17"] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test17" [test17] ["test17"] charlist objlist placelist ""))))
+(let [tropes (:tropes (st-map "test17" [test17 test17a] ["test17"] charlist objlist placelist ""))]
+  (get-subtropes (first tropes) tropes))
+(test-story [test17a] ["test17a"] charlist objlist placelist "lukeSkywalker" "test17a" 5)
 (test-story [test17] ["test17"] charlist objlist placelist "lukeSkywalker" "test17" 5)
-(test-story [test17 test17a] ["test17" "test17a"] charlist objlist placelist "lukeSkywalker" "test17b" 5)
+(test-story [test17 test17a] ["test17"] charlist objlist placelist "lukeSkywalker" "test17b" 5)
 
 (def charlist
   [{:label "Luke Skywalker" :role "Hero"}

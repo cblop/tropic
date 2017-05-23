@@ -120,14 +120,12 @@ def trace_dicts_from_file(json_path: str) -> list:
             trace += line
     return trace
 
-# ANSWER SET: (n)
-# j["metadata"]
+
 def json_dict_to_string(j: dict) -> str:
     """Returns a string of a state dict"""
     return state_to_string(j["state"]["observed"], j["state"]["occurred"], j["state"]["holdsat"])
 
 
-# TIME STEP N:
 def state_to_string(observed: list, occurred: list, holdsat: list) -> str:
     """ Takes an observed, occurred, and holdsat list and returns a string representation.
     """
