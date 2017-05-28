@@ -44,6 +44,14 @@ or STRING to string"
   [iname]
   (str "int" (cap-first (event-name iname))))
 
+(defn inst-start-name
+  [iname]
+  (str "intStart" (cap-first (event-name iname))))
+
+(defn inst-stop-name
+  [iname]
+  (str "intStop" (cap-first (event-name iname))))
+
 (defn get-letter [s params]
   (second (first (filter #(= s (first %)) params))))
 
@@ -374,7 +382,7 @@ or STRING to string"
         types (map ev-types all)
         strng (fn [x y] (if (:verb x) (str "exogenous event " (event-name (:verb x)) "(" (reduce str (interpose ", " y)) ")" ";")))
         ]
-    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) )) ["exogenous event start(Trope);" "exogenous event noDeadline;"])
+    (concat (cons header (concat (into [] (set (map (fn [x y] (strng x y)) all types))) )) ["exogenous event noDeadline;"])
     ))
     ;; (prn-str types)
   ;; ))
@@ -601,6 +609,8 @@ or STRING to string"
         oevs (concat os deads viols)
         wparams (flatten (map get-when-params (:situations trope)))
         subs (subs-triggers trope tropes)
+        p (println "SUBS2:")
+        p (println (prn-str subs))
         header (str "% GENERATES: " (reduce str (:label trope)) " ----------")
         inst (str (inst-name (:label trope)) "(" (reduce str (interpose ", " (inst-letters trope))) ")")
         situations (:situations trope)
@@ -664,7 +674,7 @@ or STRING to string"
                       ex (if (:obligation fevent) (str "obl(" (event-str (:obligation fevent) params) ", " (event-str (:deadline (:obligation fevent)) params) ", " (viol-name fevent) ")")
                              (str "perm(" (event-str fevent params) ")"))
                       cnds (param-str fevent params)]
-                  (str inst " xinitiates\n" WS ex " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")
+                  (str inst " xinitiates\n" WS ex ", phase(" (event-name (:label strope)) ", phaseA)" " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";\n\n")
                   ;; (str inst " xinitiates active;\n\n")
                   ))
 
@@ -683,7 +693,7 @@ or STRING to string"
                       types (ev-types fevent)
                       ex (if (:obligation fevent) (str "obl(" (event-str (:obligation fevent) params) ", " (event-str (:deadline (:obligation fevent)) params) ", " (viol-name fevent) ")")
                              (str "perm(" (event-name (:verb fevent)) "(" (apply str (interpose ", " types)) "))"))]
-                  (str "cross fluent ipow(" (event-name (:label (first tropes))) ", " ex ", "(event-name (:label (second tropes))) ");")));")))
+                  (str "cross fluent ipow(" (event-name (:label (first tropes))) ", " ex ", "(event-name (:label (second tropes))) ");\ncross fluent ipow(" (event-name (:label (first tropes))) ", phase(Trope, Phase), " (event-name (:label (second tropes))) ");")));")))
 
         imake (fn [ts]
                 (let [trope (first ts)
@@ -692,7 +702,7 @@ or STRING to string"
                       enames (map #(if (:obligation (first (:events %))) (obl (first (:events %)) (get-all-params %)) (perm (event-str (first (:events %)) (get-all-params %)))) subs)
                       snames (map #(event-name (:label %)) subs)
                       ess (map vector enames snames)
-                      is (map #(str "initially ipow (" iname ",  " (first enames) ", " (second %) ");\n") ess)
+                      is (map #(str "initially ipow(" iname ",  " (first enames) ", " (second %) "),\n    ipow(" iname ", phase(" (second %) ", phaseA), " (second %) ");\n") ess)
                       ]
                   (apply str (interpose "\n" is))))
         ;; imake (fn [strope])
@@ -723,7 +733,7 @@ or STRING to string"
         (:permission event) (perm (event-str (:permission event) params))
       :else (perm (event-str event params))))
 
-(defn initially [hmap]
+(defn initially [hmap tropes]
   (let [
         header "\n% INITIALLY: -----------"
         params (apply merge (map get-all-params (:tropes hmap)))
@@ -731,6 +741,14 @@ or STRING to string"
         obls (map get-obls (:tropes hmap))
         story (:story hmap)
         instances (:instances story)
+        ;; subs (mapcat #(subs-triggers (first (:tropes hmap)) %) tropes)
+        subs (subs-triggers (first (:tropes hmap)) tropes)
+        p (println "TROPES:")
+        p (println tropes)
+        p (println "HMAP:")
+        p (println (:tropes hmap))
+        ;; p (println (prn-str subs))
+        subints (remove nil? (map #(if (:subtrope %) (inst-start-name (:label (:subtrope %)))) subs))
         ;; role-list (mapcat #(map first (:roles %)) param-map)
         role-list (map :role (:characters hmap))
         ;; place-list (mapcat #(map first (:places %)) param-map)
@@ -751,7 +769,8 @@ or STRING to string"
         rolestrs (map #(fluentfn % "role") roles)
         placestrs (map #(fluentfn % "place") places)
         objstrs (map #(fluentfn % "object") objects)
-        phasefn (fn [x] (str "phase(" x ", " INACTIVE ")"))
+        starting (some #(= (event-name (:label (first (:tropes hmap)))) %) (:starters hmap))
+        phasefn (fn [x] (str "phase(" x ", " (if starting (str "phase" (first PHASES)) INACTIVE) ")"))
         ;; phasefn (fn [x] (str "phase(" x ", " (str "phase" (first PHASES))  ")"))
         phases (map #(event-name (:label %)) (:tropes hmap))
         phasestrs (map phasefn phases)
@@ -780,8 +799,8 @@ or STRING to string"
         situations (mapcat :situations (:tropes hmap))
         wpnames (map #(str "pow(" (inst-name (:verb (:when %))) "(" (reduce str (interpose ", " (sit-letters %))) "))") situations)
         opnames (map #(str "pow(" % ")") (mapcat :names obls))
-        powers (map powfn (:tropes hmap))
-        perms (map permfn (:tropes hmap))
+        powers (concat (map #(str "pow(" % ")") subints) (map powfn (:tropes hmap)))
+        perms (concat (map #(str "perm(" % ")") subints) (map permfn (:tropes hmap)))
         ;; active (if (some #(= (event-name (:label (first (:tropes hmap)))) %) (:starters hmap)) (str "active,\n    perm(start(" (event-name (:label (first (:tropes hmap)))) ")),\n    pow(intStart),\n    perm(intStart),\n    ") "")
 
         first-perms (if (some #(= (event-name (:label (first (:tropes hmap)))) %) (:starters hmap)) (reduce str (map #(str "initially\n    " (reduce str %) ";\n") fperms)) "")
@@ -878,7 +897,7 @@ or STRING to string"
 
 (defn instal [hmap tropes]
   (let [;; initiallys [(str "initially\n    " (reduce str (interpose ",\n    " (mapcat #(initially % story) (:tropes hmap)))) ";")]
-        initiallys (initially hmap)
+        initiallys (initially hmap tropes)
         ;; initiallys []
         ;; inst-name [(str "institution " (event-name (:storyname (:story hmap))) ";")]
         inst-name [(str "institution " (event-name (:label (first (:tropes hmap)))) ";")]

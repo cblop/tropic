@@ -13,7 +13,7 @@ class InstalCompilerWrapper(metaclass=ABCMeta):
     def __init__(self):
         pass
 
-    def compile(self, instal_dictionary: dict, save_output_file: str = "/tmp/") -> dict:
+    def compile(self, instal_dictionary: dict, save_output_file: str = "/home/_mthom/instal/") -> dict:
         """
         This method strings together compile_ial and compile_bridge - allows subclasses to just deal with them.
         """

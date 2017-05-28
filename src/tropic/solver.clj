@@ -30,7 +30,7 @@
 
 (defn make-domain [hmap id]
   (let [tropes (:tropes hmap)
-        tropenames (str "tropeBridge " (stringer (vec (set (map :label tropes)))))
+        tropenames (str (stringer (vec (set (map :label tropes)))))
         characters (:characters hmap)
         charnames (stringer (map :label characters))
         roles (stringer (vec (set (map :role characters))))
@@ -131,12 +131,15 @@
            traces (filter #(.isFile %) (file-seq tracedir))
            sets (for [t traces]
                   (answer-set-to-map (slurp t)))
+           com-str (apply str (interpose " " (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (seq bridgefiles) ["-b" (apply str (map #(str "resources/" id "/" % "-bridge.ial") bridgefiles))]) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")])))
            ]
        (do
          (spit debug output)
          (spit debug2 t-output)
+         (spit (str "resources/" id "/run.sh") com-str)
          (spit (str "resources/" id "/sets-" id ".edn") (prn-str sets))
          (spit (str "resources/" id "/output-" id ".lp") output)
+         (sh "chmod" "+x" (str "resources/" id "/run.sh"))
          ;; (clean-up id)
          {:id id
           :sets sets
