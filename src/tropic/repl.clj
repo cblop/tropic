@@ -438,7 +438,7 @@
 (parse-trope test8)
 (st-map "test8" [test8] charlist objlist placelist "")
 (map :events (:tropes (st-map "test8" [test8] charlist objlist placelist "")))
-(test-story [test8] charlist objlist placelist "lukeSkywalker" "test8" 5)
+(test-story [test8] ["test8"] charlist objlist placelist "lukeSkywalker" "test8" 5)
 
 ;; BRANCHING --------------------------------------------------------------------------
 (def test9

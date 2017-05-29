@@ -40,7 +40,7 @@
         objects (:objects hmap)
         objectnames (stringer (map :label objects))
         types (stringer (vec (set (map :type objects))))
-        phases (reduce str (interpose " " ["inactive" "done" "phaseA" "phaseB" "phaseC" "phaseD" "phaseE" "phaseF" "phaseG" "phaseH" "phaseI" "phaseJ"]))
+        phases (reduce str (interpose " " ["active" "done" "phaseA" "phaseB" "phaseC" "phaseD" "phaseE" "phaseF" "phaseG" "phaseH" "phaseI" "phaseJ"]))
         strings ["Identity: id" (if (seq tropes) (str "\nTrope: " tropenames)) "\nPhase: " phases (str "\nAgent: " (if (seq charnames) charnames "noagent")) (str "\nRole: " (if (seq roles) roles "nobody")) (str "\nPlace: " (if (seq locations) locations "noplace")) (str "\nPlaceName: " (if (seq placenames) placenames "nowhere")) (str "\nObject: " (if (seq types) types "noobject")) (str "\nObjectName: " (if (seq objectnames) objectnames "nothing"))]
         final (reduce str strings)
         ]
@@ -123,7 +123,7 @@
      (make-bridge hmap id)
      ;; (make-start-query (:starters hmap) id)
      ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-x" (str "resources/" id "/traces/trace-" id "-.lp") "-d" (str "resources/" id "/domain-" id ".idc")]))
-     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (seq bridgefiles) ["-b" (apply str (map #(str "resources/" id "/" % "-bridge.ial") bridgefiles))]) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
+     (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (seq bridgefiles) ["-b" (apply str (map #(str "resources/" id "/" % "-bridge.ial") bridgefiles))]) (remove nil? [(if-not (= lookahead 0) (str "-l " lookahead)) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")])))
            ;; (let [output (apply sh (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))
            ;; p (spit (str "resources/" id "/command.txt") (apply str (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (> (count ials) 1) ["-b" (str "resources/" id "/" id "-bridge.ial")]) [(str "-l " lookahead) "-n 0" "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")])))
            t-output (apply sh ["python3" (str ARCH "/instaltrace.py") "-j" (str "resources/" id "/json/") "-x" (str "resources/" id "/traces")])
@@ -131,7 +131,7 @@
            traces (filter #(.isFile %) (file-seq tracedir))
            sets (for [t traces]
                   (answer-set-to-map (slurp t)))
-           com-str (apply str (interpose " " (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (seq bridgefiles) ["-b" (apply str (map #(str "resources/" id "/" % "-bridge.ial") bridgefiles))]) [(str "-l " lookahead) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")])))
+           com-str (apply str (interpose " " (concat ["python3" (str ARCH "/instalquery.py") "-v" "-i"] (conj ials constraint) (if (seq bridgefiles) ["-b" (apply str (map #(str "resources/" id "/" % "-bridge.ial") bridgefiles))]) (remove nil? [(if-not (= lookahead 0) (str "-l " lookahead)) (str "-n " limit) "-j" (str "resources/" id "/json") "-d" (str "resources/" id "/domain-" id ".idc")]))))
            ]
        (do
          (spit debug output)
