@@ -270,6 +270,48 @@
   [{:label "Light Saber" :type "Weapon"}
    {:label "Sword" :type "Weapon"}])
 
+
+(def charlist
+  [{:label "The Hero" :role "The Hero"}
+   {:label "The Villain" :role "The Villain"}
+   ])
+
+
+(def placelist
+  [{:label "Home" :location "Home"}
+   {:label "Away" :location "Away"}
+   ])
+
+
+(def objlist
+  [
+   {:label "The Macguffin" :type "The Macguffin"}])
+
+;; FROM STORYBUILDER
+
+(def go-search
+  (join-strings
+   ["\"Go and Search\" is a trope where:"
+    "  Away is a place"
+    "  The Hero is a role"
+    "  The Villain is a role"
+    "  The Hero goes Away"
+    "  Then the Hero kills the Villain"
+    "  Then the \"Item Search\" trope happens"]))
+
+(def item-search
+  (join-strings
+   ["\"Item Search\" is a trope where:"
+    "  The Macguffin is an object"
+    "  The Hero is a role"
+    "  Home is a place"
+    "  The Land of Adventure is a place"
+    "  The Hero chases the Macguffin"
+    "  Then the Hero finds the Macguffin"
+    "    Or the Hero goes Home"]))
+
+(test-story [go-search item-search] ["Go and Search"] charlist objlist placelist "" "goandsearch" 5)
+
 ;; PERMISSIONS------------------------------------------------------------
 
 (def test-hj
@@ -570,8 +612,8 @@
     ]))
 
 (parse-trope test16)
-(st-map "test16" [test16] charlist objlist placelist "")
-(:events (first (:tropes (st-map "test16" [test16] charlist objlist placelist ""))))
+(st-map "test16" [test16] ["test16"] charlist objlist placelist "")
+(:events (first (:tropes (st-map "test16" [test16] ["test16"] charlist objlist placelist ""))))
 
 ;; EMBEDDING TROPES ------------------------------------------------------------------------------------
 (def test17
@@ -600,7 +642,7 @@
   (get-subtropes (first tropes) tropes))
 (test-story [test17a] ["test17a"] charlist objlist placelist "lukeSkywalker" "test17a" 5)
 (test-story [test17] ["test17"] charlist objlist placelist "lukeSkywalker" "test17" 5)
-(test-story [test17 test17a] ["test17"] charlist objlist placelist "lukeSkywalker" "test17b" 5)
+(test-story [test16 test17 test17a] ["test17"] charlist objlist placelist "lukeSkywalker" "test17b" 5)
 
 (def charlist
   [{:label "Luke Skywalker" :role "Hero"}

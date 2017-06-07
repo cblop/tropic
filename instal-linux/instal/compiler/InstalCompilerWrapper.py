@@ -13,7 +13,7 @@ class InstalCompilerWrapper(metaclass=ABCMeta):
     def __init__(self):
         pass
 
-    def compile(self, instal_dictionary: dict, save_output_file: str = "/home/_mthom/instal/") -> dict:
+    def compile(self, instal_dictionary: dict, save_output_file: str = "/tmp/") -> dict:
         """
         This method strings together compile_ial and compile_bridge - allows subclasses to just deal with them.
         """
@@ -34,6 +34,7 @@ class InstalCompilerWrapper(metaclass=ABCMeta):
             file = self.lp_file(save_output_file, asp, filename=b["filename"])
             instal_compiled_dictionary["bridge_asp"].append(
                 {"file": file, "contents": asp})
+            print(asp)
 
         return instal_compiled_dictionary
 

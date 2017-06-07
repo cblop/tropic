@@ -111,10 +111,10 @@ class InstalBridgeCompiler(InstalCompiler):
                 self.instal_print(
                     "   {pred}({tvar}),"
                     .format(pred=self.types[fvars[k]], tvar=k))
-            self.instal_print("    fluent({f}, {dinst})."
+                self.instal_print("    fluent({f}, {dinst})."
                               .format(f=f, dinst=dinst))
 
-            self.instal_print("ifluent(tpow({sinst},{f},{dinst}), {inst}) :- \n"
+                self.instal_print("ifluent(tpow({sinst},{f},{dinst}), {inst}) :- \n"
                               "    inst({sinst}), source({sinst}, {inst}), "
                               "inst({dinst}), sink({dinst}, {inst}), bridge({inst}),"
                               .format(f=f, sinst=sinst, dinst=dinst, inst=self.bridge_ir["names"]["bridge"]))
@@ -123,7 +123,7 @@ class InstalBridgeCompiler(InstalCompiler):
                     "   {pred}({tvar}),"
                     .format(pred=self.types[fvars[k]], tvar=k))
             self.instal_print("    fluent({f}, {dinst})."
-                              .format(f=f, dinst=dinst))
+                          .format(f=f, dinst=dinst))
 
     def bridge_print_cross_generation_fluents(self, gpows: list) -> None:
         # prints gpows
@@ -196,6 +196,7 @@ class InstalBridgeCompiler(InstalCompiler):
             self.collectVars(sf, vars1, compiler=self.source_compiler)
             self.collectVars(cond, vars1, compiler=self.source_compiler)
             for x in df:
+                print(x)
                 vars2 = {}
                 self.collectVars(x, vars2, compiler=self.sink_compiler)
                 y = sf[0]
@@ -204,31 +205,32 @@ class InstalBridgeCompiler(InstalCompiler):
                 sinst = self.bridge_ir["names"]["source"]
                 dinst = self.bridge_ir["names"]["sink"]
 
-            self.instal_print(
-                "%\n% Translation of {sf} of {sinst} xinitiates {x} of {dinst} if {condition}"
-                .format(sf=self.extendedterm2string(sf), x=x, condition=cond, sinst=sinst, dinst=dinst))
-            self.instal_print("%\nxinitiated({sinst}, {x},{dinst},I) :-\n"
-                              "   occurred({sf},{sinst},I),\n"
-                              "   holdsat(ipow({sinst}, {x}, {dinst}), {inst}, I), \n"
-                              "   holdsat(live({inst}),{inst},I), bridge({inst}), \n"
-                              "   inst({dinst}), inst({sinst}), "
-                              .format(x=self.extendedterm2string(x),
-                                      sf=self.extendedterm2string(sf),
-                                      sinst=sinst,
-                                      dinst=dinst,
-                                      inst=self.names["bridge"]))
-            self.printCondition(cond, sinst)
-            for k in vars1:
                 self.instal_print(
-                    "   {pred}({tvar}),"
-                    .format(pred=self.types[vars1[k]], tvar=k))
-            for k in vars2:
-                if k not in vars1:
+                    "%\n% Translation of {sf} of {sinst} xinitiates {x} of {dinst} if {condition}"
+                    .format(sf=self.extendedterm2string(sf), x=x, condition=cond, sinst=sinst, dinst=dinst))
+                self.instal_print("%\nxinitiated({sinst}, {x},{dinst},I) :-\n"
+                                  "   occurred({sf},{sinst},I),\n"
+                                  "   holdsat(ipow({sinst}, {x}, {dinst}), {inst}, I), \n"
+                                  "   holdsat(live({inst}),{inst},I), bridge({inst}), \n"
+                                  "   inst({dinst}), inst({sinst}), "
+                                  .format(x=self.extendedterm2string(x),
+                                          sf=self.extendedterm2string(sf),
+                                          sinst=sinst,
+                                          dinst=dinst,
+                                          inst=self.names["bridge"]))
+                print(locals())
+                self.printCondition(cond, sinst)
+                for k in vars1:
                     self.instal_print(
                         "   {pred}({tvar}),"
-                        .format(pred=self.types[vars2[k]], tvar=k))
-            self.instal_print("   bridge({inst}), instant(I).".format(
-                inst=self.names["bridge"]))
+                        .format(pred=self.types[vars1[k]], tvar=k))
+                for k in vars2:
+                    if k not in vars1:
+                        self.instal_print(
+                            "   {pred}({tvar}),"
+                            .format(pred=self.types[vars2[k]], tvar=k))
+                self.instal_print("   bridge({inst}), instant(I).".format(
+                    inst=self.names["bridge"]))
 
     def bridge_print_xterminates(self, xterminates: list) -> None:
         # terminates
@@ -247,31 +249,31 @@ class InstalBridgeCompiler(InstalCompiler):
                 sinst = self.bridge_ir["names"]["source"]
                 dinst = self.bridge_ir["names"]["sink"]
 
-            self.instal_print(
-                "%\n% Translation of {sf} of {sinst} xterminates {x} of {dinst} if {condition}"
-                .format(sf=self.extendedterm2string(sf), x=x, condition=cond, sinst=sinst, dinst=dinst))
-            self.instal_print("%\nxterminated({sinst}, {x},{dinst},I) :-\n"
-                              "   occurred({sf},{sinst},I),\n"
-                              "   holdsat(tpow({sinst}, {x}, {dinst}), {inst}, I), \n"
-                              "   holdsat(live({inst}),{inst},I), bridge({inst}), \n"
-                              "   inst({dinst}), inst({sinst}), "
-                              .format(x=self.extendedterm2string(x),
-                                      sf=self.extendedterm2string(sf),
-                                      sinst=sinst,
-                                      dinst=dinst,
-                                      inst=self.names["bridge"]))
-            self.printCondition(cond, sinst)
-            for k in vars1:
                 self.instal_print(
-                    "   {pred}({tvar}),"
-                    .format(pred=self.types[vars1[k]], tvar=k))
-            for k in vars2:
-                if k not in vars1:
+                    "%\n% Translation of {sf} of {sinst} xterminates {x} of {dinst} if {condition}"
+                    .format(sf=self.extendedterm2string(sf), x=x, condition=cond, sinst=sinst, dinst=dinst))
+                self.instal_print("%\nxterminated({sinst}, {x},{dinst},I) :-\n"
+                                  "   occurred({sf},{sinst},I),\n"
+                                  "   holdsat(tpow({sinst}, {x}, {dinst}), {inst}, I), \n"
+                                  "   holdsat(live({inst}),{inst},I), bridge({inst}), \n"
+                                  "   inst({dinst}), inst({sinst}), "
+                                  .format(x=self.extendedterm2string(x),
+                                          sf=self.extendedterm2string(sf),
+                                          sinst=sinst,
+                                          dinst=dinst,
+                                          inst=self.names["bridge"]))
+                self.printCondition(cond, sinst)
+                for k in vars1:
                     self.instal_print(
                         "   {pred}({tvar}),"
-                        .format(pred=self.types[vars2[k]], tvar=k))
-            self.instal_print("   bridge({inst}), instant(I).".format(
-                inst=self.names["bridge"]))
+                        .format(pred=self.types[vars1[k]], tvar=k))
+                for k in vars2:
+                    if k not in vars1:
+                        self.instal_print(
+                            "   {pred}({tvar}),"
+                            .format(pred=self.types[vars2[k]], tvar=k))
+                self.instal_print("   bridge({inst}), instant(I).".format(
+                    inst=self.names["bridge"]))
 
     def bridge_print_initials(self, initials: list) -> None:
         self.instal_print("%\n% initially\n%")

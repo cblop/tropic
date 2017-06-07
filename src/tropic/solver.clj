@@ -105,7 +105,7 @@
         debug2 (str "resources/" id "/debug2-" id ".lp")
         constraint "resources/constraint.lp"
         query (str "resources/" id "/query-" id ".iaq")
-        bridgefiles (apply concat (for [trope (:tropes hmap)]
+        bridgefiles (apply concat (for [trope (:starters hmap)]
                                     (let [subtropes (into [] (set (get-subtropes trope (:tropes hmap))))]
                                       (for [subtrope subtropes]
                                         (event-name (str (:label trope) " " (:label subtrope)))))))

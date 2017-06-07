@@ -135,7 +135,6 @@ class InstalModel(metaclass=ABCMeta):
             output_files.append(a["file"])
 
         output_files.append(self.prelude)
-
         return output_files
 
     def get_domains(self, solve_args):
