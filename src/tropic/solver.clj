@@ -105,7 +105,7 @@
         debug2 (str "resources/" id "/debug2-" id ".lp")
         constraint "resources/constraint.lp"
         query (str "resources/" id "/query-" id ".iaq")
-        bridgefiles (apply concat (for [trope (:starters hmap)]
+        bridgefiles (apply concat (for [trope (:start-tropes hmap)]
                                     (let [subtropes (into [] (set (get-subtropes trope (:tropes hmap))))]
                                       (for [subtrope subtropes]
                                         (event-name (str (:label trope) " " (:label subtrope)))))))
@@ -113,7 +113,6 @@
    (do
      (delete-json id)
      (delete-traces id)
-     (println bridgefiles)
      (println (str "Architecture: " ARCH))
      (.mkdir (java.io.File. (str "resources/" id)))
      (.mkdir (java.io.File. (str "resources/" id "/json")))
@@ -199,10 +198,14 @@
   ;; also need: chars, obj, places?
   )
 
+(defn lookup-trope [name tropes]
+  (first (remove nil? (filter #(= name (:label %)) tropes))))
+
 (defn st-map [name tropes starts chars objs places player]
   (let [trps (map trope-map tropes)
         ;; sts (map #(event-name (:label (make-defs-map (parse-defs %)))) starts)
         sts (map #(event-name %) starts)
+        stas (map #(lookup-trope % trps) starts)
         role-pairs (map #(hash-map :class (:role %) :iname (:label %)) chars)
         obj-pairs (map #(hash-map :class (:type %) :iname (:label %)) objs)
         place-pairs (map #(hash-map :class (:location %) :iname (:label %)) places)
@@ -214,6 +217,7 @@
     {:story story
      :tropes trps
      :starters sts
+     :start-tropes stas
      :characters chars
      :objects objs
      :places places
