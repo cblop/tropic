@@ -312,6 +312,8 @@
 
 (test-story [go-search item-search] ["Go and Search"] charlist objlist placelist "" "goandsearch" 5)
 
+
+
 ;; PERMISSIONS------------------------------------------------------------
 
 (def test-hj
@@ -720,7 +722,10 @@
 
 (defn test-story [ts ss chars objs places player out lookahead]
   (let [story-map (st-map out ts ss chars objs places player)]
-    (make-story story-map out lookahead 100)))
+    (do
+      (println "STORY_MAP:")
+      (println (prn-str story-map))
+      (make-story story-map out lookahead 100))))
 
 (parse-trope heros-journey)
 (st-map "hj1" [heros-journey] charlist objlist placelist "Luke Skywalker")
