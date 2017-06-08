@@ -349,7 +349,6 @@
     "  The Land of Adventure is a place"
     "  The Home is a place"
     "  The Hero may go to the Land of Adventure"
-    "  Then the Hero goes Home"
     ]))
 
 (parse-trope test1)
@@ -417,7 +416,7 @@
 (parse-trope test4)
 (st-map "test4" [test4] charlist objlist placelist "")
 (map :events (:tropes (st-map "test4" [test4] charlist objlist placelist "")))
-(test-story [test4] charlist objlist placelist "lukeSkywalker" "test4" 5)
+(test-story [test4] ["Test 4"] charlist objlist placelist "lukeSkywalker" "test4" 5)
 
 (def test5
   (join-strings

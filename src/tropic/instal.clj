@@ -173,6 +173,9 @@ or STRING to string"
                  (viol-name {:obligation obligation}))]
     (str "obl(" (inst-name (:verb obligation)) "(" obl "), " dead ", " viol ");")))
 
+(defn obl-pows [obl]
+  (str ", perm(" obl "), pow(" (inst-name obl) ")"))
+
 (defn obl [{:keys [obligation]} params]
   (let [deadline (:deadline obligation)
         violation (:violation obligation)
@@ -188,7 +191,7 @@ or STRING to string"
                      ;; (param-str params)
                      )
         ]
-    (str "obl(" (inst-name obl) ", " dead ", " viol ")")))
+    (str "obl(" (inst-name obl) ", " dead ", " viol ")" (obl-pows obl))))
 
 (defn unify-params [params roles objects]
   (let [m (meta params)
