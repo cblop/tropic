@@ -1,11 +1,11 @@
-(defproject tropic "0.9.6"
+(defproject tropic "0.9.9"
   :description "DSL for interactive narrative"
   :url "http://mthompson.org/tropical"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [instaparse "1.4.1"]
-                 [rhizome "0.2.5"]
+                 ;; [rhizome "0.2.5"]
                  [enlive "1.1.6"]
                  [org.clojure/math.combinatorics "0.1.1"]
                  ;; [damionjunk/nlp  "0.3.0"]

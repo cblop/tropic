@@ -174,7 +174,7 @@ or STRING to string"
     (str "obl(" (inst-name (:verb obligation)) "(" obl "), " dead ", " viol ");")))
 
 (defn obl-pows [obl]
-  (str ", perm(" obl "), pow(" (inst-name obl) ")"))
+  (str ", perm(" obl "), perm(" (inst-name obl) "), pow(" (inst-name obl) ")"))
 
 (defn obl [{:keys [obligation]} params]
   (let [deadline (:deadline obligation)
@@ -631,6 +631,7 @@ or STRING to string"
         events (extract-ors (remove :obligation (:events trope)))
         wstrs (map (fn [x ys] (event-str (:when x) ys)) situations wparams)
         ostrs (remove #(= "()" %) (into [] (set (map #(event-str % oparams) oevs))))
+        ostrs-b (remove #(= "()" %) (into [] (set (map #(event-str % params) oevs))))
         gmake (fn [iname ev cnds] (if-not (= "()" ev) (str ev " generates\n" WS iname " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";")))
         imake (fn [ev cnds] (if-not (= "()" ev) (str ev " generates\n" WS (inst-name ev) " if\n" WS WS (reduce str (interpose (str ",\n" WS WS) cnds)) ";")))
         estrs (map #(event-str % params) events)
@@ -638,6 +639,7 @@ or STRING to string"
         ;; opstrs (map #(param-str % oparams) oevs)
         wifs (map (fn [x ys] (param-str x ys)) (map :when (filter :when situations)) wparams)
         oifs (remove #(= "()" %) (map #(param-str % oparams) oevs))
+        oifs-b (remove #(= "()" %) (map #(param-str % params) oevs))
         ;; smake (fn [sub]
         ;;         (if (:subtrope sub)
         ;;           (let [pms (get-all-params (assoc trope :events (concat (:events trope) (:events (:subtrope sub)))))
@@ -659,12 +661,13 @@ or STRING to string"
         p (println ostrs)
         p (println oifs)
         gen-o (into [] (set (map imake ostrs oifs)))
+        gen-oe (into [] (set (map gmake (repeat inst) ostrs-b oifs-b)))
         gen-s (map gmake wnames wstrs wifs)
         gen-d (map (fn [w x y z] (if (empty? w) "" (gmake x y z))) deads onames ostrs oifs)
         ]
     ;; not sure why I had gen-d (obligations) in there
     ;; what the hell was gen-i about?
-    (concat [header] gen-subs gen-a gen-s gen-o)
+    (concat [header] gen-subs gen-a gen-s gen-oe gen-o)
     ))
 
 
@@ -769,12 +772,15 @@ or STRING to string"
         place-list (map :location (:places hmap))
         ;; obj-list (mapcat #(map first (:objects %)) param-map)
         obj-list (map :type (:objects hmap))
-        first-events (map (fn [x] (if (:or (first x)) (first (:or (first x))) (first x))) (map :events (:tropes hmap)))
+        p (println "FIRT EVESTNE:")
+        first-events (mapcat (fn [x] (if (:or (first x)) (:or (first x)) [(first x)])) (map :events (:tropes hmap)))
+        p (println (prn-str first-events))
         ;; first-perms (map :perm (filter :perm first-events))
         ;; fperm-strs (map #(perm (event-str % params)) first-perms)
-        fperm-strs (map #(str (norm-str %1 %2) " if " (reduce str (interpose ", " (param-str %1 %2)))) first-events param-map)
+        fperm-strs (map #(str (norm-str %1 %2) " if " (reduce str (interpose ", " (param-str %1 %2)))) first-events (repeat params))
         ;; fperm-cnds (map #(param-str % params) first-events)
         fperms fperm-strs
+        p (println (prn-str fperms))
         ;event-name?
         roles (filter #(in? role-list (:class %)) instances)
         places (filter #(in? place-list (:class %)) instances)

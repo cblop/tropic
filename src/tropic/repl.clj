@@ -409,7 +409,9 @@
    ["\"Test 4\" is a trope where:"
     "  The Hero is a role"
     "  The Land of Adventure is a place"
-    "  The Hero must go to the Land of Adventure"
+    "  Home is a place"
+    "  The Hero goes Home"
+    "  Then the Hero must go to the Land of Adventure"
     ]))
 
 
@@ -431,7 +433,7 @@
 (parse-trope test5)
 (st-map "test5" [test5] charlist objlist placelist "")
 (map :events (:tropes (st-map "test5" [test5] charlist objlist placelist "")))
-(test-story [test5] charlist objlist placelist "lukeSkywalker" "test5" 5)
+(test-story [test5] ["Test 5"] charlist objlist placelist "lukeSkywalker" "test5" 5)
 
 (def test6
   (join-strings
@@ -440,14 +442,14 @@
     "  The Villain is a role"
     "  The Mentor is a role"
     "  The Land of Adventure is a place"
-    "  The Villain may kill the Mentor"
-    "  The Hero must go to the Land of Adventure before the Villain kills the Mentor"
+    "  The Villain kills the Mentor"
+    "  Then the Hero must go to the Land of Adventure"
     ]))
 
 (parse-trope test6)
 (st-map "test6" [test6] charlist objlist placelist "")
 (map :events (:tropes (st-map "test6" [test6] charlist objlist placelist "")))
-(test-story [test6] charlist objlist placelist "lukeSkywalker" "test6" 5)
+(test-story [test6] ["Test 6"] charlist objlist placelist "lukeSkywalker" "test6" 5)
 
 (def test7
   (join-strings
@@ -491,7 +493,6 @@
     "  The Villain is a role"
     "  The Land of Adventure is a place"
     "  The Hero may go to the Land of Adventure"
-    "  Then the Hero may give up"
     "    Or the Hero may kill the Villain"
     ]))
 
